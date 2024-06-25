@@ -20,7 +20,7 @@ export const userPreferencesSchema = z.object({
 	graphAnimationsEnabled: z.boolean(),
 });
 
-export const subscriptionPlanSchema = z.enum(['basic', 'pro']).nullish();
+export const subscriptionPlanSchema = z.enum(['free', 'pro']).nullish();
 
 export const roleSchema = z.enum(['user', 'admin']);
 
@@ -30,7 +30,6 @@ export const userSchema = z.object({
 	fullName: z.string().nullish(),
 	pictureUrl: z.string().nullish(),
 	role: roleSchema,
-	preferences: userPreferencesSchema,
 	subscriptionPlan: subscriptionPlanSchema,
 	subscriptionStartDate: z.date().nullish(),
 	subscriptionEndDate: z.date().nullish(),

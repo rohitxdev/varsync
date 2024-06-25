@@ -9,6 +9,9 @@ export default {
 				inter: ['Inter', 'sans-serif'],
 				'jetbrains-mono': ['JetBrains Mono', 'monospace'],
 			},
+			colors: {
+				'navy-blue': '#020817',
+			},
 		},
 	},
 	plugins: [reactAriaPlugin()],

@@ -1,10 +1,10 @@
-import { createCookieSessionStorage, Session } from '@remix-run/node';
+import { createCookieSessionStorage, type Session } from '@remix-run/node';
 import jwt from 'jsonwebtoken';
-import { ObjectId } from 'mongodb';
 
 import { getUser } from './db.server';
 import { userSchema } from '~/schemas/auth';
 import { z } from 'zod';
+import { config } from './config.server';
 
 const jwtSigningKey = z.string().parse(process.env.JWT_SIGNING_KEY);
 
@@ -40,8 +40,8 @@ export const exchangeCodeForToken = async (code: string, redirectUri: string) =>
 		url.searchParams.set('code', code);
 		url.searchParams.set('redirect_uri', redirectUri);
 		url.searchParams.set('grant_type', 'authorization_code');
-		url.searchParams.set('client_id', process.env.GOOGLE_CLIENT_ID!);
-		url.searchParams.set('client_secret', process.env.GOOGLE_CLIENT_SECRET!);
+		url.searchParams.set('client_id', config.GOOGLE_CLIENT_ID);
+		url.searchParams.set('client_secret', config.GOOGLE_CLIENT_SECRET);
 		const res = await fetch(url.toString(), { method: 'POST' });
 		const data = await res.json();
 		const accessToken = data?.access_token;
@@ -114,7 +114,7 @@ export const getUserFromSession = async (session: Session<SessionData, FlashData
 	}
 };
 
-const ONE_DAY_IN_SECONDS = 1 * 24 * 60 * 60;
+const DAY_IN_SECONDS = 1 * 24 * 60 * 60;
 
 export const { getSession, commitSession, destroySession } = createCookieSessionStorage<
 	SessionData,
@@ -123,10 +123,16 @@ export const { getSession, commitSession, destroySession } = createCookieSession
 	cookie: {
 		name: '__session',
 		httpOnly: true,
-		maxAge: ONE_DAY_IN_SECONDS * 7,
+		maxAge: DAY_IN_SECONDS * 7,
 		path: '/',
 		sameSite: 'strict',
 		secrets: [jwtSigningKey],
 		secure: process.env.NODE_ENV === 'production',
 	},
 });
+
+export const getUserFromSessionCookie = async (cookie: string | null) => {
+	const session = await getSession(cookie);
+	const user = await getUserFromSession(session);
+	return user;
+};

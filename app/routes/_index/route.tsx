@@ -1,9 +1,12 @@
 import { Link } from '@remix-run/react';
-import { ReactNode } from 'react';
-import { LuCheck, LuKeySquare, LuLock, LuRefreshCcw, LuUsers2 } from 'react-icons/lu';
-import { AccordionItem } from '~/components/accordion';
-import { CodeBlock } from '~/components/code-block';
-import { Footer, NavMenu } from '~/components/nav';
+import type { ReactNode } from 'react';
+import { Button } from 'react-aria-components';
+import { LuCheckCircle2, LuKeySquare, LuLock, LuRefreshCcw, LuUsers2 } from 'react-icons/lu';
+import { CodeBlock } from './code-block';
+import { Footer, NavMenu } from './nav';
+import { useRootLoader } from '~/utils/hooks';
+import { LogOutDialog } from './dialogs';
+import { AccordionItem, Modal } from '~/components/ui';
 
 interface FeatureProps {
 	icon: ReactNode;
@@ -56,7 +59,12 @@ const pricing: PricingProps[] = [
 	{
 		title: 'Free',
 		price: 0,
-		features: ['Upto 20 variables/feature flags', 'Upto 2 Environments', 'Syncs every 10 minutes'],
+		features: [
+			'Upto 20 variables/feature flags',
+			'Upto 2 Environments',
+			'20k reads per month',
+			'Syncs every 10 minutes',
+		],
 	},
 	{
 		title: 'Pro',
@@ -64,6 +72,7 @@ const pricing: PricingProps[] = [
 		features: [
 			'Upto 1000 variables/feature flags',
 			'Upto 10 environments',
+			'2 million reads per month',
 			'Syncs every 1 minute',
 			'Role based access control',
 		],
@@ -164,6 +173,8 @@ def handler():
 `;
 
 const Route = () => {
+	const { user } = useRootLoader();
+
 	return (
 		<div>
 			<div className="grid justify-items-center gap-8 p-6 text-center text-white">
@@ -179,38 +190,57 @@ const Route = () => {
 						<span className="text-2xl font-bold max-md:text-lg">Varsync</span>
 					</div>
 					<NavMenu />
+					{user ? (
+						<div className="flex items-center gap-2">
+							{user.pictureUrl && (
+								<img
+									className="rounded-full"
+									src={user.pictureUrl}
+									height={48}
+									width={48}
+									alt="User"
+								/>
+							)}
+							<Modal dialog={<LogOutDialog />}>
+								<Button>Log out</Button>
+							</Modal>
+						</div>
+					) : (
+						<Link to="/auth/login">Log In</Link>
+					)}
 				</nav>
-				<section className="flex items-center gap-12 max-md:flex-col">
+				<section className="flex flex-col items-center gap-12 md:flex-row">
 					<div className="flex flex-col gap-2 text-start">
-						<h1 className="mb-2 text-5xl font-bold max-md:text-3xl">
-							Manage feature flags and environment variables with ease.
+						<h1 className="mb-2 text-5xl font-bold *:text-blue-500 max-md:text-3xl">
+							Manage <span>feature flags</span> and <span>dynamic configs</span> with ease.
 						</h1>
-						<h2 className="max-w-[80ch]">
-							VarSync allows you to effortlessly manage and synchronize environment variables across
+						<h2 className="text-slate-400">
+							Varsync allows you to effortlessly manage and synchronize environment variables across
 							multiple environments. Simplify your configuration process and enable smooth,
 							controlled feature rollouts with our intuitive interface and real-time updates.
 						</h2>
 						<div className="flex items-center gap-2 text-center *:h-10 *:w-32">
 							<Link
 								className="m-4 flex w-fit items-center justify-center rounded bg-white font-semibold text-black active:bg-neutral-100"
-								to="/1"
+								to="/projects"
 							>
 								Demo
 							</Link>
-							<button className="w-fit rounded bg-blue-500 font-semibold text-white active:bg-blue-600">
+							<button
+								className="w-fit rounded bg-blue-500 font-semibold text-white active:bg-blue-600"
+								type="button"
+							>
 								Try Free
 							</button>
 						</div>
 					</div>
-					<div className="rounded-xl border border-neutral-600">
-						<img
-							className="w-full rounded-xl p-2"
-							src="/demo-dash.png"
-							width={1200}
-							height={800}
-							alt=""
-						/>
-					</div>
+					<img
+						className="max-w-full shrink-0 rounded-xl border border-blue-500/60 p-1"
+						src="/demo-dash.png"
+						width={800}
+						height={600}
+						alt=""
+					/>
 				</section>
 				<section className="flex w-full flex-wrap items-center gap-8 overflow-hidden md:flex-row-reverse md:justify-center md:gap-16">
 					<div className="text-start">
@@ -232,12 +262,12 @@ const Route = () => {
 					<ul className="grid auto-rows-fr grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8">
 						{features.map((item) => (
 							<li
-								className="flex justify-evenly gap-2 rounded-md bg-neutral-800 p-4 text-start"
+								className="flex justify-evenly gap-2 rounded-md bg-white/5 p-4 text-start"
 								key={item.title}
 							>
 								<div className="*:size-8">{item.icon}</div>
 								<div className="w-3/4">
-									<h3 className="mb-1 font-bold">{item.title}</h3>
+									<h3 className="mb-1 text-balance text-lg font-semibold">{item.title}</h3>
 									<p className="text-sm font-medium text-neutral-400">{item.description}</p>
 								</div>
 							</li>
@@ -259,7 +289,7 @@ const Route = () => {
 								<ul className="px-2 font-medium">
 									{item.features.map((feature) => (
 										<li className="mb-1 flex max-w-[32ch] items-center gap-2" key={feature}>
-											<LuCheck className="shrink-0 stroke-[3]" />
+											<LuCheckCircle2 className="shrink-0 stroke-[3]" />
 											<span className="text-start">{feature}</span>
 										</li>
 									))}

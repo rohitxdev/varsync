@@ -81,13 +81,14 @@ export const CodeBlock = (props: CodeBlockProps) => {
 					<div className="size-full overflow-auto p-3 pb-12">
 						<pre
 							className="text-left font-jetbrains-mono text-sm font-semibold"
+							// biome-ignore lint/security/noDangerouslySetInnerHtml: Needed for highlight.js
 							dangerouslySetInnerHTML={{
 								__html: hljs.highlight(item.code, {
 									language: item.language,
 									ignoreIllegals: true,
 								}).value,
 							}}
-						></pre>
+						/>
 					</div>
 				</TabPanel>
 			))}

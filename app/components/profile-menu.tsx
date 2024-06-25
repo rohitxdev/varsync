@@ -1,17 +1,23 @@
 import {
 	DialogTrigger,
-	Button,
 	Popover,
 	OverlayArrow,
 	Dialog,
 	Switch,
-} from 'react-aria-components';
+} from "react-aria-components";
+import { useRootLoader } from "~/utils/hooks";
 
 export const ProfileMenu = () => {
+	const { user } = useRootLoader();
+
 	return (
 		<div>
 			<DialogTrigger>
-				<Button className="aspect-square size-12 rounded-full border bg-blue-600"></Button>
+				<img
+					className="aspect-square size-12 rounded-full border bg-blue-600"
+					src={user?.pictureUrl ?? ""}
+					alt="User"
+				/>
 				<Popover className="duration-150">
 					<OverlayArrow />
 					<Dialog>

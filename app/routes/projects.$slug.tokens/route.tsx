@@ -1,11 +1,11 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { Form, useLoaderData, useRevalidator } from '@remix-run/react';
-import { Button, Dialog, Heading } from 'react-aria-components';
+import { Button } from 'react-aria-components';
 import toast from 'react-hot-toast';
 import { LuCopy, LuRefreshCw, LuTrash2 } from 'react-icons/lu';
-import { DeleteAccessTokenDialog } from '~/components/dialogs';
-import { Modal } from '~/components/modal';
+import { DeleteAccessTokenDialog } from './dialogs';
 import { addAccessToken, deleteAccessToken, getAccessTokens } from '~/utils/db.server';
+import { Modal } from '~/components/ui';
 
 export const loader = (args: LoaderFunctionArgs) => {
 	return { tokens: getAccessTokens(args.params.projectId!) };
@@ -64,11 +64,6 @@ const Route = () => {
 							<LuCopy />
 						</Button>
 						<Modal
-							trigger={
-								<Button>
-									<LuTrash2 />
-								</Button>
-							}
 							dialog={
 								<DeleteAccessTokenDialog
 									onDelete={() =>
@@ -81,7 +76,11 @@ const Route = () => {
 									}
 								/>
 							}
-						/>
+						>
+							<Button>
+								<LuTrash2 />
+							</Button>
+						</Modal>
 					</div>
 				))}
 			</div>
