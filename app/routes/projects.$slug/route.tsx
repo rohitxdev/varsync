@@ -1,10 +1,18 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { Link, Outlet, useNavigate, redirect, useLoaderData } from '@remix-run/react';
+import {
+	Link,
+	Outlet,
+	useNavigate,
+	redirect,
+	useLoaderData,
+	useNavigation,
+} from '@remix-run/react';
 import type { ComponentProps } from 'react';
 import { TabList, Tab as AriaTab, Tabs } from 'react-aria-components';
 import { LuFileText, LuLayers, LuLock, LuServer, LuSettings } from 'react-icons/lu';
 import { getProject } from '~/utils/db.server';
 import { getUserFromSessionCookie } from '~/utils/auth.server';
+import Spinner from '../../assets/spinner.svg?react';
 
 export const loader = async (args: LoaderFunctionArgs) => {
 	const user = await getUserFromSessionCookie(args.request.headers.get('Cookie'));
@@ -31,6 +39,7 @@ const Tab = ({ className, ...rest }: ComponentProps<typeof AriaTab>) => {
 const Route = () => {
 	const data = useLoaderData<typeof loader>();
 	const navigate = useNavigate();
+	const { state } = useNavigation();
 	const env = Object.keys(data?.project.variables ?? [])[0];
 
 	return (
@@ -63,7 +72,7 @@ const Route = () => {
 					<LuLayers /> Projects
 				</Link>
 			</div>
-			<Outlet />
+			{state === 'loading' ? <Spinner className="mx-auto size-8 fill-current" /> : <Outlet />}
 		</div>
 	);
 };

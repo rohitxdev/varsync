@@ -88,16 +88,16 @@ export const deleteProject = async ({ slug, userId }: { slug: string; userId: st
 
 //Access Tokens
 
-export const addAccessToken = async (projectId: string, env: string) => {
-	const token = jwt.sign({ projectId, env }, env);
-	await projects.updateOne({ _id: new ObjectId(projectId) }, { $push: { access_tokens: token } });
+export const addAccessToken = async (slug: string, env: string, userId: string) => {
+	const token = jwt.sign({ slug, env }, env);
+	await projects.updateOne({ slug, userId }, { $push: { access_tokens: token } });
 };
 
-export const getAccessTokens = async (projectId: string) =>
-	(await projects.findOne({ _id: new ObjectId(projectId) }))?.access_tokens ?? [];
+export const getAccessTokens = async (slug: string, userId: string) =>
+	(await projects.findOne({ slug, userId }))?.access_tokens ?? [];
 
-export const deleteAccessToken = async (id: string) =>
-	await projects.updateOne({ _id: new ObjectId(id) }, { $pull: { access_tokens: id } });
+export const deleteAccessToken = async (slug: string, token: string, userId: string) =>
+	await projects.updateOne({ slug, userId }, { $pull: { access_tokens: token } });
 
 //Variables
 

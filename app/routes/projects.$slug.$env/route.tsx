@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { json, useFetcher, useNavigate } from '@remix-run/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { LuPlus, LuTrash2, LuUpload, LuMoreVertical, LuPencil, LuSave } from 'react-icons/lu';
 import { addLog, deleteVariable, setVariable } from '~/utils/db.server';
@@ -13,6 +13,7 @@ import {
 	MenuItem,
 	MenuTrigger,
 	Popover,
+	Input,
 } from 'react-aria-components';
 import toast from 'react-hot-toast';
 import { useProject } from '~/utils/hooks';
@@ -24,6 +25,7 @@ import {
 	NewVariableDialog,
 } from './dialogs';
 import { Modal, Select, Switch } from '~/components/ui';
+import Spinner from '~/assets/spinner.svg?react';
 
 const newVarsSchema = z.object({
 	id: z.string().optional(),
@@ -71,6 +73,7 @@ export const action = async (args: ActionFunctionArgs) => {
 		case 'PUT': {
 			const { name, value } = updateVariableRequest.parse(body);
 			setVariable({ name, value, env, slug, userId: user._id.toString() });
+
 			addLog({
 				slug,
 				env,
@@ -111,7 +114,6 @@ const Variable = ({ name, value }: { name: string; value: string | boolean }) =>
 				encType: 'application/json',
 			},
 		);
-		setIsEdited(false);
 		toast.success(
 			<p>
 				Set&nbsp;
@@ -150,20 +152,35 @@ const Variable = ({ name, value }: { name: string; value: string | boolean }) =>
 		);
 	};
 
+	useEffect(() => {
+		if (fetcher.state === 'idle') {
+			setIsEdited(false);
+		}
+	}, [fetcher.state]);
+
 	return (
 		<div className="flex gap-16 px-6 py-3" key={name}>
 			<span className="mr-auto font-medium">{name}</span>
 			{typeof value === 'string' ? (
 				isEdited ? (
-					<div className="rounded border border-white/20 bg-white/10 px-2 py-1">
-						<input
+					<div className="flex rounded border border-white/20 bg-white/10 px-2 py-1">
+						<Input
 							className="bg-transparent outline-none"
 							value={newValue.toString()}
 							onInput={(e) => setNewValue(e.currentTarget.value)}
 						/>
-						<button onClick={() => updateVariable({ name, value: newValue })} type="button">
-							<LuSave />
-						</button>
+						{fetcher.state === 'submitting' ? (
+							<Spinner className="size-4 fill-white" />
+						) : (
+							<button
+								className="flex items-center justify-center"
+								onClick={() => updateVariable({ name, value: newValue })}
+								type="button"
+								disabled={newValue.toString() === value}
+							>
+								<LuSave className="size-4" />
+							</button>
+						)}
 					</div>
 				) : (
 					<p className="text-slate-400">{value}</p>

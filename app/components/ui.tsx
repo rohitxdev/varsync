@@ -70,9 +70,9 @@ export const Modal = ({
 	return (
 		<DialogTrigger isOpen={isOpen} onOpenChange={onOpenChange}>
 			{children}
-			<AriaModalOverlay className="fixed inset-0 flex min-h-full items-center justify-center bg-black/30 backdrop-blur-sm duration-150">
+			<AriaModalOverlay className="fixed inset-0 flex min-h-full items-center justify-center bg-black/60 duration-150">
 				<AriaModal
-					className={`shadow-xl outline-none duration-150 *:max-w-[90vw] *:outline-none entering:scale-95 entering:ease-out ${className}`}
+					className={`bg-navy-blue shadow-xl outline-none duration-150 *:max-w-[90vw] *:border *:border-white/20 *:bg-white/5 *:outline-none entering:scale-95 entering:ease-out ${className}`}
 					{...rest}
 				>
 					{dialog}

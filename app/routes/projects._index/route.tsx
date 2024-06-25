@@ -1,17 +1,41 @@
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { ProfileMenu } from '~/components/profile-menu';
-import { LuPlus, LuTrash2, LuMoreVertical, LuPencil, LuExternalLink } from 'react-icons/lu';
-import { Button, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
-import { z } from 'zod';
-import { createProject, deleteProject, getAllProjects, updateProject } from '~/utils/db.server';
-import { getUserFromSessionCookie } from '~/utils/auth.server';
-import { useState } from 'react';
-import { NewProjectDialog, EditProjectDialog, DeleteProjectDialog } from './dialogs';
-import { Modal } from '~/components/ui';
+import type { ActionFunctionArgs } from "@remix-run/node";
+import { useLoaderData, useNavigation } from "@remix-run/react";
+import { ProfileMenu } from "~/components/profile-menu";
+import {
+	LuPlus,
+	LuTrash2,
+	LuMoreVertical,
+	LuPencil,
+	LuExternalLink,
+} from "react-icons/lu";
+import {
+	Button,
+	Menu,
+	MenuItem,
+	MenuTrigger,
+	Popover,
+} from "react-aria-components";
+import { z } from "zod";
+import {
+	createProject,
+	deleteProject,
+	getAllProjects,
+	updateProject,
+} from "~/utils/db.server";
+import { getUserFromSessionCookie } from "~/utils/auth.server";
+import { useState } from "react";
+import {
+	NewProjectDialog,
+	EditProjectDialog,
+	DeleteProjectDialog,
+} from "./dialogs";
+import { Modal } from "~/components/ui";
+import Spinner from "../../assets/spinner.svg?react";
 
 export const loader = async (args: ActionFunctionArgs) => {
-	const user = await getUserFromSessionCookie(args.request.headers.get('Cookie'));
+	const user = await getUserFromSessionCookie(
+		args.request.headers.get("Cookie"),
+	);
 	return { projects: user ? await getAllProjects(user._id.toString()) : [] };
 };
 
@@ -30,23 +54,25 @@ const deleteProjectSchema = z.object({
 });
 
 export const action = async (args: ActionFunctionArgs) => {
-	const user = await getUserFromSessionCookie(args.request.headers.get('Cookie'));
+	const user = await getUserFromSessionCookie(
+		args.request.headers.get("Cookie"),
+	);
 	if (!user) return null;
 
 	const body = await args.request.json();
 
 	switch (args.request.method) {
-		case 'POST': {
+		case "POST": {
 			const { name, envs } = newProjectSchema.parse(body);
 			await createProject({ name, envs, userId: user._id.toString() });
 			break;
 		}
-		case 'PATCH': {
+		case "PATCH": {
 			const { updatedName, slug } = editProjectSchema.parse(body);
 			await updateProject({ slug, updatedName, userId: user._id.toString() });
 			break;
 		}
-		case 'DELETE': {
+		case "DELETE": {
 			const { slug } = deleteProjectSchema.parse(body);
 			await deleteProject({ slug, userId: user._id.toString() });
 			break;
@@ -93,7 +119,10 @@ const ProjectCard = ({
 						<MenuItem onAction={() => setIsEditModalOpen(true)}>
 							<LuPencil /> Edit
 						</MenuItem>
-						<MenuItem className="text-red-500" onAction={() => setIsDeleteModalOpen(true)}>
+						<MenuItem
+							className="text-red-500"
+							onAction={() => setIsDeleteModalOpen(true)}
+						>
 							<LuTrash2 /> Delete
 						</MenuItem>
 					</Menu>
@@ -115,6 +144,7 @@ const ProjectCard = ({
 
 const Route = () => {
 	const { projects } = useLoaderData<typeof loader>();
+	const { state } = useNavigation();
 
 	return (
 		<div className="p-6">
@@ -127,6 +157,7 @@ const Route = () => {
 					<LuPlus className="size-4 stroke-[3]" /> New App
 				</Button>
 			</Modal>
+			{state === "loading" && <Spinner className="size-8 fill-current" />}
 			<div className="mt-6 flex gap-4">
 				{projects.map((item) => (
 					<ProjectCard

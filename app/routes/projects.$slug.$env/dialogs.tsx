@@ -76,10 +76,10 @@ export const NewVariableDialog = () => {
 	}, [fetcher.state]);
 
 	return (
-		<Dialog className="grid gap-2 rounded bg-white p-6 text-black">
+		<Dialog className="grid gap-2 rounded bg-white p-6">
 			{({ close }) => (
 				<fetcher.Form
-					className="grid gap-3"
+					className="grid w-96 gap-3"
 					method="POST"
 					onSubmit={async (e) => {
 						e.preventDefault();
@@ -88,16 +88,16 @@ export const NewVariableDialog = () => {
 					}}
 				>
 					<Heading className="text-xl font-semibold">Add new variable</Heading>
-					<TextField className="grid w-72 gap-1" value={name} onChange={setName} isRequired>
-						<Label className="text-sm font-medium">Name</Label>
-						<Input className="rounded border border-black px-2 py-1" />
+					<TextField className="grid gap-1" value={name} onChange={setName} isRequired>
+						<Label className="text-sm font-medium text-neutral-400">Name</Label>
+						<Input className="rounded border border-black px-2 py-1 text-black" />
 					</TextField>
-					<TextField className="grid w-72 gap-1" value={value} onChange={setValue} isRequired>
-						<Label className="text-sm font-medium">Default value</Label>
-						<Input className="rounded border border-black px-2 py-1" />
+					<TextField className="grid gap-1" value={value} onChange={setValue} isRequired>
+						<Label className="text-sm font-medium text-neutral-400">Default value</Label>
+						<Input className="rounded border border-black px-2 py-1 text-black" />
 					</TextField>
 					<div className="mt-2 flex justify-end gap-4 text-sm font-semibold *:h-9 *:w-32">
-						<Button className="rounded bg-neutral-300" onPress={close}>
+						<Button className="rounded bg-neutral-300 text-black" onPress={close}>
 							Cancel
 						</Button>
 						<Button
@@ -212,12 +212,12 @@ export const ImportVariablesDialog = ({
 	const [isSyntaxError, setIsSyntaxError] = useState(false);
 
 	return (
-		<Dialog className="relative flex w-[60ch] flex-col gap-2 rounded bg-neutral-100 p-6 text-black outline-none">
+		<Dialog className="relative flex w-[60ch] flex-col gap-2 rounded p-6 text-white outline-none">
 			{({ close }) => (
 				<>
 					<h2 className="text-sm font-medium">Paste your .env file here</h2>
 					<TextArea
-						className={`min-h-64 w-full resize-none justify-self-stretch rounded border p-2 outline-none ${isSyntaxError ? 'border-red-500' : 'border-black'}`}
+						className={`min-h-64 w-full resize-none justify-self-stretch rounded border border-white/20 bg-transparent p-2 outline-none ${isSyntaxError ? 'border-red-500' : 'border-black'}`}
 						value={text}
 						onInput={(e) => setText(e.currentTarget.value)}
 					/>
@@ -227,7 +227,7 @@ export const ImportVariablesDialog = ({
 						<LuAlertTriangle className="size-4" /> <p>Syntax error</p>
 					</div>
 					<div className="flex justify-end gap-4 text-sm font-semibold *:w-28">
-						<Button className="rounded bg-neutral-300 px-6 py-2" onPress={close}>
+						<Button className="rounded bg-neutral-300 px-6 py-2 text-black" onPress={close}>
 							Cancel
 						</Button>
 						<Button
