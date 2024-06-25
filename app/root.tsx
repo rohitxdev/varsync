@@ -1,7 +1,8 @@
+import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import '~/root.css';
 import { Toaster } from 'react-hot-toast';
 
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError } from '@remix-run/react';
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { getSession, getUserFromSession } from './utils/auth.server';
 import { LOCALE_UK } from './utils/misc';
@@ -49,5 +50,11 @@ const App = () => (
 		</body>
 	</html>
 );
+
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+  captureRemixErrorBoundaryError(error);
+  return <div>Something went wrong</div>;
+};
 
 export default App;

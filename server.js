@@ -1,6 +1,13 @@
 import { createRequestHandler } from '@remix-run/express';
 import express from 'express';
+import * as Sentry from '@sentry/remix';
 import * as build from './build/server/index.js';
+
+Sentry.init({
+	dsn: process.env.VITE_SENTRY_DSN,
+	tracesSampleRate: 1,
+	autoInstrumentRemix: true,
+});
 
 const app = express();
 

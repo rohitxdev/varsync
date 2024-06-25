@@ -17,6 +17,8 @@ export const config = z
 		AWS_ACCESS_KEY_ID: z.string().min(1),
 		AWS_ACCESS_KEY_SECRET: z.string().min(1),
 		AWS_REGION: z.string().min(1),
+		VITE_SENTRY_DSN: z.string().min(1),
+		SENTRY_AUTH_TOKEN: z.string().min(1),
 	})
 	.transform((item) => ({
 		...item,

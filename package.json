@@ -18,6 +18,8 @@
 		"@remix-run/express": "^2.9.2",
 		"@remix-run/node": "^2.9.2",
 		"@remix-run/react": "^2.9.2",
+		"@sentry/remix": "^8.11.0",
+		"@sentry/vite-plugin": "^2.20.0",
 		"argon2": "^0.40.3",
 		"express": "^4.19.2",
 		"highlight.js": "^11.9.0",
