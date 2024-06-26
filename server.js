@@ -1,9 +1,9 @@
-process.loadEnvFile();
-
 import { createRequestHandler } from "@remix-run/express";
 import express from "express";
 import * as Sentry from "@sentry/remix";
 import * as build from "./build/server/index.js";
+
+process.loadEnvFile();
 
 Sentry.init({
 	dsn: process.env.VITE_SENTRY_DSN,
