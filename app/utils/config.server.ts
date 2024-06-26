@@ -1,14 +1,10 @@
 import { z } from "zod";
 
-const loadEnv = () => {
-	try {
-		process.loadEnvFile();
-	} catch (err) {
-		console.log(err);
-	}
-};
-
-loadEnv();
+try {
+	process.loadEnvFile();
+} catch (err) {
+	console.log("\u001b[34mwarning: could not load env file.\u001b[0m");
+}
 
 const booleanEnum = z.enum(["true", "false"]);
 
