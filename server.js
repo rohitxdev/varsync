@@ -1,3 +1,5 @@
+process.loadEnvFile();
+
 import { createRequestHandler } from "@remix-run/express";
 import express from "express";
 import * as Sentry from "@sentry/remix";
@@ -7,6 +9,7 @@ Sentry.init({
 	dsn: process.env.VITE_SENTRY_DSN,
 	tracesSampleRate: 1,
 	autoInstrumentRemix: true,
+	enabled: process.env.APP_ENV === "production",
 });
 
 const app = express();
@@ -14,8 +17,9 @@ const app = express();
 app.use(express.static("build/client"));
 app.all("*", createRequestHandler({ build }));
 
-const port = process.env.PORT || 3000;
+const host = process.env.HOST;
+const port = Number.parseInt(process.env.PORT);
 
-app.listen(port, () => {
-	console.log(`Server is listening to port ${port}`);
+app.listen(port, host, () => {
+	console.log(`\u001b[34mServer is listening to port ${port}\u001b[0m`);
 });

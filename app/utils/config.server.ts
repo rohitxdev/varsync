@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+process.loadEnvFile();
+
 const booleanEnum = z.enum(["true", "false"]);
 
 export const config = z
