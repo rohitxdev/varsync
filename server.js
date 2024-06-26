@@ -3,7 +3,15 @@ import express from "express";
 import * as Sentry from "@sentry/remix";
 import * as build from "./build/server/index.js";
 
-process.loadEnvFile();
+const loadEnv = () => {
+	try {
+		process.loadEnvFile();
+	} catch (err) {
+		console.log(err);
+	}
+};
+
+loadEnv();
 
 Sentry.init({
 	dsn: process.env.VITE_SENTRY_DSN,
