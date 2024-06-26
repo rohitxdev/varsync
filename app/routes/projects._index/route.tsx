@@ -98,7 +98,10 @@ const ProjectCard = ({
 						<MenuItem onAction={() => setIsEditModalOpen(true)}>
 							<LuPencil /> Edit
 						</MenuItem>
-						<MenuItem className="text-red-500" onAction={() => setIsDeleteModalOpen(true)}>
+						<MenuItem
+							className="text-red-500"
+							onAction={() => setIsDeleteModalOpen(true)}
+						>
 							<LuTrash2 /> Delete
 						</MenuItem>
 					</Menu>

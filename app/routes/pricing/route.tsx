@@ -61,6 +61,7 @@ const Route = () => {
 				environment: config.PADDLE_ENVIRONMENT,
 			});
 			if (!client) return;
+
 			setPaddleClient(client);
 		};
 

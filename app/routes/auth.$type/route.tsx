@@ -218,14 +218,14 @@ export default function Route() {
 		<div className="flex h-screen w-full flex-col items-center justify-center gap-12">
 			<Link
 				to="/"
-				className="absolute left-0 top-0 m-6 block size-12 rounded-full p-2 duration-200 ease-out hover:bg-white hover:text-black"
+				className="absolute top-0 left-0 m-6 block size-12 rounded-full p-2 duration-200 ease-out hover:bg-white hover:text-black"
 				aria-label="Go back"
 			>
 				<LuArrowLeft className="size-full" />
 			</Link>
 			{user ? (
 				<>
-					<h2 className="text-2xl font-semibold">You are already logged in.</h2>
+					<h2 className="font-semibold text-2xl">You are already logged in.</h2>
 				</>
 			) : (
 				<>
@@ -244,13 +244,13 @@ export default function Route() {
 							<Input
 								required
 								placeholder="Email"
-								className="rounded-md bg-white/20 px-3 py-2 text-lg font-medium placeholder:text-lg"
+								className="rounded-md bg-white/20 px-3 py-2 font-medium text-lg placeholder:text-lg"
 							/>
 						</TextField>
 						{authType === "forgot-password" && (
 							<Button
 								type="submit"
-								className="mt-2 h-12 w-full rounded-lg bg-indigo-600 text-lg font-semibold"
+								className="mt-2 h-12 w-full rounded-lg bg-indigo-600 font-semibold text-lg"
 								onPress={() =>
 									toast.success("Sent email!", {
 										style: { fontWeight: 500 },
@@ -282,7 +282,7 @@ export default function Route() {
 									{authType === "log-in" && (
 										<Link
 											to="/auth/forgot-password"
-											className="ml-auto text-xs text-neutral-400 hover:text-white hover:underline"
+											className="ml-auto text-neutral-400 text-xs hover:text-white hover:underline"
 										>
 											Forgot password?
 										</Link>
@@ -290,7 +290,7 @@ export default function Route() {
 								</div>
 								<Input
 									placeholder="Password"
-									className="rounded-md bg-white/20 px-3 py-2 text-lg font-medium"
+									className="rounded-md bg-white/20 px-3 py-2 font-medium text-lg"
 								/>
 							</TextField>
 						)}
@@ -321,7 +321,7 @@ export default function Route() {
 							<>
 								<Button
 									type="submit"
-									className="mt-2 h-12 w-full rounded-lg bg-indigo-600 text-lg font-semibold"
+									className="mt-2 h-12 w-full rounded-lg bg-indigo-600 font-semibold text-lg"
 								>
 									{state === "submitting" ? (
 										<img
