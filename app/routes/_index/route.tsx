@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
 import type { ReactNode } from "react";
 import { Button } from "react-aria-components";
-import { LuCheckCircle2, LuKeySquare, LuLock, LuRefreshCcw, LuUsers2 } from "react-icons/lu";
+import { LuKeySquare, LuLock, LuRefreshCcw, LuUsers2 } from "react-icons/lu";
 import { CodeBlock } from "./code-block";
 import { Footer, NavMenu } from "./nav";
 import { useRootLoader } from "~/utils/hooks";
@@ -262,7 +262,7 @@ const Route = () => {
 					<ul className="grid auto-rows-fr grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8">
 						{features.map((item) => (
 							<li
-								className="flex justify-evenly gap-2 rounded-md bg-white/5 p-4 text-start"
+								className="flex justify-evenly gap-2 rounded-md border border-white/10 bg-white/5 p-4 text-start"
 								key={item.title}
 							>
 								<div className="*:size-8">{item.icon}</div>
@@ -270,30 +270,6 @@ const Route = () => {
 									<h3 className="mb-1 text-balance font-semibold text-lg">{item.title}</h3>
 									<p className="font-medium text-neutral-400 text-sm">{item.description}</p>
 								</div>
-							</li>
-						))}
-					</ul>
-				</section>
-				<section className="grid gap-4">
-					<h2 className="font-bold text-3xl">Pricing</h2>
-					<ul className="flex flex-wrap justify-center gap-6">
-						{pricing.map((item) => (
-							<li
-								className="flex grow basis-0 flex-col gap-4 rounded-md border p-4"
-								key={item.title}
-							>
-								<h3 className="font-bold text-2xl text-neutral-300">{item.title}</h3>
-								<p className="font-medium text-sm">
-									<span className="font-bold text-4xl">${item.price}</span> /month
-								</p>
-								<ul className="px-2 font-medium">
-									{item.features.map((feature) => (
-										<li className="mb-1 flex max-w-[32ch] items-center gap-2" key={feature}>
-											<LuCheckCircle2 className="shrink-0 stroke-[3]" />
-											<span className="text-start">{feature}</span>
-										</li>
-									))}
-								</ul>
 							</li>
 						))}
 					</ul>

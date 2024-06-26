@@ -1,7 +1,8 @@
-import { useLoaderData } from "@remix-run/react";
-import { type Price, initializePaddle } from "@paddle/paddle-js";
+import { useLoaderData, useNavigate } from "@remix-run/react";
+import { type Paddle, type Price, initializePaddle } from "@paddle/paddle-js";
 import { paddle } from "~/utils/payments.server";
-import { Tab, TabList, TabPanel, Tabs } from "react-aria-components";
+import { useRootLoader } from "~/utils/hooks";
+import { useEffect, useState } from "react";
 
 export const loader = async () => {
 	try {
@@ -13,65 +14,77 @@ export const loader = async () => {
 	}
 };
 
-const paddleClient = await initializePaddle({
-	token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN,
-	environment: import.meta.env.VITE_PADDLE_ENVIRONMENT,
-});
-
-const PricingCard = ({ price }: { price: Price }) => {
-	return (
-		<div className="flex h-64 w-80 flex-col justify-between rounded-md bg-neutral-800 p-6 shadow-lg">
-			<div>
-				<h2 className="font-semibold text-neutral-300 text-xl">{price.name}</h2>
-				<p className="p-2">
-					$&nbsp;
-					<span className="font-bold text-2xl">
-						{Number.parseFloat(price.unitPrice.amount) / 100}
-					</span>
-				</p>
-				<p>{price.description}</p>
-			</div>
-			<button
-				className="mt-4 w-full rounded-lg bg-blue-500 px-6 py-2 font-semibold"
-				type="button"
-				onClick={() =>
-					paddleClient?.Checkout.open({
-						items: [{ priceId: price.id, quantity: 1 }],
-					})
-				}
-			>
-				Subscribe
-			</button>
+const PricingCard = ({
+	price,
+	onAction,
+	isDisabled,
+}: {
+	price: Price;
+	onAction: () => void;
+	isDisabled: boolean;
+}) => (
+	<div className="flex h-64 w-80 flex-col justify-between rounded-xl border border-white/10 bg-white/5 p-6 shadow-lg">
+		<div>
+			<h2 className="font-bold text-xl">{price.name}</h2>
+			<p className="p-2 font-bold text-2xl">
+				${Number.parseFloat(price.unitPrice.amount) / 100}&nbsp;
+				<span className="font-medium text-neutral-400 text-sm">
+					/{price.billingCycle?.interval}
+				</span>
+			</p>
+			<p className="text-neutral-400 text-sm">{price.description}</p>
 		</div>
-	);
-};
+		<button
+			className="mt-4 w-full rounded-lg bg-blue-500 px-6 py-2 font-semibold disabled:cursor-not-allowed disabled:brightness-75"
+			type="button"
+			onClick={() => {
+				onAction();
+			}}
+			disabled={isDisabled}
+		>
+			{price.trialPeriod ? "Start Free Trial" : "Subscribe"}
+		</button>
+	</div>
+);
 
 const Route = () => {
-	const data = useLoaderData<typeof loader>();
-	const monthlyPrice = data.prices.find((item) => item.billingCycle?.interval === "month");
-	const yearlyPrice = data.prices.find((item) => item.billingCycle?.interval === "year");
+	const { config, user } = useRootLoader();
+	const { prices } = useLoaderData<typeof loader>();
+	const navigate = useNavigate();
+	const [paddleClient, setPaddleClient] = useState<Paddle | null>(null);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: only need to initialize on page load
+	useEffect(() => {
+		const initPaddleClient = async () => {
+			const client = await initializePaddle({
+				token: config.PADDLE_CLIENT_TOKEN,
+				environment: config.PADDLE_ENVIRONMENT,
+			});
+			if (!client) return;
+			setPaddleClient(client);
+		};
+
+		initPaddleClient();
+	}, []);
 
 	return (
 		<div className="h-screen p-6">
 			<h1 className="mb-4 text-center font-bold text-4xl">Pricing</h1>
-			<Tabs className="flex flex-col items-center gap-8">
-				<TabList className="flex rounded-full border p-1 font-semibold *:basis-full *:cursor-default *:rounded-full *:px-8 *:py-1 *:outline-none">
-					<Tab className="selected:bg-blue-500" id="monthly">
-						Monthly
-					</Tab>
-					<Tab className="selected:bg-blue-500" id="yearly">
-						Yearly
-					</Tab>
-				</TabList>
-				<div className="flex flex-wrap justify-center gap-8">
-					<TabPanel id="monthly">
-						<PricingCard price={monthlyPrice as Price} />
-					</TabPanel>
-					<TabPanel id="yearly">
-						<PricingCard price={yearlyPrice as Price} />
-					</TabPanel>
-				</div>
-			</Tabs>
+			<div className="flex flex-wrap justify-center gap-8">
+				{prices.map((item) => (
+					<PricingCard
+						price={item as Price}
+						onAction={() => {
+							if (!user) return navigate("/auth/log-in");
+							paddleClient?.Checkout.open({
+								items: [{ priceId: item.id, quantity: 1 }],
+							});
+						}}
+						isDisabled={!config.IS_PAYMENT_ENABLED}
+						key={item.id}
+					/>
+				))}
+			</div>
 		</div>
 	);
 };

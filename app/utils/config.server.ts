@@ -4,7 +4,7 @@ const booleanEnum = z.enum(["true", "false"]);
 
 export const config = z
 	.object({
-		ENV: z.enum(["development", "production", "test"]),
+		APP_ENV: z.enum(["development", "production", "test"]),
 		IS_SIGN_UP_ENABLED: booleanEnum,
 		IS_LOG_IN_ENABLED: booleanEnum,
 		IS_PAYMENT_ENABLED: booleanEnum,
@@ -17,6 +17,8 @@ export const config = z
 		AWS_ACCESS_KEY_SECRET: z.string().min(1),
 		AWS_REGION: z.string().min(1),
 		VITE_SENTRY_DSN: z.string().min(1),
+		VITE_SENTRY_ORG: z.string().min(1),
+		VITE_SENTRY_PROJECT: z.string().min(1),
 		SENTRY_AUTH_TOKEN: z.string().min(1),
 		PADDLE_API_KEY: z.string().min(1),
 		VITE_PADDLE_CLIENT_TOKEN: z.string().min(1),

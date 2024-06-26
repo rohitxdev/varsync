@@ -6,7 +6,6 @@ import svgr from "vite-plugin-svgr";
 
 export default defineConfig(({ mode }) => {
 	const isDev = mode === "development";
-
 	return {
 		plugins: [
 			svgr(),
@@ -20,8 +19,8 @@ export default defineConfig(({ mode }) => {
 			tsconfigPaths(),
 			sentryVitePlugin({
 				disable: isDev,
-				org: "rohit-reddy",
-				project: "varsync",
+				org: process.env.VITE_SENTRY_ORG,
+				project: process.env.VITE_SENTRY_PROJECT,
 				silent: true,
 			}),
 		],
@@ -29,6 +28,7 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			host: true,
+			strictPort: true,
 		},
 
 		esbuild: {

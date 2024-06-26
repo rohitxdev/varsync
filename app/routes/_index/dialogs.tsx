@@ -2,12 +2,12 @@ import { Form } from "@remix-run/react";
 import { Button, Dialog, Heading } from "react-aria-components";
 
 export const LogOutDialog = () => (
-	<Dialog className="grid w-[40ch] gap-2 rounded bg-white p-6 text-black">
+	<Dialog className="grid w-[40ch] gap-2 rounded bg-white p-6">
 		{({ close }) => (
 			<>
-				<Heading className="mb-4 text-xl font-semibold">Do you want to log out?</Heading>
-				<div className="mt-2 flex justify-end gap-4 text-sm font-semibold">
-					<Button className="w-20 rounded bg-neutral-300 py-2" onPress={close}>
+				<Heading className="mb-4 font-semibold text-xl">Do you want to log out?</Heading>
+				<div className="mt-2 flex justify-end gap-4 font-semibold text-sm">
+					<Button className="w-20 rounded bg-neutral-300 py-2 text-black" onPress={close}>
 						Cancel
 					</Button>
 					<Form
