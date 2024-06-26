@@ -187,7 +187,7 @@ const Route = () => {
 							height={32}
 							width={32}
 						/>
-						<span className="text-2xl font-bold max-md:text-lg">Varsync</span>
+						<span className="font-bold text-2xl max-md:text-lg">Varsync</span>
 					</div>
 					<NavMenu />
 					{user ? (
@@ -211,15 +211,13 @@ const Route = () => {
 				</nav>
 				<section className="flex flex-col items-center gap-12 md:flex-row">
 					<div className="flex flex-col gap-2 text-start">
-						<h1 className="mb-2 text-5xl font-bold *:text-blue-500 max-md:text-3xl">
-							Manage <span>feature flags</span> and <span>dynamic configs</span> with
-							ease.
+						<h1 className="mb-2 font-bold text-5xl *:text-blue-500 max-md:text-3xl">
+							Manage <span>feature flags</span> and <span>dynamic configs</span> with ease.
 						</h1>
 						<h2 className="text-slate-400">
-							Varsync allows you to effortlessly manage and synchronize environment
-							variables across multiple environments. Simplify your configuration
-							process and enable smooth, controlled feature rollouts with our
-							intuitive interface and real-time updates.
+							Varsync allows you to effortlessly manage and synchronize environment variables across
+							multiple environments. Simplify your configuration process and enable smooth,
+							controlled feature rollouts with our intuitive interface and real-time updates.
 						</h2>
 						<div className="flex items-center gap-2 text-center *:h-10 *:w-32">
 							<Link
@@ -246,9 +244,7 @@ const Route = () => {
 				</section>
 				<section className="flex w-full flex-wrap items-center gap-8 overflow-hidden md:flex-row-reverse md:justify-center md:gap-16">
 					<div className="text-start">
-						<h2 className="mb-2 text-4xl font-bold max-md:text-3xl">
-							Integrate in minutes.
-						</h2>
+						<h2 className="mb-2 font-bold text-4xl max-md:text-3xl">Integrate in minutes.</h2>
 						<p className="text-neutral-400">
 							Add varsync SDK to your project and get running in minutes.
 						</p>
@@ -262,7 +258,7 @@ const Route = () => {
 					/>
 				</section>
 				<section className="grid gap-4">
-					<h2 className="text-3xl font-bold">Why Varsync?</h2>
+					<h2 className="font-bold text-3xl">Why Varsync?</h2>
 					<ul className="grid auto-rows-fr grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8">
 						{features.map((item) => (
 							<li
@@ -271,37 +267,28 @@ const Route = () => {
 							>
 								<div className="*:size-8">{item.icon}</div>
 								<div className="w-3/4">
-									<h3 className="mb-1 text-balance text-lg font-semibold">
-										{item.title}
-									</h3>
-									<p className="text-sm font-medium text-neutral-400">
-										{item.description}
-									</p>
+									<h3 className="mb-1 text-balance font-semibold text-lg">{item.title}</h3>
+									<p className="font-medium text-neutral-400 text-sm">{item.description}</p>
 								</div>
 							</li>
 						))}
 					</ul>
 				</section>
 				<section className="grid gap-4">
-					<h2 className="text-3xl font-bold">Pricing</h2>
+					<h2 className="font-bold text-3xl">Pricing</h2>
 					<ul className="flex flex-wrap justify-center gap-6">
 						{pricing.map((item) => (
 							<li
 								className="flex grow basis-0 flex-col gap-4 rounded-md border p-4"
 								key={item.title}
 							>
-								<h3 className="text-2xl font-bold text-neutral-300">
-									{item.title}
-								</h3>
-								<p className="text-sm font-medium">
-									<span className="text-4xl font-bold">${item.price}</span> /month
+								<h3 className="font-bold text-2xl text-neutral-300">{item.title}</h3>
+								<p className="font-medium text-sm">
+									<span className="font-bold text-4xl">${item.price}</span> /month
 								</p>
 								<ul className="px-2 font-medium">
 									{item.features.map((feature) => (
-										<li
-											className="mb-1 flex max-w-[32ch] items-center gap-2"
-											key={feature}
-										>
+										<li className="mb-1 flex max-w-[32ch] items-center gap-2" key={feature}>
 											<LuCheckCircle2 className="shrink-0 stroke-[3]" />
 											<span className="text-start">{feature}</span>
 										</li>
@@ -312,7 +299,7 @@ const Route = () => {
 					</ul>
 				</section>
 				<section>
-					<h2 className="mb-4 text-4xl font-bold">FAQ</h2>
+					<h2 className="mb-4 font-bold text-4xl">FAQ</h2>
 					<div className="flex flex-col gap-4">
 						<AccordionItem
 							title="How do you store my data?"

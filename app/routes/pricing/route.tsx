@@ -55,7 +55,7 @@ const Route = () => {
 		<div className="h-screen p-6">
 			<h1 className="mb-4 text-center font-bold text-4xl">Pricing</h1>
 			<Tabs className="flex flex-col items-center gap-8">
-				<TabList className="flex rounded-full border p-1 font-semibold *:basis-full *:rounded-full *:px-8 *:py-1">
+				<TabList className="flex rounded-full border p-1 font-semibold *:basis-full *:cursor-default *:rounded-full *:px-8 *:py-1 *:outline-none">
 					<Tab className="selected:bg-blue-500" id="monthly">
 						Monthly
 					</Tab>

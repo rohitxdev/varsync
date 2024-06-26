@@ -1,4 +1,3 @@
-import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import "~/root.css";
 import { Toaster } from "react-hot-toast";
 
@@ -7,6 +6,7 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { getSession, getUserFromSession } from "./utils/auth.server";
 import { LOCALE_UK } from "./utils/misc";
 import { config } from "./utils/config.server";
+import { captureRemixErrorBoundaryError } from "@sentry/remix";
 
 const clientConfig = {
 	ENV: config.ENV,
@@ -54,7 +54,43 @@ const App = () => (
 export const ErrorBoundary = () => {
 	const error = useRouteError();
 	captureRemixErrorBoundaryError(error);
-	return <div>Something went wrong</div>;
+
+	return (
+		<div
+			style={{
+				padding: "1rem",
+				fontFamily: "sans-serif",
+			}}
+		>
+			{error instanceof Error ? (
+				<>
+					<h1
+						style={{
+							fontSize: "1.75rem",
+							marginTop: 0,
+						}}
+					>
+						Application error
+					</h1>
+					<pre
+						style={{
+							padding: "1.5rem",
+							borderRadius: "0.5rem",
+							backgroundColor: "rgba(255, 0, 0, 0.1)",
+							color: "red",
+							fontFamily: "monospace",
+							lineHeight: 1.25,
+							overflowX: "auto",
+						}}
+					>
+						{error.stack}
+					</pre>
+				</>
+			) : (
+				<h1 style={{ fontSize: "1.75rem", marginTop: 0 }}>Something went wrong.</h1>
+			)}
+		</div>
+	);
 };
 
 export default App;
