@@ -1,7 +1,7 @@
-import { useLoaderData } from '@remix-run/react';
-import { type Price, initializePaddle } from '@paddle/paddle-js';
-import { paddle } from '~/utils/payments.server';
-import { Tab, TabList, TabPanel, Tabs } from 'react-aria-components';
+import { useLoaderData } from "@remix-run/react";
+import { type Price, initializePaddle } from "@paddle/paddle-js";
+import { paddle } from "~/utils/payments.server";
+import { Tab, TabList, TabPanel, Tabs } from "react-aria-components";
 
 export const loader = async () => {
 	try {
@@ -22,10 +22,10 @@ const PricingCard = ({ price }: { price: Price }) => {
 	return (
 		<div className="flex h-64 w-80 flex-col justify-between rounded-md bg-neutral-800 p-6 shadow-lg">
 			<div>
-				<h2 className="text-xl font-semibold text-neutral-300">{price.name}</h2>
+				<h2 className="font-semibold text-neutral-300 text-xl">{price.name}</h2>
 				<p className="p-2">
 					$&nbsp;
-					<span className="text-2xl font-bold">
+					<span className="font-bold text-2xl">
 						{Number.parseFloat(price.unitPrice.amount) / 100}
 					</span>
 				</p>
@@ -48,12 +48,12 @@ const PricingCard = ({ price }: { price: Price }) => {
 
 const Route = () => {
 	const data = useLoaderData<typeof loader>();
-	const monthlyPrice = data.prices.find((item) => item.billingCycle?.interval === 'month');
-	const yearlyPrice = data.prices.find((item) => item.billingCycle?.interval === 'year');
+	const monthlyPrice = data.prices.find((item) => item.billingCycle?.interval === "month");
+	const yearlyPrice = data.prices.find((item) => item.billingCycle?.interval === "year");
 
 	return (
 		<div className="h-screen p-6">
-			<h1 className="mb-4 text-center text-4xl font-bold">Pricing</h1>
+			<h1 className="mb-4 text-center font-bold text-4xl">Pricing</h1>
 			<Tabs className="flex flex-col items-center gap-8">
 				<TabList className="flex rounded-full border p-1 font-semibold *:basis-full *:rounded-full *:px-8 *:py-1">
 					<Tab className="selected:bg-blue-500" id="monthly">

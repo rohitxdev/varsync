@@ -1,12 +1,12 @@
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
-import '~/root.css';
-import { Toaster } from 'react-hot-toast';
+import "~/root.css";
+import { Toaster } from "react-hot-toast";
 
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError } from '@remix-run/react';
-import type { LoaderFunctionArgs } from '@remix-run/node';
-import { getSession, getUserFromSession } from './utils/auth.server';
-import { LOCALE_UK } from './utils/misc';
-import { config } from './utils/config.server';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { getSession, getUserFromSession } from "./utils/auth.server";
+import { LOCALE_UK } from "./utils/misc";
+import { config } from "./utils/config.server";
 
 const clientConfig = {
 	ENV: config.ENV,
@@ -16,8 +16,8 @@ const clientConfig = {
 } as const;
 
 export const loader = async (args: LoaderFunctionArgs) => {
-	const locale = args.request.headers.get('Accept-Language')?.split(',')[0] ?? LOCALE_UK;
-	const session = await getSession(args.request.headers.get('Cookie'));
+	const locale = args.request.headers.get("Accept-Language")?.split(",")[0] ?? LOCALE_UK;
+	const session = await getSession(args.request.headers.get("Cookie"));
 	const user = await getUserFromSession(session);
 
 	return {
@@ -52,9 +52,9 @@ const App = () => (
 );
 
 export const ErrorBoundary = () => {
-  const error = useRouteError();
-  captureRemixErrorBoundaryError(error);
-  return <div>Something went wrong</div>;
+	const error = useRouteError();
+	captureRemixErrorBoundaryError(error);
+	return <div>Something went wrong</div>;
 };
 
 export default App;

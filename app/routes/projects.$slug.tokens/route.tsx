@@ -1,16 +1,16 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
-import { useFetcher, useLoaderData } from '@remix-run/react';
-import { Button, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
-import toast from 'react-hot-toast';
-import { LuCopy, LuRefreshCw, LuTrash2, LuMoreVertical } from 'react-icons/lu';
-import { DeleteAccessTokenDialog } from './dialogs';
-import { addAccessToken, deleteAccessToken, getAccessTokens } from '~/utils/db.server';
-import { Modal } from '~/components/ui';
-import { getUserFromSessionCookie } from '~/utils/auth.server';
-import { useState } from 'react';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { useFetcher, useLoaderData } from "@remix-run/react";
+import { Button, Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components";
+import toast from "react-hot-toast";
+import { LuCopy, LuRefreshCw, LuTrash2, LuMoreVertical } from "react-icons/lu";
+import { DeleteAccessTokenDialog } from "./dialogs";
+import { addAccessToken, deleteAccessToken, getAccessTokens } from "~/utils/db.server";
+import { Modal } from "~/components/ui";
+import { getUserFromSessionCookie } from "~/utils/auth.server";
+import { useState } from "react";
 
 export const loader = async (args: LoaderFunctionArgs) => {
-	const user = await getUserFromSessionCookie(args.request.headers.get('Cookie'));
+	const user = await getUserFromSessionCookie(args.request.headers.get("Cookie"));
 	if (!user) return null;
 
 	const { slug } = args.params;
@@ -20,19 +20,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
 };
 
 export const action = async (args: ActionFunctionArgs) => {
-	const user = await getUserFromSessionCookie(args.request.headers.get('Cookie'));
+	const user = await getUserFromSessionCookie(args.request.headers.get("Cookie"));
 	if (!user) return null;
 
 	const { slug } = args.params;
 	if (!slug) return null;
 
-	const env = 'development';
+	const env = "development";
 
 	switch (args.request.method) {
-		case 'POST':
+		case "POST":
 			addAccessToken(slug, env, user._id.toString());
 			break;
-		case 'DELETE': {
+		case "DELETE": {
 			const { token } = await args.request.json();
 			deleteAccessToken(slug, token, user._id.toString());
 			break;
@@ -59,15 +59,18 @@ const Token = ({ token }: { token: string }) => {
 						<MenuItem
 							onAction={() =>
 								toast.promise(navigator.clipboard.writeText(token), {
-									loading: 'Copying to clipboard...',
-									success: 'Copied to clipboard!',
-									error: 'Failed to copy to clipboard',
+									loading: "Copying to clipboard...",
+									success: "Copied to clipboard!",
+									error: "Failed to copy to clipboard",
 								})
 							}
 						>
 							<LuCopy /> Copy
 						</MenuItem>
-						<MenuItem className="text-red-500" onAction={() => setIsDeleteModalOpen(true)}>
+						<MenuItem
+							className="text-red-500"
+							onAction={() => setIsDeleteModalOpen(true)}
+						>
 							<LuTrash2 /> Delete
 						</MenuItem>
 					</Menu>
@@ -93,13 +96,15 @@ const Route = () => {
 				<Button
 					className="flex items-center gap-2 rounded border border-black p-2"
 					type="submit"
-					isDisabled={fetcher.state === 'submitting'}
+					isDisabled={fetcher.state === "submitting"}
 				>
 					Generate <LuRefreshCw />
 				</Button>
 			</fetcher.Form>
 			<div className="flex w-full max-w-[80ch] flex-col gap-2 rounded p-4 empty:hidden">
-				{data?.tokens?.map((token) => <Token key={token} token={token} />)}
+				{data?.tokens?.map((token) => (
+					<Token key={token} token={token} />
+				))}
 			</div>
 		</div>
 	);

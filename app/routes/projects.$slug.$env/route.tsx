@@ -1,9 +1,9 @@
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { json, useFetcher, useNavigate } from '@remix-run/react';
-import { useEffect, useState } from 'react';
-import { z } from 'zod';
-import { LuPlus, LuTrash2, LuUpload, LuMoreVertical, LuPencil, LuSave } from 'react-icons/lu';
-import { addLog, deleteVariable, setVariable } from '~/utils/db.server';
+import type { ActionFunctionArgs } from "@remix-run/node";
+import { json, useFetcher, useNavigate } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+import { LuPlus, LuTrash2, LuUpload, LuMoreVertical, LuPencil, LuSave } from "react-icons/lu";
+import { addLog, deleteVariable, setVariable } from "~/utils/db.server";
 import {
 	Button,
 	TooltipTrigger,
@@ -14,18 +14,18 @@ import {
 	MenuTrigger,
 	Popover,
 	Input,
-} from 'react-aria-components';
-import toast from 'react-hot-toast';
-import { useProject } from '~/utils/hooks';
-import { getUserFromSessionCookie } from '~/utils/auth.server';
+} from "react-aria-components";
+import toast from "react-hot-toast";
+import { useProject } from "~/utils/hooks";
+import { getUserFromSessionCookie } from "~/utils/auth.server";
 import {
 	DeleteVariableDialog,
 	ImportVariablesDialog,
 	NewFeatureFlagDialog,
 	NewVariableDialog,
-} from './dialogs';
-import { Modal, Select, Switch } from '~/components/ui';
-import Spinner from '~/assets/spinner.svg?react';
+} from "./dialogs";
+import { Modal, Select, Switch } from "~/components/ui";
+import Spinner from "~/assets/spinner.svg?react";
 
 const newVarsSchema = z.object({
 	id: z.string().optional(),
@@ -41,7 +41,7 @@ const updateVariableRequest = z.object({
 const deleteVariableRequest = z.object({ name: z.string() });
 
 export const action = async (args: ActionFunctionArgs) => {
-	const user = await getUserFromSessionCookie(args.request.headers.get('Cookie'));
+	const user = await getUserFromSessionCookie(args.request.headers.get("Cookie"));
 	if (!user) return null;
 
 	const env = args.params.env!;
@@ -49,7 +49,7 @@ export const action = async (args: ActionFunctionArgs) => {
 	const body = await args.request.json();
 
 	switch (args.request.method) {
-		case 'POST': {
+		case "POST": {
 			const parsed = newVarsSchema.safeParse(body);
 			if (!parsed.success) return null;
 
@@ -65,14 +65,20 @@ export const action = async (args: ActionFunctionArgs) => {
 			await addLog({
 				slug,
 				env,
-				message: `Added new ${typeof value === 'string' ? 'variable' : 'feature flag'} ${name} with value ${value}`,
+				message: `Added new ${typeof value === "string" ? "variable" : "feature flag"} ${name} with value ${value}`,
 				userId: user._id.toString(),
 			});
 			return json(null, { status: 200 });
 		}
-		case 'PUT': {
+		case "PUT": {
 			const { name, value } = updateVariableRequest.parse(body);
-			setVariable({ name, value, env, slug, userId: user._id.toString() });
+			setVariable({
+				name,
+				value,
+				env,
+				slug,
+				userId: user._id.toString(),
+			});
 
 			addLog({
 				slug,
@@ -82,7 +88,7 @@ export const action = async (args: ActionFunctionArgs) => {
 			});
 			return null;
 		}
-		case 'DELETE': {
+		case "DELETE": {
 			const { name } = deleteVariableRequest.parse(body);
 			deleteVariable({ name, env, slug, userId: user._id.toString() });
 			addLog({
@@ -110,14 +116,16 @@ const Variable = ({ name, value }: { name: string; value: string | boolean }) =>
 		fetcher.submit(
 			{ name, value },
 			{
-				method: 'PUT',
-				encType: 'application/json',
+				method: "PUT",
+				encType: "application/json",
 			},
 		);
 		toast.success(
 			<p>
 				Set&nbsp;
-				<span className="rounded bg-neutral-200 px-2 py-1 font-mono text-neutral-600">{name}</span>
+				<span className="rounded bg-neutral-200 px-2 py-1 font-mono text-neutral-600">
+					{name}
+				</span>
 				&nbsp;to&nbsp;
 				<span className="rounded bg-neutral-200 px-2 py-1 font-mono text-neutral-600">
 					{value.toString()}
@@ -125,8 +133,8 @@ const Variable = ({ name, value }: { name: string; value: string | boolean }) =>
 				&nbsp;successfully!
 			</p>,
 			{
-				position: 'top-right',
-				style: { fontWeight: '500' },
+				position: "top-right",
+				style: { fontWeight: "500" },
 			},
 		);
 	};
@@ -135,25 +143,27 @@ const Variable = ({ name, value }: { name: string; value: string | boolean }) =>
 		fetcher.submit(
 			{ name },
 			{
-				method: 'DELETE',
-				encType: 'application/json',
+				method: "DELETE",
+				encType: "application/json",
 			},
 		);
 		toast.success(
 			<p>
 				Deleted&nbsp;
-				<span className="rounded bg-neutral-200 px-2 py-1 font-mono text-neutral-600">{name}</span>
+				<span className="rounded bg-neutral-200 px-2 py-1 font-mono text-neutral-600">
+					{name}
+				</span>
 				&nbsp;successfully!
 			</p>,
 			{
-				position: 'top-right',
-				style: { fontWeight: '500' },
+				position: "top-right",
+				style: { fontWeight: "500" },
 			},
 		);
 	};
 
 	useEffect(() => {
-		if (fetcher.state === 'idle') {
+		if (fetcher.state === "idle") {
 			setIsEdited(false);
 		}
 	}, [fetcher.state]);
@@ -161,7 +171,7 @@ const Variable = ({ name, value }: { name: string; value: string | boolean }) =>
 	return (
 		<div className="flex gap-16 px-6 py-3" key={name}>
 			<span className="mr-auto font-medium">{name}</span>
-			{typeof value === 'string' ? (
+			{typeof value === "string" ? (
 				isEdited ? (
 					<div className="flex rounded border border-white/20 bg-white/10 px-2 py-1">
 						<Input
@@ -169,7 +179,7 @@ const Variable = ({ name, value }: { name: string; value: string | boolean }) =>
 							value={newValue.toString()}
 							onInput={(e) => setNewValue(e.currentTarget.value)}
 						/>
-						{fetcher.state === 'submitting' ? (
+						{fetcher.state === "submitting" ? (
 							<Spinner className="size-4 fill-white" />
 						) : (
 							<button
@@ -202,12 +212,15 @@ const Variable = ({ name, value }: { name: string; value: string | boolean }) =>
 				</Button>
 				<Popover placement="bottom end">
 					<Menu className="w-24 overflow-hidden rounded-md bg-neutral-100 text-sm font-medium text-black *:flex *:cursor-pointer *:items-center *:gap-2 *:p-2 [&_*:focus-visible]:bg-neutral-200 [&_*]:outline-none [&_svg]:size-4 [&_svg]:shrink-0">
-						{typeof value === 'string' && (
+						{typeof value === "string" && (
 							<MenuItem onAction={() => setIsEdited(true)}>
 								<LuPencil /> Edit
 							</MenuItem>
 						)}
-						<MenuItem className="text-red-500" onAction={() => setShowDeleteModal(true)}>
+						<MenuItem
+							className="text-red-500"
+							onAction={() => setShowDeleteModal(true)}
+						>
 							<LuTrash2 /> Delete
 						</MenuItem>
 					</Menu>
@@ -258,11 +271,11 @@ export default function Route() {
 								onImport={(map) => {
 									const formData = new FormData();
 									for (const [key, value] of Object.entries(map)) {
-										formData.set('name', key);
-										formData.set('type', 'text');
-										formData.set('value', value);
-										fetch('/foo?index&env=development', {
-											method: 'POST',
+										formData.set("name", key);
+										formData.set("type", "text");
+										formData.set("value", value);
+										fetch("/foo?index&env=development", {
+											method: "POST",
 											body: formData,
 										});
 									}
@@ -288,11 +301,11 @@ export default function Route() {
 				</div>
 				<hr className="mt-4 h-0.5 w-full rounded-full border-none bg-white/30" />
 				<div className="flex flex-col divide-y-[1px] rounded-lg">
-					{Object.entries((variables as Record<string, Record<string, string | boolean>>)[env]).map(
-						([name, value]) => (
-							<Variable name={name} value={value} key={name} />
-						),
-					)}
+					{Object.entries(
+						(variables as Record<string, Record<string, string | boolean>>)[env],
+					).map(([name, value]) => (
+						<Variable name={name} value={value} key={name} />
+					))}
 				</div>
 			</div>
 		</div>

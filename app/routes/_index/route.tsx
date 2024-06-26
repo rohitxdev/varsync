@@ -1,12 +1,12 @@
-import { Link } from '@remix-run/react';
-import type { ReactNode } from 'react';
-import { Button } from 'react-aria-components';
-import { LuCheckCircle2, LuKeySquare, LuLock, LuRefreshCcw, LuUsers2 } from 'react-icons/lu';
-import { CodeBlock } from './code-block';
-import { Footer, NavMenu } from './nav';
-import { useRootLoader } from '~/utils/hooks';
-import { LogOutDialog } from './dialogs';
-import { AccordionItem, Modal } from '~/components/ui';
+import { Link } from "@remix-run/react";
+import type { ReactNode } from "react";
+import { Button } from "react-aria-components";
+import { LuCheckCircle2, LuKeySquare, LuLock, LuRefreshCcw, LuUsers2 } from "react-icons/lu";
+import { CodeBlock } from "./code-block";
+import { Footer, NavMenu } from "./nav";
+import { useRootLoader } from "~/utils/hooks";
+import { LogOutDialog } from "./dialogs";
+import { AccordionItem, Modal } from "~/components/ui";
 
 interface FeatureProps {
 	icon: ReactNode;
@@ -17,35 +17,35 @@ interface FeatureProps {
 const features: FeatureProps[] = [
 	{
 		icon: <LuKeySquare />,
-		title: 'Easy to set up and use.',
+		title: "Easy to set up and use.",
 		description:
-			'Easily manage and synchronize feature flags across multiple environments and servers.',
+			"Easily manage and synchronize feature flags across multiple environments and servers.",
 	},
 	{
 		icon: <LuRefreshCcw />,
-		title: 'Real-time updates and notifications.',
-		description: 'lorem ipsum',
+		title: "Real-time updates and notifications.",
+		description: "lorem ipsum",
 	},
 	{
 		icon: <LuKeySquare />,
-		title: 'Automatic environment detection and configuration.',
-		description: 'lorem ipsum',
+		title: "Automatic environment detection and configuration.",
+		description: "lorem ipsum",
 	},
 	{
 		icon: <LuKeySquare />,
-		title: 'Integration with popular tools and services.',
-		description: 'lorem ipsum',
+		title: "Integration with popular tools and services.",
+		description: "lorem ipsum",
 	},
 	{
 		icon: <LuUsers2 />,
-		title: 'Role-based access control',
-		description: 'lorem ipsum',
+		title: "Role-based access control",
+		description: "lorem ipsum",
 	},
 	{
 		icon: <LuLock />,
-		title: 'Secure and private',
+		title: "Secure and private",
 		description:
-			'All the data is encrypted and stored securely. No one can access your sensitive information but you',
+			"All the data is encrypted and stored securely. No one can access your sensitive information but you",
 	},
 ];
 
@@ -57,24 +57,24 @@ interface PricingProps {
 
 const pricing: PricingProps[] = [
 	{
-		title: 'Free',
+		title: "Free",
 		price: 0,
 		features: [
-			'Upto 20 variables/feature flags',
-			'Upto 2 Environments',
-			'20k reads per month',
-			'Syncs every 10 minutes',
+			"Upto 20 variables/feature flags",
+			"Upto 2 Environments",
+			"20k reads per month",
+			"Syncs every 10 minutes",
 		],
 	},
 	{
-		title: 'Pro',
+		title: "Pro",
 		price: 4.99,
 		features: [
-			'Upto 1000 variables/feature flags',
-			'Upto 10 environments',
-			'2 million reads per month',
-			'Syncs every 1 minute',
-			'Role based access control',
+			"Upto 1000 variables/feature flags",
+			"Upto 10 environments",
+			"2 million reads per month",
+			"Syncs every 1 minute",
+			"Role based access control",
 		],
 	},
 ];
@@ -212,12 +212,14 @@ const Route = () => {
 				<section className="flex flex-col items-center gap-12 md:flex-row">
 					<div className="flex flex-col gap-2 text-start">
 						<h1 className="mb-2 text-5xl font-bold *:text-blue-500 max-md:text-3xl">
-							Manage <span>feature flags</span> and <span>dynamic configs</span> with ease.
+							Manage <span>feature flags</span> and <span>dynamic configs</span> with
+							ease.
 						</h1>
 						<h2 className="text-slate-400">
-							Varsync allows you to effortlessly manage and synchronize environment variables across
-							multiple environments. Simplify your configuration process and enable smooth,
-							controlled feature rollouts with our intuitive interface and real-time updates.
+							Varsync allows you to effortlessly manage and synchronize environment
+							variables across multiple environments. Simplify your configuration
+							process and enable smooth, controlled feature rollouts with our
+							intuitive interface and real-time updates.
 						</h2>
 						<div className="flex items-center gap-2 text-center *:h-10 *:w-32">
 							<Link
@@ -244,16 +246,18 @@ const Route = () => {
 				</section>
 				<section className="flex w-full flex-wrap items-center gap-8 overflow-hidden md:flex-row-reverse md:justify-center md:gap-16">
 					<div className="text-start">
-						<h2 className="mb-2 text-4xl font-bold max-md:text-3xl">Integrate in minutes.</h2>
+						<h2 className="mb-2 text-4xl font-bold max-md:text-3xl">
+							Integrate in minutes.
+						</h2>
 						<p className="text-neutral-400">
 							Add varsync SDK to your project and get running in minutes.
 						</p>
 					</div>
 					<CodeBlock
 						data={[
-							{ language: 'javascript', code: jsCode },
-							{ language: 'go', code: goCode },
-							{ language: 'python', code: pythonCode },
+							{ language: "javascript", code: jsCode },
+							{ language: "go", code: goCode },
+							{ language: "python", code: pythonCode },
 						]}
 					/>
 				</section>
@@ -267,8 +271,12 @@ const Route = () => {
 							>
 								<div className="*:size-8">{item.icon}</div>
 								<div className="w-3/4">
-									<h3 className="mb-1 text-balance text-lg font-semibold">{item.title}</h3>
-									<p className="text-sm font-medium text-neutral-400">{item.description}</p>
+									<h3 className="mb-1 text-balance text-lg font-semibold">
+										{item.title}
+									</h3>
+									<p className="text-sm font-medium text-neutral-400">
+										{item.description}
+									</p>
 								</div>
 							</li>
 						))}
@@ -282,13 +290,18 @@ const Route = () => {
 								className="flex grow basis-0 flex-col gap-4 rounded-md border p-4"
 								key={item.title}
 							>
-								<h3 className="text-2xl font-bold text-neutral-300">{item.title}</h3>
+								<h3 className="text-2xl font-bold text-neutral-300">
+									{item.title}
+								</h3>
 								<p className="text-sm font-medium">
 									<span className="text-4xl font-bold">${item.price}</span> /month
 								</p>
 								<ul className="px-2 font-medium">
 									{item.features.map((feature) => (
-										<li className="mb-1 flex max-w-[32ch] items-center gap-2" key={feature}>
+										<li
+											className="mb-1 flex max-w-[32ch] items-center gap-2"
+											key={feature}
+										>
 											<LuCheckCircle2 className="shrink-0 stroke-[3]" />
 											<span className="text-start">{feature}</span>
 										</li>

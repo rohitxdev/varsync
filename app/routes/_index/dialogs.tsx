@@ -1,5 +1,5 @@
-import { Form } from '@remix-run/react';
-import { Button, Dialog, Heading } from 'react-aria-components';
+import { Form } from "@remix-run/react";
+import { Button, Dialog, Heading } from "react-aria-components";
 
 export const LogOutDialog = () => (
 	<Dialog className="grid w-[40ch] gap-2 rounded bg-white p-6 text-black">

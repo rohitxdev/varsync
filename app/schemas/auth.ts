@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const googleUserSchema = z.object({
 	id: z.string().min(1),
@@ -11,7 +11,7 @@ export const googleUserSchema = z.object({
 	locale: z.string().min(1).optional(),
 });
 
-export const reportFrequencySchema = z.enum(['off', 'daily', 'weekly', 'monthly']);
+export const reportFrequencySchema = z.enum(["off", "daily", "weekly", "monthly"]);
 
 export const userPreferencesSchema = z.object({
 	shouldSendEmailReports: z.boolean(),
@@ -20,9 +20,9 @@ export const userPreferencesSchema = z.object({
 	graphAnimationsEnabled: z.boolean(),
 });
 
-export const subscriptionPlanSchema = z.enum(['free', 'pro']).nullish();
+export const subscriptionPlanSchema = z.enum(["free", "pro"]).nullish();
 
-export const roleSchema = z.enum(['user', 'admin']);
+export const roleSchema = z.enum(["user", "admin"]);
 
 export const userSchema = z.object({
 	email: z.string().email(),

@@ -1,15 +1,15 @@
-import { useFetcher, useRevalidator } from '@remix-run/react';
-import { useState, useEffect, useRef } from 'react';
-import { Button, Dialog, Heading, Input, Label, TextArea, TextField } from 'react-aria-components';
-import toast from 'react-hot-toast';
-import Spinner from '~/assets/spinner.svg?react';
-import { LuAlertTriangle, LuUpload } from 'react-icons/lu';
-import { z } from 'zod';
-import { Switch } from '~/components/ui';
+import { useFetcher, useRevalidator } from "@remix-run/react";
+import { useState, useEffect, useRef } from "react";
+import { Button, Dialog, Heading, Input, Label, TextArea, TextField } from "react-aria-components";
+import toast from "react-hot-toast";
+import Spinner from "~/assets/spinner.svg?react";
+import { LuAlertTriangle, LuUpload } from "react-icons/lu";
+import { z } from "zod";
+import { Switch } from "~/components/ui";
 
 export const NewFeatureFlagDialog = () => {
 	const fetcher = useFetcher();
-	const [name, setName] = useState('');
+	const [name, setName] = useState("");
 	const [value, setValue] = useState(false);
 
 	return (
@@ -22,11 +22,13 @@ export const NewFeatureFlagDialog = () => {
 						fetcher.submit(
 							{ name, value },
 							{
-								method: 'POST',
-								encType: 'application/json',
+								method: "POST",
+								encType: "application/json",
 							},
 						);
-						toast.success('Added new feature flag!', { position: 'top-right' });
+						toast.success("Added new feature flag!", {
+							position: "top-right",
+						});
 						close();
 					}}
 				>
@@ -38,8 +40,12 @@ export const NewFeatureFlagDialog = () => {
 					<div className="mt-2 flex flex-col gap-1 text-sm font-medium">
 						<p>Default Value</p>
 						<div className="flex items-center gap-2">
-							<Switch name="value" checked={value} onChange={() => setValue((val) => !val)} />
-							<span className="text-neutral-600">{value ? 'TRUE' : 'FALSE'}</span>
+							<Switch
+								name="value"
+								checked={value}
+								onChange={() => setValue((val) => !val)}
+							/>
+							<span className="text-neutral-600">{value ? "TRUE" : "FALSE"}</span>
 						</div>
 					</div>
 					<div className="mt-2 flex justify-end gap-4 text-sm font-semibold">
@@ -49,9 +55,13 @@ export const NewFeatureFlagDialog = () => {
 						<Button
 							className="flex h-9 w-32 items-center justify-center rounded bg-blue-500 text-white disabled:brightness-90"
 							type="submit"
-							isDisabled={fetcher.state === 'submitting'}
+							isDisabled={fetcher.state === "submitting"}
 						>
-							{fetcher.state === 'submitting' ? <Spinner className="size-5 fill-white" /> : 'Add'}
+							{fetcher.state === "submitting" ? (
+								<Spinner className="size-5 fill-white" />
+							) : (
+								"Add"
+							)}
 						</Button>
 					</div>
 				</fetcher.Form>
@@ -62,15 +72,15 @@ export const NewFeatureFlagDialog = () => {
 
 export const NewVariableDialog = () => {
 	const fetcher = useFetcher();
-	const [name, setName] = useState('');
-	const [value, setValue] = useState('');
+	const [name, setName] = useState("");
+	const [value, setValue] = useState("");
 
 	const closeFn = useRef<(() => void) | null>(null);
 
 	useEffect(() => {
-		if (closeFn.current && fetcher.state === 'idle') {
+		if (closeFn.current && fetcher.state === "idle") {
 			toast.dismiss();
-			toast.success('Created project successfully');
+			toast.success("Created project successfully");
 			closeFn.current?.();
 		}
 	}, [fetcher.state]);
@@ -83,7 +93,10 @@ export const NewVariableDialog = () => {
 					method="POST"
 					onSubmit={async (e) => {
 						e.preventDefault();
-						fetcher.submit({ name, value }, { method: 'POST', encType: 'application/json' });
+						fetcher.submit(
+							{ name, value },
+							{ method: "POST", encType: "application/json" },
+						);
 						closeFn.current = close;
 					}}
 				>
@@ -93,7 +106,9 @@ export const NewVariableDialog = () => {
 						<Input className="rounded border border-black px-2 py-1 text-black" />
 					</TextField>
 					<TextField className="grid gap-1" value={value} onChange={setValue} isRequired>
-						<Label className="text-sm font-medium text-neutral-400">Default value</Label>
+						<Label className="text-sm font-medium text-neutral-400">
+							Default value
+						</Label>
 						<Input className="rounded border border-black px-2 py-1 text-black" />
 					</TextField>
 					<div className="mt-2 flex justify-end gap-4 text-sm font-semibold *:h-9 *:w-32">
@@ -103,9 +118,13 @@ export const NewVariableDialog = () => {
 						<Button
 							className="flex items-center justify-center rounded bg-blue-500 text-white disabled:brightness-90"
 							type="submit"
-							isDisabled={fetcher.state === 'submitting'}
+							isDisabled={fetcher.state === "submitting"}
 						>
-							{fetcher.state === 'submitting' ? <Spinner className="size-5 fill-white" /> : 'Save'}
+							{fetcher.state === "submitting" ? (
+								<Spinner className="size-5 fill-white" />
+							) : (
+								"Save"
+							)}
 						</Button>
 					</div>
 				</fetcher.Form>
@@ -188,16 +207,16 @@ export const DeleteVariableDialog = ({ onDelete }: DeleteVariableDialogProps) =>
 const stringRecordSchema = z.record(z.string());
 
 const parseEnvFileContent = (content: string) => {
-	const lines = content.trim().split('\n');
+	const lines = content.trim().split("\n");
 	const entries = lines
 		.map((item) => {
-			const [key, ...values] = item.trim().split('=');
-			return [key, values.join('=')];
+			const [key, ...values] = item.trim().split("=");
+			return [key, values.join("=")];
 		})
-		.filter((item) => item[1] !== '');
+		.filter((item) => item[1] !== "");
 
 	if (lines.length !== entries.length) {
-		throw new Error('Syntax error in pasted content');
+		throw new Error("Syntax error in pasted content");
 	}
 	return stringRecordSchema.parse(Object.fromEntries(entries));
 };
@@ -208,7 +227,7 @@ export const ImportVariablesDialog = ({
 	onImport: (map: z.infer<typeof stringRecordSchema>) => void;
 }) => {
 	const { revalidate } = useRevalidator();
-	const [text, setText] = useState('');
+	const [text, setText] = useState("");
 	const [isSyntaxError, setIsSyntaxError] = useState(false);
 
 	return (
@@ -217,17 +236,20 @@ export const ImportVariablesDialog = ({
 				<>
 					<h2 className="text-sm font-medium">Paste your .env file here</h2>
 					<TextArea
-						className={`min-h-64 w-full resize-none justify-self-stretch rounded border border-white/20 bg-transparent p-2 outline-none ${isSyntaxError ? 'border-red-500' : 'border-black'}`}
+						className={`min-h-64 w-full resize-none justify-self-stretch rounded border border-white/20 bg-transparent p-2 outline-none ${isSyntaxError ? "border-red-500" : "border-black"}`}
 						value={text}
 						onInput={(e) => setText(e.currentTarget.value)}
 					/>
 					<div
-						className={`flex items-center gap-1 text-sm font-medium text-red-500 ${!isSyntaxError && 'invisible'}`}
+						className={`flex items-center gap-1 text-sm font-medium text-red-500 ${!isSyntaxError && "invisible"}`}
 					>
 						<LuAlertTriangle className="size-4" /> <p>Syntax error</p>
 					</div>
 					<div className="flex justify-end gap-4 text-sm font-semibold *:w-28">
-						<Button className="rounded bg-neutral-300 px-6 py-2 text-black" onPress={close}>
+						<Button
+							className="rounded bg-neutral-300 px-6 py-2 text-black"
+							onPress={close}
+						>
 							Cancel
 						</Button>
 						<Button

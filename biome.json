@@ -13,8 +13,18 @@
 			"style": {
 				"noNonNullAssertion": "off",
 				"noParameterAssign": "off"
+			},
+			"nursery": {
+				"useSortedClasses": {
+					"fix": "safe",
+					"level": "warn",
+					"options": {}
+				}
 			}
 		}
 	},
-	"formatter": { "enabled": true }
+	"formatter": {
+		"indentWidth": 4,
+		"lineWidth": 100
+	}
 }

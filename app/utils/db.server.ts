@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
-import { MongoClient, ObjectId, type UpdateFilter } from 'mongodb';
-import { z } from 'zod';
-import { config } from './config.server';
-import slugify from 'slugify';
+import jwt from "jsonwebtoken";
+import { MongoClient, ObjectId, type UpdateFilter } from "mongodb";
+import { z } from "zod";
+import { config } from "./config.server";
+import slugify from "slugify";
 
 const toSlug = (text: string) => slugify(text, { lower: true, trim: true });
 
@@ -16,17 +16,17 @@ const mongoClient = new MongoClient(config.MONGODB_URL, {
 const connectToDb = async () => {
 	try {
 		await mongoClient.connect();
-		console.log('connected to mongodb successfully ✔');
+		console.log("connected to mongodb successfully ✔");
 	} catch (error) {
 		console.error(error);
-		console.error('could not connect to mongodb. Trying again...');
+		console.error("could not connect to mongodb. Trying again...");
 		await connectToDb();
 	}
 };
 
 await connectToDb();
 
-const db = mongoClient.db('varsync');
+const db = mongoClient.db("varsync");
 
 //Projects
 
@@ -38,7 +38,7 @@ const projectSchema = z.object({
 	userId: z.string(),
 });
 
-const projects = db.collection<z.infer<typeof projectSchema>>('projects');
+const projects = db.collection<z.infer<typeof projectSchema>>("projects");
 await projects.createIndex({ userId: 1 });
 await projects.createIndex({ name: 1, userId: 1 }, { unique: true });
 
@@ -131,13 +131,13 @@ export const deleteVariable = async ({
 	env: string;
 	slug: string;
 	userId: string;
-}) => await projects.updateOne({ slug, userId }, { $unset: { [`variables.${env}.${name}`]: '' } });
+}) => await projects.updateOne({ slug, userId }, { $unset: { [`variables.${env}.${name}`]: "" } });
 
 //Users
 
-export const subscriptionPlanSchema = z.enum(['free', 'pro']);
+export const subscriptionPlanSchema = z.enum(["free", "pro"]);
 
-export const roleSchema = z.enum(['user', 'admin']);
+export const roleSchema = z.enum(["user", "admin"]);
 
 export const userSchema = z.object({
 	email: z.string().email(),
@@ -152,7 +152,7 @@ export const userSchema = z.object({
 	passwordResetToken: z.string().nullish(),
 });
 
-const users = db.collection<z.infer<typeof userSchema>>('users');
+const users = db.collection<z.infer<typeof userSchema>>("users");
 
 export const getUser = async (id: string) => await users.findOne({ _id: new ObjectId(id) });
 
@@ -177,7 +177,7 @@ const logSchema = z.object({
 	timestamp: z.date(),
 });
 
-const logs = db.collection<z.infer<typeof logSchema>>('logs');
+const logs = db.collection<z.infer<typeof logSchema>>("logs");
 
 export const getLogs = async ({ slug, userId }: { slug: string; userId: string }) => {
 	const project = await getProject({ slug, userId });
@@ -200,5 +200,10 @@ export const addLog = async ({
 }) => {
 	const project = await getProject({ slug, userId });
 	if (!project) return;
-	await logs.insertOne({ projectId: project._id.toString(), env, message, timestamp: new Date() });
+	await logs.insertOne({
+		projectId: project._id.toString(),
+		env,
+		message,
+		timestamp: new Date(),
+	});
 };

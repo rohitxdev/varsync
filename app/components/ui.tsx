@@ -1,5 +1,5 @@
-import { useId, useState, type ComponentProps, type ReactNode } from 'react';
-import { LuChevronDown, LuChevronsUpDown } from 'react-icons/lu';
+import { useId, useState, type ComponentProps, type ReactNode } from "react";
+import { LuChevronDown, LuChevronsUpDown } from "react-icons/lu";
 import {
 	Select as AriaSelect,
 	SelectValue,
@@ -10,9 +10,9 @@ import {
 	DialogTrigger,
 	ModalOverlay as AriaModalOverlay,
 	Modal as AriaModal,
-} from 'react-aria-components';
+} from "react-aria-components";
 
-interface SwitchProps extends Omit<ComponentProps<'input'>, 'type' | 'onInput'> {}
+interface SwitchProps extends Omit<ComponentProps<"input">, "type" | "onInput"> {}
 
 export const Switch = ({ className, ...rest }: SwitchProps) => {
 	return (
@@ -26,7 +26,7 @@ export const Switch = ({ className, ...rest }: SwitchProps) => {
 
 interface SelectProps extends ComponentProps<typeof AriaSelect> {
 	options: ReactNode[];
-	placement?: ComponentProps<typeof Popover>['placement'];
+	placement?: ComponentProps<typeof Popover>["placement"];
 }
 
 export const Select = ({ options, placement, className, ...rest }: SelectProps) => {
@@ -108,12 +108,12 @@ export const AccordionItem = ({ title, description }: AccordionItemProps) => {
 				<LuChevronDown
 					height={24}
 					width={24}
-					className={`shrink-0 duration-150 ${isOpen && 'rotate-180'}`}
+					className={`shrink-0 duration-150 ${isOpen && "rotate-180"}`}
 				/>
 			</button>
 			<div
 				className={`grid ${
-					isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+					isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
 				} duration-150`}
 				aria-hidden={!isOpen}
 			>

@@ -1,23 +1,23 @@
-import { useFetcher } from '@remix-run/react';
-import { useState, useRef, useEffect } from 'react';
-import { LuX, LuPlus, LuAlertCircle } from 'react-icons/lu';
-import { Button, Dialog, Label, Heading, TextField, Input } from 'react-aria-components';
-import toast from 'react-hot-toast';
-import Spinner from '~/assets/spinner.svg?react';
+import { useFetcher } from "@remix-run/react";
+import { useState, useRef, useEffect } from "react";
+import { LuX, LuPlus, LuAlertCircle } from "react-icons/lu";
+import { Button, Dialog, Label, Heading, TextField, Input } from "react-aria-components";
+import toast from "react-hot-toast";
+import Spinner from "~/assets/spinner.svg?react";
 
 export const NewProjectDialog = () => {
-	const [envs, setEnvs] = useState<string[]>(['development', 'production']);
-	const [text, setText] = useState('');
+	const [envs, setEnvs] = useState<string[]>(["development", "production"]);
+	const [text, setText] = useState("");
 	const [showInput, setShowInput] = useState(false);
-	const [name, setName] = useState('');
+	const [name, setName] = useState("");
 	const fetcher = useFetcher();
 
 	const closeFn = useRef<(() => void) | null>(null);
 
 	useEffect(() => {
-		if (closeFn.current && fetcher.state === 'idle') {
+		if (closeFn.current && fetcher.state === "idle") {
 			toast.dismiss();
-			toast.success('Created project successfully');
+			toast.success("Created project successfully");
 			closeFn.current?.();
 		}
 	}, [fetcher.state]);
@@ -29,7 +29,10 @@ export const NewProjectDialog = () => {
 					className="grid w-96 gap-2"
 					onSubmit={async (e) => {
 						e.preventDefault();
-						fetcher.submit({ name, envs }, { method: 'POST', encType: 'application/json' });
+						fetcher.submit(
+							{ name, envs },
+							{ method: "POST", encType: "application/json" },
+						);
 						closeFn.current = close;
 					}}
 				>
@@ -47,12 +50,16 @@ export const NewProjectDialog = () => {
 						<div className="flex flex-wrap gap-1 text-sm [&_svg]:stroke-[3]">
 							{envs.map((item, i) => (
 								<div
-									className={`flex h-8 items-center gap-1 rounded-full bg-blue-100 px-3 text-blue-600 ${envs.length === 1 && 'cursor-not-allowed opacity-50'}`}
+									className={`flex h-8 items-center gap-1 rounded-full bg-blue-100 px-3 text-blue-600 ${envs.length === 1 && "cursor-not-allowed opacity-50"}`}
 									key={item}
 								>
 									<span>{item}</span>
 									<Button
-										onPress={() => setEnvs((items) => items.filter((_item, idx) => idx !== i))}
+										onPress={() =>
+											setEnvs((items) =>
+												items.filter((_item, idx) => idx !== i),
+											)
+										}
 										isDisabled={envs.length === 1}
 									>
 										<LuX />
@@ -66,14 +73,17 @@ export const NewProjectDialog = () => {
 										type="text"
 										onInput={(e) => setText(e.currentTarget.value)}
 										onKeyDown={(e) => {
-											if (e.key === 'Enter' && text) {
+											if (e.key === "Enter" && text) {
 												setEnvs((items) => [...items, text.trim()]);
-												setText('');
+												setText("");
 											}
 										}}
 										value={text}
 									/>
-									<Button className="rounded-r-full px-2 py-1" onPress={() => setShowInput(false)}>
+									<Button
+										className="rounded-r-full px-2 py-1"
+										onPress={() => setShowInput(false)}
+									>
 										<LuX />
 									</Button>
 								</div>
@@ -94,9 +104,13 @@ export const NewProjectDialog = () => {
 						<Button
 							className="flex h-9 w-32 items-center justify-center rounded bg-blue-500 text-white disabled:brightness-90"
 							type="submit"
-							isDisabled={fetcher.state === 'submitting'}
+							isDisabled={fetcher.state === "submitting"}
 						>
-							{fetcher.state === 'submitting' ? <Spinner className="size-5 fill-white" /> : 'Add'}
+							{fetcher.state === "submitting" ? (
+								<Spinner className="size-5 fill-white" />
+							) : (
+								"Add"
+							)}
 						</Button>
 					</div>
 				</fetcher.Form>
@@ -112,13 +126,13 @@ interface EditProjectDialogProps {
 
 export const EditProjectDialog = ({ projectName, slug }: EditProjectDialogProps) => {
 	const fetcher = useFetcher();
-	const [name, setName] = useState('');
+	const [name, setName] = useState("");
 	const closeFn = useRef<(() => void) | null>(null);
 
 	useEffect(() => {
-		if (closeFn.current && fetcher.state === 'idle') {
+		if (closeFn.current && fetcher.state === "idle") {
 			toast.dismiss();
-			toast.success('Updated project successfully');
+			toast.success("Updated project successfully");
 			closeFn.current?.();
 		}
 	}, [fetcher.state]);
@@ -132,7 +146,7 @@ export const EditProjectDialog = ({ projectName, slug }: EditProjectDialogProps)
 						e.preventDefault();
 						fetcher.submit(
 							{ slug, updatedName: name },
-							{ method: 'PATCH', encType: 'application/json' },
+							{ method: "PATCH", encType: "application/json" },
 						);
 						closeFn.current = close;
 					}}
@@ -162,12 +176,12 @@ export const EditProjectDialog = ({ projectName, slug }: EditProjectDialogProps)
 						<Button
 							className="flex items-center justify-center rounded bg-blue-500 text-white disabled:brightness-90"
 							type="submit"
-							isDisabled={fetcher.state === 'submitting'}
+							isDisabled={fetcher.state === "submitting"}
 						>
-							{fetcher.state === 'submitting' ? (
+							{fetcher.state === "submitting" ? (
 								<Spinner className="size-5 fill-white" />
 							) : (
-								'Update'
+								"Update"
 							)}
 						</Button>
 					</div>
@@ -184,13 +198,13 @@ interface DeleteProjectDialogProps {
 
 export const DeleteProjectDialog = ({ projectName, slug }: DeleteProjectDialogProps) => {
 	const fetcher = useFetcher();
-	const [name, setName] = useState('');
+	const [name, setName] = useState("");
 	const closeFn = useRef<(() => void) | null>(null);
 
 	useEffect(() => {
-		if (closeFn.current && fetcher.state === 'idle') {
+		if (closeFn.current && fetcher.state === "idle") {
 			toast.dismiss();
-			toast.success('Deleted project successfully');
+			toast.success("Deleted project successfully");
 			closeFn.current?.();
 		}
 	}, [fetcher.state]);
@@ -201,13 +215,14 @@ export const DeleteProjectDialog = ({ projectName, slug }: DeleteProjectDialogPr
 				<fetcher.Form
 					onSubmit={(e) => {
 						e.preventDefault();
-						fetcher.submit({ slug }, { method: 'DELETE', encType: 'application/json' });
+						fetcher.submit({ slug }, { method: "DELETE", encType: "application/json" });
 						closeFn.current = close;
 					}}
 				>
 					<Heading className="text-lg font-semibold">Delete Project</Heading>
 					<p className="mt-1 text-sm text-neutral-500">
-						This project and all its environments will be deleted. This action cannot be undone.
+						This project and all its environments will be deleted. This action cannot be
+						undone.
 					</p>
 					<TextField
 						className="group mt-4 flex flex-col gap-1"
@@ -216,7 +231,8 @@ export const DeleteProjectDialog = ({ projectName, slug }: DeleteProjectDialogPr
 						isRequired
 					>
 						<Label className="text-xs font-normal">
-							Please type <span className="font-semibold">{projectName}</span> to confirm.
+							Please type <span className="font-semibold">{projectName}</span> to
+							confirm.
 						</Label>
 						<Input className="rounded border px-2 py-1 invalid:outline-red-500" />
 						<p
@@ -234,12 +250,12 @@ export const DeleteProjectDialog = ({ projectName, slug }: DeleteProjectDialogPr
 						<Button
 							className="flex items-center justify-center rounded bg-red-500 text-white disabled:brightness-90"
 							type="submit"
-							isDisabled={fetcher.state === 'submitting'}
+							isDisabled={fetcher.state === "submitting"}
 						>
-							{fetcher.state === 'submitting' ? (
+							{fetcher.state === "submitting" ? (
 								<Spinner className="size-5 fill-white" />
 							) : (
-								'Delete'
+								"Delete"
 							)}
 						</Button>
 					</div>

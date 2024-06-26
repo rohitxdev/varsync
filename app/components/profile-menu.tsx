@@ -1,10 +1,4 @@
-import {
-	DialogTrigger,
-	Popover,
-	OverlayArrow,
-	Dialog,
-	Switch,
-} from "react-aria-components";
+import { DialogTrigger, Popover, OverlayArrow, Dialog, Switch } from "react-aria-components";
 import { useRootLoader } from "~/utils/hooks";
 
 export const ProfileMenu = () => {

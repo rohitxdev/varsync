@@ -1,4 +1,4 @@
-import { numFormatter } from '~/utils/misc';
+import { numFormatter } from "~/utils/misc";
 
 interface QuotaUsageProps {
 	usedQuota: number;

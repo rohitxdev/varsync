@@ -18,13 +18,17 @@ export const NavMenu = () => {
 				</li>
 			</ul>
 			<div className="md:hidden">
-				<button type="button" onClick={() => setIsOpen(true)} >
+				<button type="button" onClick={() => setIsOpen(true)}>
 					<LuMenu className="size-6" />
 				</button>
 				{isOpen && (
 					<div className="fixed right-0 top-0 z-10 w-screen p-1">
 						<div className="flex w-full flex-col gap-2 rounded-md border border-neutral-600 bg-neutral-900 p-4 pb-8">
-							<button type="button" className="ml-auto p-1" onClick={() => setIsOpen(false)}>
+							<button
+								type="button"
+								className="ml-auto p-1"
+								onClick={() => setIsOpen(false)}
+							>
 								<LuX className="size-6" />
 							</button>
 							<ul className="flex flex-col gap-2 text-lg font-medium [&_a:hover]:underline">

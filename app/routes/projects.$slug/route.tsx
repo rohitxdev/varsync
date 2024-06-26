@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from '@remix-run/node';
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import {
 	Link,
 	Outlet,
@@ -6,16 +6,16 @@ import {
 	redirect,
 	useLoaderData,
 	useNavigation,
-} from '@remix-run/react';
-import type { ComponentProps } from 'react';
-import { TabList, Tab as AriaTab, Tabs } from 'react-aria-components';
-import { LuFileText, LuLayers, LuLock, LuServer, LuSettings } from 'react-icons/lu';
-import { getProject } from '~/utils/db.server';
-import { getUserFromSessionCookie } from '~/utils/auth.server';
-import Spinner from '../../assets/spinner.svg?react';
+} from "@remix-run/react";
+import type { ComponentProps } from "react";
+import { TabList, Tab as AriaTab, Tabs } from "react-aria-components";
+import { LuFileText, LuLayers, LuLock, LuServer, LuSettings } from "react-icons/lu";
+import { getProject } from "~/utils/db.server";
+import { getUserFromSessionCookie } from "~/utils/auth.server";
+import Spinner from "../../assets/spinner.svg?react";
 
 export const loader = async (args: LoaderFunctionArgs) => {
-	const user = await getUserFromSessionCookie(args.request.headers.get('Cookie'));
+	const user = await getUserFromSessionCookie(args.request.headers.get("Cookie"));
 	if (!user) return null;
 
 	const project = await getProject({
@@ -23,7 +23,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 		userId: user._id.toString(),
 	});
 
-	if (!project?._id) return redirect('/projects');
+	if (!project?._id) return redirect("/projects");
 	return { project };
 };
 
@@ -47,10 +47,12 @@ const Route = () => {
 			<div className="grid h-full w-64 grid-rows-[auto_auto_1fr_auto] content-start gap-4 rounded-md bg-neutral-500/5 p-2 font-medium">
 				<Link className="flex items-center justify-center gap-2 p-4" to="/">
 					<img src="/logo.png" alt="Logo" height={24} width={24} />
-					<span className="text-xl font-semibold">Varsync</span>
+					<span className="font-semibold text-xl">Varsync</span>
 				</Link>
 				<Tabs
-					onSelectionChange={(key) => navigate(`/projects/${data?.project.slug}/${key.toString()}`)}
+					onSelectionChange={(key) =>
+						navigate(`/projects/${data?.project.slug}/${key.toString()}`)
+					}
 				>
 					<TabList>
 						<Tab id={`${env}`}>
@@ -72,7 +74,7 @@ const Route = () => {
 					<LuLayers /> Projects
 				</Link>
 			</div>
-			{state === 'loading' ? <Spinner className="mx-auto size-8 fill-current" /> : <Outlet />}
+			{state === "loading" ? <Spinner className="mx-auto size-8 fill-current" /> : <Outlet />}
 		</div>
 	);
 };

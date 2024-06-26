@@ -1,14 +1,14 @@
-import { type ActionFunctionArgs, json, type LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Form, Link, useLoaderData, useNavigation, useParams } from '@remix-run/react';
-import argon2 from 'argon2';
-import jwt from 'jsonwebtoken';
-import { useRef } from 'react';
-import { Button, Input, Label, TextField } from 'react-aria-components';
-import toast from 'react-hot-toast';
-import { LuArrowLeft } from 'react-icons/lu';
-import { z } from 'zod';
+import { type ActionFunctionArgs, json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { Form, Link, useLoaderData, useNavigation, useParams } from "@remix-run/react";
+import argon2 from "argon2";
+import jwt from "jsonwebtoken";
+import { useRef } from "react";
+import { Button, Input, Label, TextField } from "react-aria-components";
+import toast from "react-hot-toast";
+import { LuArrowLeft } from "react-icons/lu";
+import { z } from "zod";
 
-import { googleUserSchema } from '~/schemas/auth';
+import { googleUserSchema } from "~/schemas/auth";
 import {
 	commitSession,
 	destroySession,
@@ -16,14 +16,14 @@ import {
 	exchangeTokenForUserInfo,
 	getGoogleAuthUrl,
 	getSession,
-} from '~/utils/auth.server';
+} from "~/utils/auth.server";
 
-import { getRandomNumber } from '~/utils/misc';
-import { createUser, getUserByEmail, updateUser } from '~/utils/db.server';
-import { config } from '~/utils/config.server';
-import { useRootLoader } from '~/utils/hooks';
+import { getRandomNumber } from "~/utils/misc";
+import { createUser, getUserByEmail, updateUser } from "~/utils/db.server";
+import { config } from "~/utils/config.server";
+import { useRootLoader } from "~/utils/hooks";
 
-const authTypeSchema = z.enum(['log-in', 'sign-up', 'forgot-password']);
+const authTypeSchema = z.enum(["log-in", "sign-up", "forgot-password"]);
 
 const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
 
@@ -39,11 +39,11 @@ const signUpBodySchema = z
 			.string()
 			.regex(
 				validPasswordRegex,
-				'Password has to be at least 8 characters and contain 1 uppercase letter, 1 number, and 1 special character',
+				"Password has to be at least 8 characters and contain 1 uppercase letter, 1 number, and 1 special character",
 			),
-		'confirm-password': z.string(),
+		"confirm-password": z.string(),
 	})
-	.refine((val) => val.password === val['confirm-password']);
+	.refine((val) => val.password === val["confirm-password"]);
 
 const forgotPasswordBodySchema = z.object({
 	email: z.string().email(),
@@ -51,98 +51,100 @@ const forgotPasswordBodySchema = z.object({
 
 export const action = async (args: ActionFunctionArgs) => {
 	const session = await getSession();
-	if (session.has('userId')) return json({ error: 'user is already logged in' }, 400);
+	if (session.has("userId")) return json({ error: "user is already logged in" }, 400);
 
 	const formData = Object.fromEntries(await args.request.formData());
-	if (formData['bot-trap']) return null;
+	if (formData["bot-trap"]) return null;
 
 	switch (args.params.type) {
-		case 'log-in': {
+		case "log-in": {
 			const logInData = logInBodySchema.safeParse(formData);
 			if (!logInData.success) return json(logInData.error, 422);
 
 			const user = await getUserByEmail(logInData.data.email);
-			if (!user) return json({ error: 'user not found' }, 404);
-			if (!user.passwordHash) return json({ error: 'password not set' });
+			if (!user) return json({ error: "user not found" }, 404);
+			if (!user.passwordHash) return json({ error: "password not set" });
 			if (!(await argon2.verify(user.passwordHash, logInData.data.password))) {
-				return json({ error: 'incorrect password' }, 400);
+				return json({ error: "incorrect password" }, 400);
 			}
 
-			session.set('userId', user._id.toString());
+			session.set("userId", user._id.toString());
 
-			return redirect('/', {
+			return redirect("/", {
 				headers: {
-					'Set-Cookie': await commitSession(session),
+					"Set-Cookie": await commitSession(session),
 				},
 			});
 		}
 
-		case 'sign-up': {
+		case "sign-up": {
 			const signUpData = signUpBodySchema.safeParse(formData);
 			if (!signUpData.success) return json(signUpData.error, 422);
 
 			if (await getUserByEmail(signUpData.data.email)) {
-				return json({ error: 'user with this email already exists' }, 400);
+				return json({ error: "user with this email already exists" }, 400);
 			}
 
 			const userId = await createUser({
 				email: signUpData.data.email,
 				passwordHash: await argon2.hash(signUpData.data.password),
 				pictureUrl: `https://api.dicebear.com/7.x/lorelei/svg?seed=${getRandomNumber(9999, 99999)}`,
-				role: 'user',
+				role: "user",
 				isBanned: false,
-				subscriptionPlan: 'free',
+				subscriptionPlan: "free",
 			});
 
-			session.set('userId', userId);
+			session.set("userId", userId);
 
-			return redirect('/', {
+			return redirect("/", {
 				headers: {
-					'Set-Cookie': await commitSession(session),
+					"Set-Cookie": await commitSession(session),
 				},
 			});
 		}
 
-		case 'log-out':
-			return redirect('/', {
+		case "log-out":
+			return redirect("/", {
 				headers: {
-					'Set-Cookie': await destroySession(session),
+					"Set-Cookie": await destroySession(session),
 				},
 			});
 
-		case 'forgot-password': {
+		case "forgot-password": {
 			const forgotPasswordData = forgotPasswordBodySchema.safeParse(formData);
 			if (!forgotPasswordData.success) return json(forgotPasswordData.error, 422);
 			const user = await getUserByEmail(forgotPasswordData.data.email);
-			if (!user) return json({ error: 'user not found' }, 404);
+			if (!user) return json({ error: "user not found" }, 404);
 			const passwordResetToken = jwt.sign(
 				{
 					sub: user._id,
-					type: 'password-reset',
+					type: "password-reset",
 				},
 				config.JWT_SIGNING_KEY,
-				{ expiresIn: '10m' },
+				{ expiresIn: "10m" },
 			);
-			await updateUser(user._id.toString(), { $set: { passwordResetToken } });
-			return { message: 'Sent reset password email', passwordResetToken };
+			await updateUser(user._id.toString(), {
+				$set: { passwordResetToken },
+			});
+			return { message: "Sent reset password email", passwordResetToken };
 		}
 
 		default:
-			return json({ error: 'invalid auth type' }, 400);
+			return json({ error: "invalid auth type" }, 400);
 	}
 };
 
 export const loader = async (args: LoaderFunctionArgs) => {
-	const session = await getSession(args.request.headers.get('Cookie'));
+	const session = await getSession(args.request.headers.get("Cookie"));
 
-	if (session.has('userId')) return redirect('/');
+	if (session.has("userId")) return redirect("/");
 
 	const { searchParams, origin } = new URL(args.request.url);
 
 	const authType = authTypeSchema.safeParse(args.params.type);
-	if (!authType.success) return redirect('/auth/log-in');
+	if (!authType.success) return redirect("/auth/log-in");
 
-	const code = searchParams.get('code');
+	const code = searchParams.get("code");
 	const redirectUri = `${origin}/auth/log-in`;
 
 	if (!code)
@@ -150,17 +152,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
 			googleAuthUrl: getGoogleAuthUrl({
 				clientId: config.GOOGLE_CLIENT_ID,
 				redirectUri,
-				responseType: 'code',
-				scope: 'email profile',
-				prompt: 'consent',
-				state: 'google',
-				accessType: 'offline',
+				responseType: "code",
+				scope: "email profile",
+				prompt: "consent",
+				state: "google",
+				accessType: "offline",
 			}),
 			gitHubAuthUrl: null,
 		};
 
-	switch (searchParams.get('state')) {
-		case 'google': {
+	switch (searchParams.get("state")) {
+		case "google": {
 			const token = await exchangeCodeForToken(code, redirectUri);
 			if (!token) return null;
 
@@ -175,25 +177,25 @@ export const loader = async (args: LoaderFunctionArgs) => {
 			const user = await getUserByEmail(email);
 
 			if (user?._id) {
-				session.set('userId', user._id.toString());
+				session.set("userId", user._id.toString());
 			} else {
 				const userId = await createUser({
 					email,
 					fullName: name,
 					pictureUrl: picture,
-					role: 'user',
+					role: "user",
 					isBanned: false,
-					subscriptionPlan: 'free',
+					subscriptionPlan: "free",
 				});
-				session.set('userId', userId);
+				session.set("userId", userId);
 			}
-			return redirect('/', {
+			return redirect("/", {
 				headers: {
-					'Set-Cookie': await commitSession(session),
+					"Set-Cookie": await commitSession(session),
 				},
 			});
 		}
-		case 'github': {
+		case "github": {
 			return null;
 		}
 		default: {
@@ -245,25 +247,29 @@ export default function Route() {
 								className="rounded-md bg-white/20 px-3 py-2 text-lg font-medium placeholder:text-lg"
 							/>
 						</TextField>
-						{authType === 'forgot-password' && (
+						{authType === "forgot-password" && (
 							<Button
 								type="submit"
 								className="mt-2 h-12 w-full rounded-lg bg-indigo-600 text-lg font-semibold"
-								onPress={() => toast.success('Sent email!', { style: { fontWeight: 500 } })}
+								onPress={() =>
+									toast.success("Sent email!", {
+										style: { fontWeight: 500 },
+									})
+								}
 							>
 								Send Reset Email
 							</Button>
 						)}
-						{authType !== 'forgot-password' && (
+						{authType !== "forgot-password" && (
 							<TextField
 								type="text"
 								name="password"
 								autoComplete="current-password"
 								validate={(val) => {
-									if (!val) return 'Please enter your password.';
-									if (authType === 'log-in') return;
+									if (!val) return "Please enter your password.";
+									if (authType === "log-in") return;
 									if (validPasswordRegex.test(val)) return;
-									return 'Password has to be at least 8 characters and contain 1 uppercase letter, 1 number, and 1 special character.';
+									return "Password has to be at least 8 characters and contain 1 uppercase letter, 1 number, and 1 special character.";
 								}}
 								onInput={(e) => {
 									passwordRef.current = e.currentTarget.value;
@@ -273,7 +279,7 @@ export default function Route() {
 							>
 								<div className="flex items-end justify-between">
 									<Label className="font-medium">Password</Label>
-									{authType === 'log-in' && (
+									{authType === "log-in" && (
 										<Link
 											to="/auth/forgot-password"
 											className="ml-auto text-xs text-neutral-400 hover:text-white hover:underline"
@@ -288,14 +294,15 @@ export default function Route() {
 								/>
 							</TextField>
 						)}
-						{authType === 'sign-up' && (
+						{authType === "sign-up" && (
 							<>
 								<TextField
 									type="text"
 									name="confirm-password"
 									validate={(val) => {
-										if (!val) return 'Please enter your password.';
-										if (val !== passwordRef.current) return 'Passwords do not match.';
+										if (!val) return "Please enter your password.";
+										if (val !== passwordRef.current)
+											return "Passwords do not match.";
 									}}
 									className="flex w-full flex-col gap-0.5"
 									isRequired
@@ -310,32 +317,34 @@ export default function Route() {
 								<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" />
 							</>
 						)}
-						{authType !== 'forgot-password' && (
+						{authType !== "forgot-password" && (
 							<>
 								<Button
 									type="submit"
 									className="mt-2 h-12 w-full rounded-lg bg-indigo-600 text-lg font-semibold"
 								>
-									{state === 'submitting' ? (
+									{state === "submitting" ? (
 										<img
 											src="../assets/spinner.svg"
 											className="mx-auto fill-white p-2"
 											alt="Spinner"
 										/>
-									) : authType === 'log-in' ? (
-										'Log In'
+									) : authType === "log-in" ? (
+										"Log In"
 									) : (
-										'Sign Up'
+										"Sign Up"
 									)}
 								</Button>
 								<p className="text-sm">
-									{authType === 'log-in' ? "Don't have an account?" : 'Already have an account?'}
+									{authType === "log-in"
+										? "Don't have an account?"
+										: "Already have an account?"}
 									<Link
 										replace
-										to={`/auth/${authType === 'log-in' ? 'sign-up' : 'log-in'}`}
+										to={`/auth/${authType === "log-in" ? "sign-up" : "log-in"}`}
 										className="ml-1 font-semibold text-indigo-400 underline-offset-4 hover:underline"
 									>
-										{authType === 'log-in' ? 'Sign up' : 'Log in'}
+										{authType === "log-in" ? "Sign up" : "Log in"}
 									</Link>
 								</p>
 								<div className="my-2 flex w-full items-center justify-center gap-4 px-2 [&>hr]:h-0.5 [&>hr]:grow [&>hr]:bg-white">
@@ -349,7 +358,12 @@ export default function Route() {
 										className="flex h-12 w-full items-center justify-center gap-5 rounded-lg bg-white font-semibold text-black"
 									>
 										Continue with Google
-										<img src="/google.svg" alt="Google Logo" height={24} width={24} />
+										<img
+											src="/google.svg"
+											alt="Google Logo"
+											height={24}
+											width={24}
+										/>
 									</Link>
 								)}
 								{gitHubAuthUrl && (
@@ -358,7 +372,12 @@ export default function Route() {
 										className="flex h-12 w-full items-center justify-center gap-5 rounded-lg bg-white font-semibold text-black"
 									>
 										Continue with GitHub
-										<img src="/github.svg" alt="GitHub Logo" height={24} width={24} />
+										<img
+											src="/github.svg"
+											alt="GitHub Logo"
+											height={24}
+											width={24}
+										/>
 									</Link>
 								)}
 							</>

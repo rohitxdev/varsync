@@ -1,16 +1,16 @@
-import { Button, Tab, TabList, TabPanel, Tabs } from 'react-aria-components';
-import { LuCopy } from 'react-icons/lu';
-import toast from 'react-hot-toast';
-import { useSearchParams } from '@remix-run/react';
-import hljs from 'highlight.js/lib/core';
-import js from 'highlight.js/lib/languages/javascript';
-import go from 'highlight.js/lib/languages/go';
-import python from 'highlight.js/lib/languages/python';
-import 'highlight.js/styles/tokyo-night-dark.css';
+import { Button, Tab, TabList, TabPanel, Tabs } from "react-aria-components";
+import { LuCopy } from "react-icons/lu";
+import toast from "react-hot-toast";
+import { useSearchParams } from "@remix-run/react";
+import hljs from "highlight.js/lib/core";
+import js from "highlight.js/lib/languages/javascript";
+import go from "highlight.js/lib/languages/go";
+import python from "highlight.js/lib/languages/python";
+import "highlight.js/styles/tokyo-night-dark.css";
 
-hljs.registerLanguage('javascript', js);
-hljs.registerLanguage('go', go);
-hljs.registerLanguage('python', python);
+hljs.registerLanguage("javascript", js);
+hljs.registerLanguage("go", go);
+hljs.registerLanguage("python", python);
 
 interface CodeBlockProps {
 	data: {
@@ -19,11 +19,11 @@ interface CodeBlockProps {
 	}[];
 }
 
-const defaultLang = 'javascript';
+const defaultLang = "javascript";
 
 export const CodeBlock = (props: CodeBlockProps) => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const lang = searchParams.get('lang') || defaultLang;
+	const lang = searchParams.get("lang") || defaultLang;
 
 	return (
 		<Tabs
@@ -31,7 +31,7 @@ export const CodeBlock = (props: CodeBlockProps) => {
 			onSelectionChange={(key) =>
 				setSearchParams(
 					(params) => {
-						params.set('lang', key.toString());
+						params.set("lang", key.toString());
 						return params;
 					},
 					{
@@ -40,7 +40,9 @@ export const CodeBlock = (props: CodeBlockProps) => {
 					},
 				)
 			}
-			defaultSelectedKey={props.data.find((item) => item.language === lang) ? lang : defaultLang}
+			defaultSelectedKey={
+				props.data.find((item) => item.language === lang) ? lang : defaultLang
+			}
 		>
 			<TabList className="flex divide-x-[1px] divide-neutral-600 overflow-hidden">
 				{props.data.map((item) => (
@@ -70,8 +72,8 @@ export const CodeBlock = (props: CodeBlockProps) => {
 						className="absolute right-0 top-0 m-2 rounded p-2 duration-100 hover:bg-white/10"
 						onPress={() =>
 							toast.promise(navigator.clipboard.writeText(item.code), {
-								success: 'Copied to clipboard',
-								error: 'Failed to copy',
+								success: "Copied to clipboard",
+								error: "Failed to copy",
 								loading: null,
 							})
 						}

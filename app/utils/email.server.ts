@@ -1,5 +1,5 @@
-import { SESClient, SendEmailCommand, type SendEmailCommandInput } from '@aws-sdk/client-ses';
-import { config } from '~/utils/config';
+import { SESClient, SendEmailCommand, type SendEmailCommandInput } from "@aws-sdk/client-ses";
+import { config } from "~/utils/config";
 
 const sesClient = new SESClient({
 	region: config.AWS_REGION,
@@ -16,16 +16,16 @@ export const sendEmail = async (to: string, subject: string, body: string) => {
 		},
 		Message: {
 			Subject: {
-				Charset: 'UTF-8',
+				Charset: "UTF-8",
 				Data: subject,
 			},
 			Body: {
 				Html: {
-					Charset: 'UTF-8',
+					Charset: "UTF-8",
 					Data: body,
 				},
 				Text: {
-					Charset: 'UTF-8',
+					Charset: "UTF-8",
 					Data: body,
 				},
 			},

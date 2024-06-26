@@ -1,4 +1,4 @@
-export const LOCALE_UK = 'en-GB';
+export const LOCALE_UK = "en-GB";
 
 export const getRandomNumber = (min: number, max: number, truncate = true) => {
 	const val = min + Math.random() * (max - min);
@@ -6,6 +6,6 @@ export const getRandomNumber = (min: number, max: number, truncate = true) => {
 };
 
 export const numFormatter = new Intl.NumberFormat(LOCALE_UK, {
-	notation: 'compact',
+	notation: "compact",
 	maximumSignificantDigits: 3,
 });
