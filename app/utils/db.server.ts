@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import { MongoClient, ObjectId, type UpdateFilter } from "mongodb";
 import { z } from "zod";
 import { config } from "./config.server";
@@ -30,74 +29,134 @@ const db = mongoClient.db("varsync");
 
 //Projects
 
+const apiKeySchema = z.object({
+	_id: z.string().uuid(),
+	label: z.string().min(1),
+	key: z.string().min(1),
+	lastUsed: z.string().min(1),
+});
+
 const projectSchema = z.object({
-	name: z.string(),
-	slug: z.string(),
-	variables: z.object({}),
-	access_tokens: z.array(z.string()),
-	userId: z.string(),
+	name: z.string().min(1),
+	description: z.string().min(1).optional(),
+	slug: z.string().min(1),
+	envs: z.object({}),
+	default_values: z.object({}),
+	access_tokens: z.array(apiKeySchema),
+	userId: z.string().min(1),
 });
 
 const projects = db.collection<z.infer<typeof projectSchema>>("projects");
 await projects.createIndex({ userId: 1 });
 await projects.createIndex({ name: 1, userId: 1 }, { unique: true });
 
-export const getAllProjects = async (userId: string) => await projects.find({ userId }).toArray();
+export const getAllProjects = async (userId: string) => {
+	const res = await projects
+		.find({ userId })
+		.project({ _id: 1, slug: 1, name: 1, description: 1, envs: 1 })
+		.toArray();
+	return res.map((item) => ({
+		_id: item._id,
+		slug: item.slug,
+		name: item.name,
+		description: item?.description,
+		envs: Object.keys(item.envs),
+	}));
+};
+
+export const getProjectById = async (id: string) =>
+	await projects.findOne({ _id: new ObjectId(id) });
 
 export const getProject = async ({ slug, userId }: { slug: string; userId: string }) =>
 	await projects.findOne({ slug, userId });
 
 export const createProject = async ({
 	name,
+	description,
 	envs,
 	userId,
 }: {
 	name: string;
+	description?: string;
 	envs: string[];
 	userId: string;
 }) => {
-	const variables: Record<string, Record<string, string | boolean>> = {};
+	const updatedEnvs: Record<string, Record<string, string | boolean>> = {};
 	for (const env of envs) {
-		variables[env] = {};
+		updatedEnvs[env] = {};
 	}
 	await projects.insertOne({
 		name,
+		description,
 		slug: toSlug(name),
-		variables,
+		envs: updatedEnvs,
+		default_values: {},
 		access_tokens: [],
 		userId,
 	});
 };
 
 export const updateProject = async ({
-	updatedName,
+	name,
 	slug,
+	envs,
 	userId,
 }: {
-	updatedName: string;
+	name: string;
 	slug: string;
+	envs: string[];
 	userId: string;
-}) =>
+}) => {
+	const project = await projects.findOne({ slug, userId });
+	if (!project) return;
+	await projects.updateOne({ slug, userId }, { $set: { name: name, slug: toSlug(name), envs } });
+};
+
+export const addKeyToProject = async ({
+	key,
+	projectId,
+	label,
+}: {
+	key: string;
+	projectId: string;
+	label: string;
+}) => {
+	await projects.findOneAndUpdate(
+		{ _id: new ObjectId(projectId) },
+		{
+			$push: {
+				access_tokens: {
+					key,
+					label,
+					_id: crypto.randomUUID(),
+					lastUsed: new Date().toISOString(),
+				},
+			},
+		},
+	);
+};
+
+export const updateProject2 = async ({
+	name,
+	slug,
+	description,
+	userId,
+}: {
+	name: string;
+	slug: string;
+	description: string;
+	userId: string;
+}) => {
+	const project = await projects.findOne({ slug, userId });
+	if (!project) return;
 	await projects.updateOne(
 		{ slug, userId },
-		{ $set: { name: updatedName, slug: toSlug(updatedName) } },
+		{ $set: { name: name, slug: toSlug(name), description } },
 	);
+};
 
 export const deleteProject = async ({ slug, userId }: { slug: string; userId: string }) =>
 	await projects.deleteOne({ slug, userId });
-
-//Access Tokens
-
-export const addAccessToken = async (slug: string, env: string, userId: string) => {
-	const token = jwt.sign({ slug, env }, env);
-	await projects.updateOne({ slug, userId }, { $push: { access_tokens: token } });
-};
-
-export const getAccessTokens = async (slug: string, userId: string) =>
-	(await projects.findOne({ slug, userId }))?.access_tokens ?? [];
-
-export const deleteAccessToken = async (slug: string, token: string, userId: string) =>
-	await projects.updateOne({ slug, userId }, { $pull: { access_tokens: token } });
 
 //Variables
 
@@ -117,7 +176,7 @@ export const setVariable = async ({
 	await projects.updateOne(
 		{ slug, userId },
 		{
-			$set: { [`variables.${env}.${name}`]: value },
+			$set: { [`envs.${env}.${name}`]: value },
 		},
 	);
 
@@ -131,7 +190,7 @@ export const deleteVariable = async ({
 	env: string;
 	slug: string;
 	userId: string;
-}) => await projects.updateOne({ slug, userId }, { $unset: { [`variables.${env}.${name}`]: "" } });
+}) => await projects.updateOne({ slug, userId }, { $unset: { [`envs.${env}.${name}`]: "" } });
 
 //Users
 
@@ -179,11 +238,24 @@ const logSchema = z.object({
 
 const logs = db.collection<z.infer<typeof logSchema>>("logs");
 
-export const getLogs = async ({ slug, userId }: { slug: string; userId: string }) => {
+export const getLogs = async ({
+	slug,
+	userId,
+	from,
+	to,
+}: {
+	slug: string;
+	userId: string;
+	from: Date;
+	to: Date;
+}) => {
 	const project = await getProject({ slug, userId });
 	if (!project) return [];
 	return await logs
-		.find({ projectId: project?._id.toString() }, { sort: { timestamp: -1 } })
+		.find(
+			{ projectId: project?._id.toString(), timestamp: { $gte: from, $lte: to } },
+			{ sort: { timestamp: -1 } },
+		)
 		.toArray();
 };
 
@@ -206,4 +278,18 @@ export const addLog = async ({
 		message,
 		timestamp: new Date(),
 	});
+};
+
+//Account
+
+export const updateUserName = async (name: string, userId: string) =>
+	await users.updateOne({ _id: new ObjectId(userId) }, { $set: { fullName: name } });
+
+//Api Keys
+
+export const getAllKeys = async (slug: string, userId: string) => {
+	const project = await projects.findOne({ slug, userId });
+	if (!project) return [];
+
+	return project.access_tokens;
 };

@@ -10,6 +10,10 @@ import {
 	DialogTrigger,
 	ModalOverlay as AriaModalOverlay,
 	Modal as AriaModal,
+	Input,
+	Label,
+	TextField,
+	FieldError,
 } from "react-aria-components";
 
 interface SwitchProps extends Omit<ComponentProps<"input">, "type" | "onInput"> {}
@@ -17,7 +21,7 @@ interface SwitchProps extends Omit<ComponentProps<"input">, "type" | "onInput"> 
 export const Switch = ({ className, ...rest }: SwitchProps) => {
 	return (
 		<input
-			className={`relative isolate box-content h-5 w-10 appearance-none rounded-full bg-neutral-600 p-1 before:absolute before:left-1 before:top-1 before:z-10 before:size-5 before:rounded-full before:bg-white before:duration-100 before:content-[''] checked:bg-blue-600 checked:duration-200 checked:before:translate-x-full ${className}`}
+			className={`relative isolate box-content h-5 w-10 appearance-none rounded-full bg-neutral-600 p-0.5 before:absolute before:top-0.5 before:left-0.5 before:z-10 before:size-5 checked:before:translate-x-full before:rounded-full before:bg-white checked:bg-blue-600 before:duration-100 checked:duration-200 before:content-[''] ${className}`}
 			type="checkbox"
 			{...rest}
 		/>
@@ -27,20 +31,25 @@ export const Switch = ({ className, ...rest }: SwitchProps) => {
 interface SelectProps extends ComponentProps<typeof AriaSelect> {
 	options: ReactNode[];
 	placement?: ComponentProps<typeof Popover>["placement"];
+	label?: ReactNode;
 }
 
-export const Select = ({ options, placement, className, ...rest }: SelectProps) => {
+export const Select = ({ options, placement, label, className, ...rest }: SelectProps) => {
 	return (
 		<AriaSelect className={`mr-auto ${className}`} {...rest}>
-			<Button className="flex h-8 w-full items-center justify-between gap-2 rounded-md border border-black bg-white/10 px-2 pl-3 text-sm font-medium *:shrink-0">
+			<Label className="text-slate-400 text-xs empty:hidden">{label}</Label>
+			<Button className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-white/10 pr-2 pl-3 font-medium *:shrink-0">
 				<SelectValue className="w-3/4 overflow-hidden text-ellipsis text-start capitalize" />
 				<LuChevronsUpDown className="stroke-[3]" />
 			</Button>
-			<Popover placement={placement}>
-				<ListBox className="w-[--trigger-width] rounded-md border border-black bg-slate-800 p-1 text-sm font-medium">
+			<Popover className="bg-dark" placement={placement}>
+				<ListBox
+					selectionMode="multiple"
+					className="w-[--trigger-width] rounded-md border border-white/10 p-1 font-medium"
+				>
 					{options.map((item, i) => (
 						<ListBoxItem
-							className="overflow-hidden text-ellipsis rounded p-1 capitalize outline-none focus:bg-white/10"
+							className="overflow-hidden text-ellipsis rounded py-1 pr-2 pl-3 capitalize outline-none focus:bg-white/5"
 							// biome-ignore lint/suspicious/noArrayIndexKey: No way to get a stable key
 							key={i}
 							id={item?.toString()}
@@ -72,7 +81,7 @@ export const Modal = ({
 			{children}
 			<AriaModalOverlay className="fixed inset-0 flex min-h-full items-center justify-center bg-black/60 duration-150">
 				<AriaModal
-					className={`bg-navy-blue shadow-xl outline-none duration-150 *:max-w-[90vw] *:border *:border-white/20 *:bg-white/5 *:outline-none entering:scale-95 entering:ease-out ${className}`}
+					className={`entering:zoom-in-95 exiting:zoom-out-95 bg-dark shadow-xl outline-none *:max-w-[90vw] entering:animate-in exiting:animate-out *:border *:border-white/20 *:bg-white/5 *:outline-none entering:duration-200 exiting:duration-200 entering:ease-out exiting:ease-in ${className}`}
 					{...rest}
 				>
 					{dialog}
@@ -98,7 +107,7 @@ export const AccordionItem = ({ title, description }: AccordionItemProps) => {
 			aria-labelledby={`title-${id}`}
 		>
 			<button
-				className="flex w-full items-center justify-between text-xl font-semibold"
+				className="flex w-full items-center justify-between font-semibold text-xl"
 				type="button"
 				onClick={() => setIsOpen((val) => !val)}
 			>
@@ -124,5 +133,23 @@ export const AccordionItem = ({ title, description }: AccordionItemProps) => {
 				</div>
 			</div>
 		</div>
+	);
+};
+
+interface InputFieldProps extends ComponentProps<typeof TextField> {
+	label?: ReactNode;
+	placeholder?: string;
+}
+
+export const InputField = ({ label, placeholder, className, ...rest }: InputFieldProps) => {
+	return (
+		<TextField className="grid gap-1" {...rest}>
+			<Label className="text-slate-400 text-xs empty:hidden">{label}</Label>
+			<Input
+				className={`rounded bg-white/5 px-3 py-1.5 font-medium outline outline-white/20 duration-100 focus:outline-blue-500/80 ${className}`}
+				placeholder={placeholder}
+			/>
+			<FieldError className="text-red-500 text-xs" />
+		</TextField>
 	);
 };

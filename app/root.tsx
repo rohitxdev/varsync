@@ -1,12 +1,21 @@
 import "~/root.css";
 import { Toaster } from "react-hot-toast";
 
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError } from "@remix-run/react";
+import {
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+	useRevalidator,
+	useRouteError,
+} from "@remix-run/react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { getSession, getUserFromSession } from "./utils/auth.server";
+import { getUserFromRequest } from "./utils/auth.server";
 import { LOCALE_UK } from "./utils/misc";
 import { config } from "./utils/config.server";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
+import { useEffect } from "react";
 
 export const ErrorBoundary = () => {
 	const error = useRouteError();
@@ -61,8 +70,7 @@ const clientConfig = {
 
 export const loader = async (args: LoaderFunctionArgs) => {
 	const locale = args.request.headers.get("Accept-Language")?.split(",")[0] ?? LOCALE_UK;
-	const session = await getSession(args.request.headers.get("Cookie"));
-	const user = await getUserFromSession(session);
+	const user = await getUserFromRequest(args.request);
 
 	return {
 		config: clientConfig,
@@ -71,28 +79,40 @@ export const loader = async (args: LoaderFunctionArgs) => {
 	};
 };
 
-const App = () => (
-	<html lang="en">
-		<head>
-			<meta charSet="utf-8" />
-			<meta name="viewport" content="width=device-width, initial-scale=1" />
-			<link rel="preconnect" href="https://fonts.googleapis.com" />
-			<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-			<link
-				href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..800&display=swap"
-				rel="stylesheet"
-			/>
-			<link rel="shortcut icon" href="/logo.svg" type="image/svg+xml" />
-			<Meta />
-			<Links />
-		</head>
-		<body className="bg-dark font-inter text-white">
-			<Toaster />
-			<Outlet />
-			<ScrollRestoration />
-			<Scripts />
-		</body>
-	</html>
-);
+const App = () => {
+	const { revalidate } = useRevalidator();
+
+	useEffect(() => {
+		const handleVisibilityChange = () => document.visibilityState === "visible" && revalidate();
+
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+
+		return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+	}, [revalidate]);
+
+	return (
+		<html lang="en">
+			<head>
+				<meta charSet="utf-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+				<link
+					href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+					rel="stylesheet"
+				/>
+				<link rel="shortcut icon" href="/logo.svg" type="image/svg+xml" />
+				<Meta />
+				<Links />
+			</head>
+			<body className="bg-dark font-archivo text-white">
+				<Toaster position="bottom-right" />
+				<Outlet />
+				<ScrollRestoration />
+				<Scripts />
+			</body>
+		</html>
+	);
+};
 
 export default App;

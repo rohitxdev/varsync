@@ -1,15 +1,18 @@
 import { useFetcher } from "@remix-run/react";
 import { useState, useRef, useEffect } from "react";
-import { LuX, LuPlus, LuAlertCircle } from "react-icons/lu";
-import { Button, Dialog, Label, Heading, TextField, Input } from "react-aria-components";
+import { LuX, LuPlus } from "react-icons/lu";
+import { Dialog, Label, Heading } from "react-aria-components";
 import toast from "react-hot-toast";
 import Spinner from "~/assets/spinner.svg?react";
+import { Button } from "~/components/buttons";
+import { InputField } from "~/components/ui";
 
 export const NewProjectDialog = () => {
+	const [name, setName] = useState("");
+	const [description, setDescription] = useState("");
 	const [envs, setEnvs] = useState<string[]>(["development", "production"]);
 	const [text, setText] = useState("");
 	const [showInput, setShowInput] = useState(false);
-	const [name, setName] = useState("");
 	const fetcher = useFetcher();
 
 	const closeFn = useRef<(() => void) | null>(null);
@@ -23,43 +26,48 @@ export const NewProjectDialog = () => {
 	}, [fetcher.state]);
 
 	return (
-		<Dialog className="rounded bg-neutral-100 p-6 font-medium text-black">
+		<Dialog className="rounded-lg bg-neutral-100 p-6 font-medium">
 			{({ close }) => (
 				<fetcher.Form
-					className="grid w-96 gap-2"
+					className="grid w-96 gap-3"
 					onSubmit={async (e) => {
 						e.preventDefault();
 						fetcher.submit(
-							{ name, envs },
+							{ name, description, envs },
 							{ method: "POST", encType: "application/json" },
 						);
 						closeFn.current = close;
 					}}
 				>
-					<Heading className="text-lg font-semibold">Add new project</Heading>
-					<TextField className="grid gap-1" isRequired>
-						<Label className="text-xs text-neutral-600">Name</Label>
-						<Input
-							className="rounded border px-2 py-1"
-							value={name}
-							onInput={(e) => setName(e.currentTarget.value)}
-						/>
-					</TextField>
+					<Heading className="font-semibold text-xl">Create new project</Heading>
+					<InputField
+						label="Name"
+						value={name}
+						onInput={(e) => setName(e.currentTarget.value)}
+						isRequired
+						autoFocus
+					/>
+					<InputField
+						label={
+							<>
+								Description <span className="text-2xs text-slate-400">(Optional)</span>
+							</>
+						}
+						value={description}
+						onInput={(e) => setDescription(e.currentTarget.value)}
+						maxLength={150}
+					/>
 					<div className="grid gap-1">
-						<Label className="text-xs text-neutral-600">Environments</Label>
-						<div className="flex flex-wrap gap-1 text-sm [&_svg]:stroke-[3]">
+						<Label className="text-neutral-300 text-xs">Environments</Label>
+						<div className="flex flex-wrap gap-1 text-sm [&_svg]:stroke-[3] [&_button]:outline-none">
 							{envs.map((item, i) => (
 								<div
-									className={`flex h-8 items-center gap-1 rounded-full bg-blue-100 px-3 text-blue-600 ${envs.length === 1 && "cursor-not-allowed opacity-50"}`}
+									className={`flex h-8 items-center gap-2 rounded border border-white/20 px-3 text-white ${envs.length === 1 && "cursor-not-allowed opacity-50"}`}
 									key={item}
 								>
 									<span>{item}</span>
 									<Button
-										onPress={() =>
-											setEnvs((items) =>
-												items.filter((_item, idx) => idx !== i),
-											)
-										}
+										onPress={() => setEnvs((items) => items.filter((_item, idx) => idx !== i))}
 										isDisabled={envs.length === 1}
 									>
 										<LuX />
@@ -67,29 +75,29 @@ export const NewProjectDialog = () => {
 								</div>
 							))}
 							{showInput ? (
-								<div className="flex overflow-hidden rounded-full border border-black">
+								<div className="flex overflow-hidden rounded outline outline-1 outline-white/20 focus-within:outline-blue-500/80">
 									<input
-										className="rounded-l-full bg-transparent px-2 py-1"
+										className="h-8 bg-transparent px-3 outline-none"
 										type="text"
 										onInput={(e) => setText(e.currentTarget.value)}
 										onKeyDown={(e) => {
 											if (e.key === "Enter" && text) {
 												setEnvs((items) => [...items, text.trim()]);
 												setText("");
+												setShowInput(false);
 											}
 										}}
+										// biome-ignore lint/a11y/noAutofocus: necessary
+										autoFocus
 										value={text}
 									/>
-									<Button
-										className="rounded-r-full px-2 py-1"
-										onPress={() => setShowInput(false)}
-									>
+									<Button className="px-2 py-1" onPress={() => setShowInput(false)}>
 										<LuX />
 									</Button>
 								</div>
 							) : (
 								<Button
-									className="size-8 rounded-full bg-blue-100 text-blue-600 *:mx-auto"
+									className="size-8 rounded border border-white/20 *:mx-auto"
 									onPress={() => setShowInput(true)}
 								>
 									<LuPlus />
@@ -97,19 +105,15 @@ export const NewProjectDialog = () => {
 							)}
 						</div>
 					</div>
-					<div className="mt-6 flex justify-end gap-4 text-sm font-semibold *:w-24">
-						<Button className="rounded bg-neutral-300 py-2" onPress={close}>
+					<div className="mt-6 flex justify-end gap-4 font-semibold text-sm *:w-24">
+						<Button variant="secondary" onPress={close}>
 							Cancel
 						</Button>
-						<Button
-							className="flex h-9 w-32 items-center justify-center rounded bg-blue-500 text-white disabled:brightness-90"
-							type="submit"
-							isDisabled={fetcher.state === "submitting"}
-						>
+						<Button variant="primary" type="submit" isDisabled={fetcher.state === "submitting"}>
 							{fetcher.state === "submitting" ? (
 								<Spinner className="size-5 fill-white" />
 							) : (
-								"Add"
+								"Create"
 							)}
 						</Button>
 					</div>
@@ -122,11 +126,19 @@ export const NewProjectDialog = () => {
 interface EditProjectDialogProps {
 	projectName: string;
 	slug: string;
+	envs: string[];
 }
 
-export const EditProjectDialog = ({ projectName, slug }: EditProjectDialogProps) => {
+export const EditProjectDialog = ({
+	projectName,
+	slug,
+	envs: defaultEnvs,
+}: EditProjectDialogProps) => {
 	const fetcher = useFetcher();
-	const [name, setName] = useState("");
+	const [name, setName] = useState(projectName);
+	const [envs, setEnvs] = useState<string[]>(defaultEnvs);
+	const [text, setText] = useState("");
+	const [showInput, setShowInput] = useState(false);
 	const closeFn = useRef<(() => void) | null>(null);
 
 	useEffect(() => {
@@ -138,124 +150,84 @@ export const EditProjectDialog = ({ projectName, slug }: EditProjectDialogProps)
 	}, [fetcher.state]);
 
 	return (
-		<Dialog className="rounded bg-neutral-100 p-6 font-medium text-black">
+		<Dialog className="rounded-lg p-6 font-medium">
 			{({ close }) => (
 				<fetcher.Form
 					className="w-80"
 					onSubmit={(e) => {
 						e.preventDefault();
-						fetcher.submit(
-							{ slug, updatedName: name },
-							{ method: "PATCH", encType: "application/json" },
-						);
+						fetcher.submit({ slug, name, envs }, { method: "PATCH", encType: "application/json" });
 						closeFn.current = close;
 					}}
 				>
-					<Heading className="text-lg font-semibold">Edit Project</Heading>
-					<p className="mt-1 text-sm text-neutral-500">Update project name</p>
-					<TextField
-						className="group mt-4 flex flex-col gap-1"
+					<Heading className="font-semibold text-xl">Edit Project</Heading>
+					<InputField
+						className="group mt-4 mb-2 invalid:outline-1 invalid:outline-red-500"
 						onChange={setName}
-						isInvalid={name === projectName}
+						isInvalid={name.length === 0}
 						isRequired
-					>
-						<Label className="text-sm">Enter the name of the project</Label>
-						<Input className="rounded border px-2 py-1 invalid:outline-red-500" />
-						<p
-							className="invisible flex items-center gap-1 text-xs text-red-500 group-invalid:visible"
-							aria-label="Error"
-						>
-							<LuAlertCircle />
-							<span>New name cannot be the old name</span>
-						</p>
-					</TextField>
-					<div className="mt-4 flex justify-end gap-4 text-sm font-semibold *:h-9 *:w-32">
-						<Button className="rounded bg-neutral-300" onPress={close}>
+						defaultValue={projectName}
+					/>
+					<div className="grid gap-1">
+						<Label className="text-neutral-300 text-xs">Environments</Label>
+						<div className="flex flex-wrap gap-1 text-sm [&_svg]:stroke-[3] [&_button]:outline-none">
+							{envs.map((item, i) => (
+								<div
+									className={`flex h-8 items-center gap-2 rounded-full bg-white px-3 ${envs.length === 1 && "cursor-not-allowed opacity-50"}`}
+									key={item}
+								>
+									<span>{item}</span>
+									<Button
+										onPress={() => setEnvs((items) => items.filter((_item, idx) => idx !== i))}
+										isDisabled={envs.length === 1}
+									>
+										<LuX />
+									</Button>
+								</div>
+							))}
+							{showInput ? (
+								<div className="flex overflow-hidden rounded-full bg-white focus-within:outline">
+									<input
+										className="h-8 w-32 rounded-l-full bg-transparent px-3 text-black outline-none"
+										type="text"
+										onInput={(e) => setText(e.currentTarget.value)}
+										onKeyDown={(e) => {
+											if (e.key === "Enter" && text) {
+												setEnvs((items) => [...items, text.trim()]);
+												setText("");
+												setShowInput(false);
+											}
+										}}
+										// biome-ignore lint/a11y/noAutofocus: necessary
+										autoFocus
+										value={text}
+									/>
+									<Button
+										className="rounded-r-full px-2 py-1 text-black"
+										onPress={() => setShowInput(false)}
+									>
+										<LuX />
+									</Button>
+								</div>
+							) : (
+								<Button
+									className="size-8 rounded-full bg-white text-black *:mx-auto"
+									onPress={() => setShowInput(true)}
+								>
+									<LuPlus />
+								</Button>
+							)}
+						</div>
+					</div>
+					<div className="mt-6 flex justify-end gap-4 font-semibold text-sm *:h-9 *:w-32">
+						<Button variant="secondary" onPress={close}>
 							Cancel
 						</Button>
-						<Button
-							className="flex items-center justify-center rounded bg-blue-500 text-white disabled:brightness-90"
-							type="submit"
-							isDisabled={fetcher.state === "submitting"}
-						>
+						<Button variant="primary" type="submit" isDisabled={fetcher.state === "submitting"}>
 							{fetcher.state === "submitting" ? (
 								<Spinner className="size-5 fill-white" />
 							) : (
 								"Update"
-							)}
-						</Button>
-					</div>
-				</fetcher.Form>
-			)}
-		</Dialog>
-	);
-};
-
-interface DeleteProjectDialogProps {
-	projectName: string;
-	slug: string;
-}
-
-export const DeleteProjectDialog = ({ projectName, slug }: DeleteProjectDialogProps) => {
-	const fetcher = useFetcher();
-	const [name, setName] = useState("");
-	const closeFn = useRef<(() => void) | null>(null);
-
-	useEffect(() => {
-		if (closeFn.current && fetcher.state === "idle") {
-			toast.dismiss();
-			toast.success("Deleted project successfully");
-			closeFn.current?.();
-		}
-	}, [fetcher.state]);
-
-	return (
-		<Dialog className="w-96 rounded bg-neutral-100 p-6 font-medium text-black">
-			{({ close }) => (
-				<fetcher.Form
-					onSubmit={(e) => {
-						e.preventDefault();
-						fetcher.submit({ slug }, { method: "DELETE", encType: "application/json" });
-						closeFn.current = close;
-					}}
-				>
-					<Heading className="text-lg font-semibold">Delete Project</Heading>
-					<p className="mt-1 text-sm text-neutral-500">
-						This project and all its environments will be deleted. This action cannot be
-						undone.
-					</p>
-					<TextField
-						className="group mt-4 flex flex-col gap-1"
-						onChange={setName}
-						isInvalid={name.length > 0 && name !== projectName}
-						isRequired
-					>
-						<Label className="text-xs font-normal">
-							Please type <span className="font-semibold">{projectName}</span> to
-							confirm.
-						</Label>
-						<Input className="rounded border px-2 py-1 invalid:outline-red-500" />
-						<p
-							className="invisible flex items-center gap-1 text-xs text-red-500 group-invalid:visible"
-							aria-label="Error"
-						>
-							<LuAlertCircle />
-							<span>Project name must match</span>
-						</p>
-					</TextField>
-					<div className="mt-4 flex justify-end gap-4 text-sm font-semibold *:h-9 *:w-32">
-						<Button className="rounded bg-neutral-300" onPress={close}>
-							Cancel
-						</Button>
-						<Button
-							className="flex items-center justify-center rounded bg-red-500 text-white disabled:brightness-90"
-							type="submit"
-							isDisabled={fetcher.state === "submitting"}
-						>
-							{fetcher.state === "submitting" ? (
-								<Spinner className="size-5 fill-white" />
-							) : (
-								"Delete"
 							)}
 						</Button>
 					</div>

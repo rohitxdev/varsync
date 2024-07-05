@@ -3,7 +3,7 @@ import { Form, Link, useLoaderData, useNavigation, useParams } from "@remix-run/
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import { useRef } from "react";
-import { Button, Input, Label, TextField } from "react-aria-components";
+import { Button } from "react-aria-components";
 import toast from "react-hot-toast";
 import { LuArrowLeft } from "react-icons/lu";
 import { z } from "zod";
@@ -22,6 +22,8 @@ import { getRandomNumber } from "~/utils/misc";
 import { createUser, getUserByEmail, updateUser } from "~/utils/db.server";
 import { config } from "~/utils/config.server";
 import { useRootLoader } from "~/utils/hooks";
+import { InputField } from "~/components/ui";
+import Spinner from "../../assets/spinner.svg?react";
 
 const authTypeSchema = z.enum(["log-in", "sign-up", "forgot-password"]);
 
@@ -70,7 +72,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 			session.set("userId", user._id.toString());
 
-			return redirect("/", {
+			return json(null, {
 				headers: {
 					"Set-Cookie": await commitSession(session),
 				},
@@ -96,7 +98,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 			session.set("userId", userId);
 
-			return redirect("/", {
+			return json(null, {
 				headers: {
 					"Set-Cookie": await commitSession(session),
 				},
@@ -104,7 +106,7 @@ export const action = async (args: ActionFunctionArgs) => {
 		}
 
 		case "log-out":
-			return redirect("/", {
+			return json(null, {
 				headers: {
 					"Set-Cookie": await destroySession(session),
 				},
@@ -136,7 +138,6 @@ export const action = async (args: ActionFunctionArgs) => {
 
 export const loader = async (args: LoaderFunctionArgs) => {
 	const session = await getSession(args.request.headers.get("Cookie"));
-
 	if (session.has("userId")) return redirect("/");
 
 	const { searchParams, origin } = new URL(args.request.url);
@@ -212,7 +213,7 @@ export default function Route() {
 	const gitHubAuthUrl = data?.gitHubAuthUrl;
 	const passwordRef = useRef<string | null>(null);
 	const { state } = useNavigation();
-	const { config, user } = useRootLoader();
+	const { user } = useRootLoader();
 
 	return (
 		<div className="flex h-screen w-full flex-col items-center justify-center gap-12">
@@ -229,28 +230,20 @@ export default function Route() {
 				</>
 			) : (
 				<>
+					<div className="flex items-center gap-4">
+						<img src="/logo.svg" alt="Logo" height={40} width={40} />
+						<h2 className="mt-2 font-semibold text-4xl">Varsync</h2>
+					</div>
 					<Form
-						className="flex w-[36ch] shrink-0 flex-col items-center gap-4 rounded-lg p-6 ring-1 ring-white/30"
+						className="grid w-96 shrink-0 items-center gap-4 rounded-lg p-6 ring-1 ring-white/30 [&_label]:text-sm [&_label]:text-white"
 						method="POST"
 						action={`/auth/${authType}`}
 					>
-						<TextField
-							type="email"
-							name="email"
-							autoComplete="email"
-							className="flex w-full flex-col gap-0.5"
-						>
-							<Label className="font-medium">Email</Label>
-							<Input
-								required
-								placeholder="Email"
-								className="rounded-md bg-white/20 px-3 py-2 font-medium text-lg placeholder:text-lg"
-							/>
-						</TextField>
+						<InputField type="email" name="email" autoComplete="email" label="Email" isRequired />
 						{authType === "forgot-password" && (
 							<Button
 								type="submit"
-								className="mt-2 h-12 w-full rounded-lg bg-indigo-600 font-semibold text-lg"
+								className="mt-2 h-12 w-full rounded-lg bg-blue-600 font-semibold text-lg"
 								onPress={() =>
 									toast.success("Sent email!", {
 										style: { fontWeight: 500 },
@@ -261,7 +254,7 @@ export default function Route() {
 							</Button>
 						)}
 						{authType !== "forgot-password" && (
-							<TextField
+							<InputField
 								type="text"
 								name="password"
 								autoComplete="current-password"
@@ -274,45 +267,34 @@ export default function Route() {
 								onInput={(e) => {
 									passwordRef.current = e.currentTarget.value;
 								}}
-								className="flex w-full flex-col gap-0.5"
+								label={
+									<span className="flex items-center justify-between">
+										Password
+										{authType === "log-in" && (
+											<Link
+												to="/auth/forgot-password"
+												className="ml-auto text-slate-400 text-xs hover:text-white hover:underline"
+											>
+												Forgot password?
+											</Link>
+										)}
+									</span>
+								}
 								isRequired
-							>
-								<div className="flex items-end justify-between">
-									<Label className="font-medium">Password</Label>
-									{authType === "log-in" && (
-										<Link
-											to="/auth/forgot-password"
-											className="ml-auto text-neutral-400 text-xs hover:text-white hover:underline"
-										>
-											Forgot password?
-										</Link>
-									)}
-								</div>
-								<Input
-									placeholder="Password"
-									className="rounded-md bg-white/20 px-3 py-2 font-medium text-lg"
-								/>
-							</TextField>
+							/>
 						)}
 						{authType === "sign-up" && (
 							<>
-								<TextField
+								<InputField
 									type="text"
 									name="confirm-password"
 									validate={(val) => {
 										if (!val) return "Please enter your password.";
-										if (val !== passwordRef.current)
-											return "Passwords do not match.";
+										if (val !== passwordRef.current) return "Passwords do not match.";
 									}}
-									className="flex w-full flex-col gap-0.5"
+									label="Confirm password"
 									isRequired
-								>
-									<Label>Confirm password</Label>
-									<Input
-										placeholder="ilovecats123"
-										className="rounded-md bg-white/20 px-3 py-2 text-lg"
-									/>
-								</TextField>
+								/>
 								<div id="captcha" />
 								<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" />
 							</>
@@ -321,33 +303,27 @@ export default function Route() {
 							<>
 								<Button
 									type="submit"
-									className="mt-2 h-12 w-full rounded-lg bg-indigo-600 font-semibold text-lg"
+									className="mt-2 h-12 w-full rounded-lg bg-blue-600 font-semibold text-lg"
 								>
 									{state === "submitting" ? (
-										<img
-											src="../assets/spinner.svg"
-											className="mx-auto fill-white p-2"
-											alt="Spinner"
-										/>
+										<Spinner className="mx-auto size-6 fill-white" />
 									) : authType === "log-in" ? (
 										"Log In"
 									) : (
 										"Sign Up"
 									)}
 								</Button>
-								<p className="text-sm">
-									{authType === "log-in"
-										? "Don't have an account?"
-										: "Already have an account?"}
+								<p className="-mt-2 text-right text-xs">
+									{authType === "log-in" ? "Don't have an account?" : "Already have an account?"}
 									<Link
 										replace
 										to={`/auth/${authType === "log-in" ? "sign-up" : "log-in"}`}
-										className="ml-1 font-semibold text-indigo-400 underline-offset-4 hover:underline"
+										className="ml-1 font-semibold text-blue-400 underline-offset-4 hover:underline"
 									>
 										{authType === "log-in" ? "Sign up" : "Log in"}
 									</Link>
 								</p>
-								<div className="my-2 flex w-full items-center justify-center gap-4 px-2 [&>hr]:h-0.5 [&>hr]:grow [&>hr]:bg-white">
+								<div className="my-2 flex w-full items-center justify-center gap-4 px-2 text-slate-400 text-sm [&>hr]:h-0.5 [&>hr]:grow [&>hr]:border-slate-400">
 									<hr />
 									<span>OR</span>
 									<hr />
@@ -358,12 +334,7 @@ export default function Route() {
 										className="flex h-12 w-full items-center justify-center gap-5 rounded-lg bg-white font-semibold text-black"
 									>
 										Continue with Google
-										<img
-											src="/google.svg"
-											alt="Google Logo"
-											height={24}
-											width={24}
-										/>
+										<img src="/google.svg" alt="Google Logo" height={24} width={24} />
 									</Link>
 								)}
 								{gitHubAuthUrl && (
@@ -372,12 +343,7 @@ export default function Route() {
 										className="flex h-12 w-full items-center justify-center gap-5 rounded-lg bg-white font-semibold text-black"
 									>
 										Continue with GitHub
-										<img
-											src="/github.svg"
-											alt="GitHub Logo"
-											height={24}
-											width={24}
-										/>
+										<img src="/github.svg" alt="GitHub Logo" height={24} width={24} />
 									</Link>
 								)}
 							</>

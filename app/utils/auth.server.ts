@@ -1,12 +1,9 @@
-import { createCookieSessionStorage, type Session } from "@remix-run/node";
+import { createCookieSessionStorage } from "@remix-run/node";
 import jwt from "jsonwebtoken";
 
 import { getUser } from "./db.server";
 import { userSchema } from "~/schemas/auth";
-import { z } from "zod";
 import { config } from "./config.server";
-
-const jwtSigningKey = z.string().parse(process.env.JWT_SIGNING_KEY);
 
 interface GoogleAuthURLProps {
 	clientId: string;
@@ -55,9 +52,7 @@ export const exchangeCodeForToken = async (code: string, redirectUri: string) =>
 
 export const exchangeTokenForUserInfo = async (token: string) => {
 	try {
-		const res = await fetch(
-			`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${token}`,
-		);
+		const res = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${token}`);
 		return await res.json();
 	} catch (err) {
 		console.log("Error in exchanging token for user info:", err);
@@ -67,7 +62,7 @@ export const exchangeTokenForUserInfo = async (token: string) => {
 
 export const verifyJWT = (token: string) => {
 	try {
-		jwt.verify(token, jwtSigningKey);
+		jwt.verify(token, config.JWT_SIGNING_KEY);
 		return true;
 	} catch (err) {
 		return false;
@@ -76,7 +71,7 @@ export const verifyJWT = (token: string) => {
 
 export const getUserFromToken = async (token: string) => {
 	try {
-		const { sub } = jwt.verify(token, jwtSigningKey) as jwt.JwtPayload;
+		const { sub } = jwt.verify(token, config.JWT_SIGNING_KEY) as jwt.JwtPayload;
 		if (!sub) return null;
 
 		const user = await getUser(sub);
@@ -99,8 +94,26 @@ interface FlashData {
 	error: string;
 }
 
-export const getUserFromSession = async (session: Session<SessionData, FlashData>) => {
+const DAY_IN_SECONDS = 1 * 24 * 60 * 60;
+
+export const { getSession, commitSession, destroySession } = createCookieSessionStorage<
+	SessionData,
+	FlashData
+>({
+	cookie: {
+		name: "__session",
+		httpOnly: true,
+		maxAge: DAY_IN_SECONDS * 7,
+		path: "/",
+		sameSite: "strict",
+		secrets: [config.JWT_SIGNING_KEY],
+		secure: process.env.NODE_ENV === "production",
+	},
+});
+
+export const getUserFromRequest = async (request: Request) => {
 	try {
+		const session = await getSession(request.headers.get("Cookie"));
 		const userId = session.get("userId");
 		if (!userId || typeof userId !== "string") return null;
 
@@ -114,27 +127,4 @@ export const getUserFromSession = async (session: Session<SessionData, FlashData
 		console.log("Error in getting user from session:", error);
 		return null;
 	}
-};
-
-const DAY_IN_SECONDS = 1 * 24 * 60 * 60;
-
-export const { getSession, commitSession, destroySession } = createCookieSessionStorage<
-	SessionData,
-	FlashData
->({
-	cookie: {
-		name: "__session",
-		httpOnly: true,
-		maxAge: DAY_IN_SECONDS * 7,
-		path: "/",
-		sameSite: "strict",
-		secrets: [jwtSigningKey],
-		secure: process.env.NODE_ENV === "production",
-	},
-});
-
-export const getUserFromSessionCookie = async (cookie: string | null) => {
-	const session = await getSession(cookie);
-	const user = await getUserFromSession(session);
-	return user;
 };

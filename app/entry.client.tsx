@@ -5,7 +5,7 @@ import { hydrateRoot } from "react-dom/client";
 
 Sentry.init({
 	dsn: import.meta.env.VITE_SENTRY_DSN,
-	tracesSampleRate: 1,
+	tracesSampleRate: 0.1,
 	replaysSessionSampleRate: 0.1,
 	replaysOnErrorSampleRate: 1,
 	environment: import.meta.env.MODE,
@@ -17,6 +17,7 @@ Sentry.init({
 		}),
 		Sentry.replayIntegration(),
 	],
+	enabled: import.meta.env.PROD,
 });
 
 startTransition(() => {
