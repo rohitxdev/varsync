@@ -12,7 +12,7 @@ export const Button = ({ variant, className, ...rest }: ButtonProps) => {
 		case "primary":
 			return (
 				<AriaButton
-					className={`flex h-9 items-center justify-center gap-2 rounded bg-blue-500 px-6 font-semibold text-white disabled:brightness-90 ${className}`}
+					className={`flex h-9 items-center justify-center gap-2 rounded bg-blue-500 px-6 font-semibold text-white disabled:cursor-not-allowed disabled:brightness-75 ${className}`}
 					{...rest}
 				/>
 			);

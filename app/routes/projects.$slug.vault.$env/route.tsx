@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect, useFetcher, useSearchParams } from "@remix-run/react";
+import { json, redirect, useFetcher, useNavigate, useParams } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import {
@@ -12,7 +12,7 @@ import {
 	LuFlag,
 	LuVariable,
 } from "react-icons/lu";
-import { addLog, deleteVariable, setVariable } from "~/utils/db.server";
+import { addLog, createVariable, deleteVariable, setVariable } from "~/utils/db.server";
 import {
 	Button,
 	TooltipTrigger,
@@ -36,6 +36,7 @@ import Void from "~/assets/void.svg?react";
 import { SearchBar } from "./search-bar";
 import { getUserFromRequest } from "~/utils/auth.server";
 import { showToast } from "~/components/toast";
+import Spinner from "../../assets/spinner.svg?react";
 
 const newVarsSchema = z.object({
 	id: z.string().optional(),
@@ -54,8 +55,7 @@ export const action = async (args: ActionFunctionArgs) => {
 	const user = await getUserFromRequest(args.request);
 	if (!user) return null;
 
-	const { searchParams } = new URL(args.request.url);
-	const env = searchParams.get("env") || "development";
+	const env = args.params.env!;
 	const slug = args.params.slug!;
 	const body = await args.request.json();
 
@@ -67,9 +67,8 @@ export const action = async (args: ActionFunctionArgs) => {
 
 			const { name, value } = parsed.data;
 
-			await setVariable({
+			await createVariable({
 				slug,
-				env,
 				name,
 				value,
 				userId: user._id.toString(),
@@ -77,7 +76,7 @@ export const action = async (args: ActionFunctionArgs) => {
 			await addLog({
 				slug,
 				env,
-				message: `Added new ${typeof value === "string" ? "variable" : "feature flag"} ${name} with value ${value}`,
+				message: `Added new ${typeof value === "string" ? "variable" : "feature flag"} ${name}`,
 				userId: user._id.toString(),
 			});
 			return json(null, { status: 200 });
@@ -95,7 +94,7 @@ export const action = async (args: ActionFunctionArgs) => {
 			addLog({
 				slug,
 				env,
-				message: `Set variable ${name} to ${value}`,
+				message: `Updated variable ${name}`,
 				userId: user._id.toString(),
 			});
 			return null;
@@ -188,7 +187,7 @@ const Variable = ({
 	}, [fetcher.state]);
 
 	return (
-		<div className="flex gap-16 rounded-md bg-white/5 px-4 py-3" key={name}>
+		<div className="flex h-14 items-center gap-8 rounded-md bg-white/5 px-6" key={name}>
 			<span
 				className="mr-auto font-medium *:rounded-sm *:bg-blue-500/50 *:text-white"
 				// biome-ignore lint/security/noDangerouslySetInnerHtml: need to escape HTML
@@ -203,13 +202,13 @@ const Variable = ({
 							className="bg-transparent outline-none"
 							value={newValue.toString()}
 							onInput={(e) => setNewValue(e.currentTarget.value)}
+							autoFocus
 						/>
 						<div className="flex gap-2">
 							<button
 								className="flex items-center justify-center"
 								onClick={() => setIsEdited(false)}
 								type="button"
-								disabled={newValue.toString() === value}
 							>
 								<LuX className="size-4" />
 							</button>
@@ -217,9 +216,13 @@ const Variable = ({
 								className="flex items-center justify-center disabled:text-neutral-400"
 								onClick={() => updateVariable({ name, value: newValue })}
 								type="button"
-								disabled={newValue.toString() === value}
+								disabled={newValue.toString() === value || fetcher.state === "submitting"}
 							>
-								<LuCheck className="size-4" />
+								{fetcher.state === "submitting" ? (
+									<Spinner className="size-4 fill-white" />
+								) : (
+									<LuCheck className="size-4" />
+								)}
 							</button>
 						</div>
 					</div>
@@ -268,14 +271,23 @@ const Variable = ({
 
 export default function Route() {
 	const fetcher = useFetcher();
+	const navigate = useNavigate();
 	const { envs } = useProject() as {
 		envs: Record<string, Record<string, string | boolean>>;
 	};
-	const [searchParams, setSearchParams] = useSearchParams();
-	const env = searchParams.get("env") ?? "development";
+	const envNames = Object.keys(envs);
+	const { env, slug } = useParams() as { env: string; slug: string };
+
 	const [searchTerm, setSearchTerm] = useState("");
 	const regex = new RegExp(searchTerm, "i");
-	const variables = Object.entries(envs[env]).filter(([key]) => regex.test(key));
+	const variables = Object.entries(envs[env] ?? {}).filter(([key]) => regex.test(key));
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: only on page load
+	useEffect(() => {
+		if (!envNames.includes(env!)) {
+			navigate(`/projects/${slug}/vault/${envNames[0]}`);
+		}
+	}, []);
 
 	return (
 		<div className="grid size-full">
@@ -284,14 +296,9 @@ export default function Route() {
 					<Select
 						className="w-40"
 						placement="top"
-						options={Object.keys(envs)}
+						options={envNames}
 						defaultSelectedKey={env}
-						onSelectionChange={(key) => {
-							setSearchParams((params) => {
-								params.set("env", key.toString());
-								return params;
-							});
-						}}
+						onSelectionChange={(key) => navigate(`/projects/${slug}/vault/${key}`)}
 					/>
 					<SearchBar onTextChange={setSearchTerm} />
 					<Modal dialog={<NewFeatureFlagDialog />}>

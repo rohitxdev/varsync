@@ -12,16 +12,104 @@ hljs.registerLanguage("javascript", js);
 hljs.registerLanguage("go", go);
 hljs.registerLanguage("python", python);
 
-interface CodeBlockProps {
-	data: {
-		language: string;
-		code: string;
-	}[];
-}
+const jsCode = `import { VarsyncClient } from 'varsync';
 
+const varsync = new VarsyncClient(import.meta.env.VARSYNC_ACCESS_TOKEN); 
+//const varsync = new VarsyncClient(process.env.VARSYNC_ACCESS_TOKEN); for node.js
+
+await varsync.init();
+
+const doSomethingCool = (usedQuota) => {
+	if (!varsync.get("IS_FEATURE_ENABLED")) return;
+
+	if(usedQuota <= varsync.get("QUOTA_LIMIT")) {
+		doStuff()
+	}
+};`;
+
+const goCode = `package main
+
+import (
+	"net/http"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/varsync/go"
+)
+
+func main() {
+	config := varsync.New(varsync.Config{
+		Env:         os.Getenv("NODE_ENV"),
+		AccessToken: os.Getenv("VARSYNC_ACCESS_TOKEN"),
+	})
+
+	r := gin.Default()
+
+	r.GET("/", func(c *gin.Context) {
+		if !config.GetBool("IS_FEATURE_ENABLED") {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+
+		user, ok := c.Get("user")
+		if !ok {
+			c.Status(http.StatusUnauthorized)
+			return
+		}
+
+		u, ok := user.(User)
+		if !ok {
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
+		if u.UsedQuota >= config.GetInt("QUOTA_LIMIT") {
+			c.Status(http.StatusForbidden)
+			return
+		}
+			
+		doStuff()
+		c.Status(http.StatusOK)
+		return
+	})
+
+	r.Run()
+}
+`;
+
+const pythonCode = `from flask import Flask, request, jsonify
+from varsync import VarsyncClient
+import os
+
+app = Flask(__name__)
+
+config = VarsyncClient(
+    env = os.getenv("NODE_ENV"),
+    access_token = os.getenv("VARSYNC_ACCESS_TOKEN")
+)
+
+@app.route('/api', methods = ['GET'])
+def handler():
+    if not config.get("IS_FEATURE_ENABLED"):
+        return '', 400
+
+    user = get_current_user()
+
+    if user['used_quota'] <= config.get("QUOTA_LIMIT"):
+        do_stuff()
+        return '', 200
+
+    return '', 403
+`;
 const defaultLang = "javascript";
 
-export const CodeBlock = (props: CodeBlockProps) => {
+const data = [
+	{ language: "javascript", code: jsCode },
+	{ language: "go", code: goCode },
+	{ language: "python", code: pythonCode },
+];
+
+export const CodeBlock = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const lang = searchParams.get("lang") || defaultLang;
 
@@ -40,14 +128,12 @@ export const CodeBlock = (props: CodeBlockProps) => {
 					},
 				)
 			}
-			defaultSelectedKey={
-				props.data.find((item) => item.language === lang) ? lang : defaultLang
-			}
+			defaultSelectedKey={data.find((item) => item.language === lang) ? lang : defaultLang}
 		>
 			<TabList className="flex divide-x-[1px] divide-neutral-600 overflow-hidden">
-				{props.data.map((item) => (
+				{data.map((item) => (
 					<Tab
-						className="flex w-full items-center justify-center gap-2 overflow-hidden text-ellipsis py-2 text-sm font-medium capitalize outline-none selected:bg-neutral-800"
+						className="flex w-full items-center justify-center gap-2 overflow-hidden text-ellipsis py-2 font-medium text-sm capitalize outline-none selected:bg-neutral-800"
 						key={item.language}
 						id={item.language}
 					>
@@ -62,14 +148,14 @@ export const CodeBlock = (props: CodeBlockProps) => {
 					</Tab>
 				))}
 			</TabList>
-			{props.data.map((item) => (
+			{data.map((item) => (
 				<TabPanel
 					className="relative size-full bg-neutral-800"
 					key={item.language}
 					id={item.language}
 				>
 					<Button
-						className="absolute right-0 top-0 m-2 rounded p-2 duration-100 hover:bg-white/10"
+						className="absolute top-0 right-0 m-2 rounded p-2 duration-100 hover:bg-white/10"
 						onPress={() =>
 							toast.promise(navigator.clipboard.writeText(item.code), {
 								success: "Copied to clipboard",
@@ -82,7 +168,7 @@ export const CodeBlock = (props: CodeBlockProps) => {
 					</Button>
 					<div className="size-full overflow-auto p-3 pb-12">
 						<pre
-							className="text-left font-jetbrains-mono text-sm font-semibold"
+							className="text-left font-jetbrains-mono font-semibold text-sm"
 							// biome-ignore lint/security/noDangerouslySetInnerHtml: Needed for highlight.js
 							dangerouslySetInnerHTML={{
 								__html: hljs.highlight(item.code, {

@@ -2,6 +2,7 @@ import { MongoClient, ObjectId, type UpdateFilter } from "mongodb";
 import { z } from "zod";
 import { config } from "./config.server";
 import slugify from "slugify";
+import jwt from "jsonwebtoken";
 
 const toSlug = (text: string) => slugify(text, { lower: true, trim: true });
 
@@ -33,15 +34,16 @@ const apiKeySchema = z.object({
 	_id: z.string().uuid(),
 	label: z.string().min(1),
 	key: z.string().min(1),
-	lastUsed: z.string().min(1),
+	env: z.string().min(1),
+	lastUsed: z.string().optional(),
 });
 
 const projectSchema = z.object({
 	name: z.string().min(1),
 	description: z.string().min(1).optional(),
 	slug: z.string().min(1),
-	envs: z.object({}),
-	default_values: z.object({}),
+	envs: z.record(z.record(z.string().or(z.boolean()))),
+	default_values: z.record(z.string().or(z.boolean())),
 	access_tokens: z.array(apiKeySchema),
 	userId: z.string().min(1),
 });
@@ -112,29 +114,41 @@ export const updateProject = async ({
 	await projects.updateOne({ slug, userId }, { $set: { name: name, slug: toSlug(name), envs } });
 };
 
-export const addKeyToProject = async ({
-	key,
-	projectId,
+const accessTokenSchema = z.object({
+	access_token: z.string().min(1),
+	label: z.string().min(1),
+	env: z.string().min(1),
+	last_used: z.string().nullish(),
+	project_id: z.string().min(1),
+	user_id: z.string().min(1),
+});
+
+const accessTokens = db.collection<z.infer<typeof accessTokenSchema>>("access_tokens");
+
+export const createAccessToken = async ({
 	label,
+	env,
+	projectId,
+	userId,
 }: {
-	key: string;
-	projectId: string;
 	label: string;
+	env: string;
+	projectId: string;
+	userId: string;
 }) => {
-	await projects.findOneAndUpdate(
-		{ _id: new ObjectId(projectId) },
-		{
-			$push: {
-				access_tokens: {
-					key,
-					label,
-					_id: crypto.randomUUID(),
-					lastUsed: new Date().toISOString(),
-				},
-			},
-		},
-	);
+	const id = new ObjectId();
+	return await accessTokens.insertOne({
+		access_token: jwt.sign({ sub: id }, config.JWT_SIGNING_KEY),
+		label,
+		env,
+		project_id: projectId,
+		user_id: userId,
+		_id: id,
+	});
 };
+
+export const getAllAccessTokens = async (projectId: string, userId: string) =>
+	await accessTokens.find({ project_id: projectId, user_id: userId }).toArray();
 
 export const updateProject2 = async ({
 	name,
@@ -159,6 +173,32 @@ export const deleteProject = async ({ slug, userId }: { slug: string; userId: st
 	await projects.deleteOne({ slug, userId });
 
 //Variables
+
+export const createVariable = async ({
+	name,
+	value,
+	slug,
+	userId,
+}: {
+	name: string;
+	value: string | boolean;
+	slug: string;
+	userId: string;
+}) => {
+	const project = await projects.findOne({ slug, userId });
+	if (!project) return;
+
+	const update: Record<string, string | boolean> = {};
+	for (const env of Object.keys(project.envs)) {
+		update[`envs.${env}.${name}`] = value;
+	}
+	await projects.updateOne(
+		{ slug, userId },
+		{
+			$set: update,
+		},
+	);
+};
 
 export const setVariable = async ({
 	name,
@@ -190,7 +230,16 @@ export const deleteVariable = async ({
 	env: string;
 	slug: string;
 	userId: string;
-}) => await projects.updateOne({ slug, userId }, { $unset: { [`envs.${env}.${name}`]: "" } });
+}) => {
+	const project = await projects.findOne({ slug, userId });
+	if (!project) return;
+
+	const update: Record<string, string | boolean> = {};
+	for (const env of Object.keys(project.envs)) {
+		update[`envs.${env}.${name}`] = "";
+	}
+	await projects.updateOne({ slug, userId }, { $unset: update });
+};
 
 //Users
 
@@ -293,3 +342,13 @@ export const getAllKeys = async (slug: string, userId: string) => {
 
 	return project.access_tokens;
 };
+
+export const deleteKey = async ({
+	label,
+	slug,
+	userId,
+}: {
+	label: string;
+	slug: string;
+	userId: string;
+}) => await projects.updateOne({ slug, userId }, { $pull: { access_tokens: { label } } });

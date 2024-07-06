@@ -41,7 +41,7 @@ export const NewFeatureFlagDialog = () => {
 					}}
 				>
 					<Heading className="mb-2 font-semibold text-xl">Add new feature flag</Heading>
-					<InputField label="Name" autoFocus onChange={setName} />
+					<InputField label="Name" onChange={setName} autoFocus isRequired />
 					<div className="mt-2 flex flex-col gap-1 font-medium text-sm">
 						<p className="text-slate-400 text-xs">Default value</p>
 						<div className="flex items-center gap-4">
@@ -95,7 +95,7 @@ export const NewVariableDialog = () => {
 					}}
 				>
 					<Heading className="font-semibold text-xl">Add new variable</Heading>
-					<InputField label="Name" autoFocus onChange={setName} />
+					<InputField label="Name" onChange={setName} autoFocus isRequired />
 					<InputField label="Default value" onChange={setValue} />
 					<div className="mt-4 flex justify-end gap-4 font-semibold text-sm *:h-9 *:w-32">
 						<Button variant="secondary" onPress={close}>

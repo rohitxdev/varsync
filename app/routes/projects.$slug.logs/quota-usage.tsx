@@ -13,11 +13,17 @@ export const QuotaUsage = ({ usedQuota, quotaLimit }: QuotaUsageProps) => {
 				{numFormatter.format(usedQuota)} of {numFormatter.format(quotaLimit)} used
 			</p>
 			<div>
-				<div className="h-2 w-full overflow-hidden rounded-full bg-neutral-400">
+				<div className="relative h-2 w-full overflow-hidden rounded-full bg-neutral-400">
 					<div
 						className="h-full bg-blue-500"
 						style={{ width: `${(usedQuota / quotaLimit) * 100}%` }}
 					/>
+					<p
+						className="absolute top-0 text-white text-xs"
+						style={{ left: `${(usedQuota / quotaLimit) * 100}%` }}
+					>
+						{numFormatter.format(usedQuota)}
+					</p>
 				</div>
 				<div className="flex justify-between">
 					<small>0</small>

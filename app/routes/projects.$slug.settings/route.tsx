@@ -9,6 +9,7 @@ import { getUserFromRequest } from "~/utils/auth.server";
 import { useFetcher } from "@remix-run/react";
 import { Button } from "~/components/buttons";
 import Spinner from "../../assets/spinner.svg?react";
+import { useState } from "react";
 
 const deleteProjectSchema = z.object({
 	slug: z.string().min(1),
@@ -42,22 +43,41 @@ export const action = async (args: ActionFunctionArgs) => {
 export default function Route() {
 	const { name, description, slug } = useProject();
 	const fetcher = useFetcher();
+	const [isModified, setIsModified] = useState(false);
 
 	return (
 		<div className="grid size-full content-start gap-4 p-6 [&_label]:text-slate-400 [&_label]:text-sm">
 			<h1 className="mb-4 font-semibold text-4xl">Settings</h1>
-			<fetcher.Form className="grid w-full max-w-[500px] gap-4" method="POST">
+			<fetcher.Form
+				className="grid w-full max-w-[500px] gap-4"
+				method="POST"
+				onSubmit={() => setIsModified(false)}
+			>
 				<h2 className="font-semibold text-xl">Project</h2>
 				<div className="flex flex-col items-start justify-between gap-4 font-medium">
-					<InputField className="w-72" name="name" label="Name" defaultValue={name} />
+					<InputField
+						className="w-72"
+						name="name"
+						label="Name"
+						defaultValue={name}
+						onInput={() => setIsModified(true)}
+					/>
 					<InputField
 						className="w-72"
 						name="description"
 						label="Description"
 						defaultValue={description ?? ""}
+						onInput={() => setIsModified(true)}
 					/>
 				</div>
-				<Button className="w-28" variant="primary" name="slug" value={slug} type="submit">
+				<Button
+					className="w-28"
+					variant="primary"
+					name="slug"
+					value={slug}
+					type="submit"
+					isDisabled={!isModified || fetcher.state === "submitting"}
+				>
 					{fetcher.state === "submitting" ? (
 						<Spinner className="size-5 fill-white" />
 					) : (
@@ -72,7 +92,7 @@ export default function Route() {
 				<div className="flex items-center justify-between gap-4 font-medium text-red-500">
 					<p>Delete project</p>
 					<Modal dialog={<DeleteProjectDialog slug={slug} projectName={name} />}>
-						<Button className="rounded-lg border border-white/10 p-2">
+						<Button className="rounded-lg border border-red-500/10 p-2">
 							<LuTrash2 />
 						</Button>
 					</Modal>

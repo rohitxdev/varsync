@@ -16,7 +16,6 @@ import {
 	LuKey,
 	LuLayers,
 	LuLogOut,
-	LuServer,
 	LuSettings,
 	LuMoreVertical,
 	LuUser,
@@ -26,6 +25,7 @@ import { useRootLoader } from "~/utils/hooks";
 import { LogOutDialog } from "../../components/dialogs";
 import { getUserFromRequest } from "~/utils/auth.server";
 import { Modal } from "~/components/ui";
+import LuVault from "../../assets/vault.svg?react";
 
 export const loader = async (args: LoaderFunctionArgs) => {
 	const user = await getUserFromRequest(args.request);
@@ -58,7 +58,6 @@ const Route = () => {
 	const navigate = useNavigate();
 	const slug = project.slug;
 	const envs = Object.keys(project.envs);
-	const env = envs[0];
 	const { user } = useRootLoader();
 	const [showLogOutDialog, setShowLogOutDialog] = useState(false);
 
@@ -69,26 +68,19 @@ const Route = () => {
 					<img src="/logo.png" alt="Logo" height={24} width={24} />
 					<span className="font-semibold text-2xl">Varsync</span>
 				</Link>
-				<Tabs
-					onSelectionChange={(key) =>
-						navigate({
-							pathname: `/projects/${slug}${key.toString()}`,
-							search: `env=${env}`,
-						})
-					}
-				>
+				<Tabs onSelectionChange={(key) => navigate(`/projects/${slug}${key.toString()}`)}>
 					<TabList>
-						<Tab id="">
-							<LuServer />
-							<span>Config</span>
+						<Tab id={`/vault/${envs[0]}`}>
+							<LuVault className="size-5" />
+							<span>Vault</span>
 						</Tab>
 						<Tab id="/logs">
 							<LuFileText />
 							<span>Logs</span>
 						</Tab>
-						<Tab id="/tokens">
+						<Tab id="/access-tokens">
 							<LuKey />
-							<span>Keys</span>
+							<span>Access Tokens</span>
 						</Tab>
 						<Tab id="/settings">
 							<LuSettings />

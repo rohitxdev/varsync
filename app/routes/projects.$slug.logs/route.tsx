@@ -1,11 +1,11 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect, useLoaderData, useNavigation, useSearchParams } from "@remix-run/react";
+import { redirect, useLoaderData, useSearchParams } from "@remix-run/react";
 import { getUserFromRequest } from "~/utils/auth.server";
 import { getLogs } from "~/utils/db.server";
 import { DateRangePicker } from "./date-range-picker";
 import { z } from "zod";
 import { LuCalendar } from "react-icons/lu";
-import Spinner from "../../assets/spinner.svg?react";
+import { QuotaUsage } from "./quota-usage";
 
 const logSchema = z.object({
 	projectId: z.string(),
@@ -35,7 +35,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
 const Route = () => {
 	const { logs } = useLoaderData<typeof loader>();
 	const [_, setSearchParams] = useSearchParams();
-	const { state } = useNavigation();
 
 	return (
 		<div className="grid size-full max-h-screen grid-rows-[auto_1fr] content-start gap-4 p-6">
@@ -56,26 +55,20 @@ const Route = () => {
 					/>
 				</div>
 			</div>
-
-			<div className="grid content-center gap-2 overflow-y-auto rounded border border-white/10 p-1">
-				{state === "loading" ? (
-					<Spinner className="mx-auto size-10 fill-white" />
-				) : (
-					logs.map((item) => (
-						<p className="flex items-center gap-4" key={item.timestamp}>
-							<small className="w-24 rounded border-blue-500 border-r-2 bg-blue-500/10 px-2 py-1 text-2xs text-slate-400">
-								{new Date(item.timestamp).toLocaleString("en-US", {
-									timeStyle: "short",
-									dateStyle: "medium",
-								})}
-							</small>
-							<span className="size-full rounded bg-white/5 px-2 py-1 text-neutral-300 text-sm">
-								{item.message}
-							</span>
+			<div className="grid gap-2 overflow-y-auto rounded border border-white/10 p-2">
+				{logs.map((item) => (
+					<div className="rounded bg-white/5 px-2 py-1" key={item.timestamp}>
+						<span className="mb-2 text-neutral-300 text-sm">{item.message}</span>
+						<p className="text-2xs text-slate-400">
+							{new Date(item.timestamp).toLocaleString("en-US", {
+								timeStyle: "short",
+								dateStyle: "medium",
+							})}
 						</p>
-					))
-				)}
+					</div>
+				))}
 			</div>
+			<QuotaUsage usedQuota={100000} quotaLimit={1000000} />
 		</div>
 	);
 };

@@ -77,99 +77,6 @@ const pricing: PricingProps[] = [
 	},
 ];
 
-const jsCode = `import { VarsyncClient } from '@varsync/client';
-
-const config = new VarsyncClient({
-	env: process.env.NODE_ENV, 
-	accessToken:process.env.VARSYNC_ACCESS_TOKEN,
-});
-
-const handler = async (req, res) => {
-	if (!config.get("IS_FEATURE_ENABLED")) return res.sendStatus(400);
-
-	if(req.user.usedQuota <= config.get("QUOTA_LIMIT")) {
-		doStuff();
-		return res.sendStatus(200);
-	}
-		
-	return res.sendStatus(403);
-};\n`;
-
-const goCode = `package main
-
-import (
-	"net/http"
-	"os"
-
-	"github.com/gin-gonic/gin"
-	"github.com/varsync/go"
-)
-
-func main() {
-	config := varsync.New(varsync.Config{
-		Env:         os.Getenv("NODE_ENV"),
-		AccessToken: os.Getenv("VARSYNC_ACCESS_TOKEN"),
-	})
-
-	r := gin.Default()
-
-	r.GET("/", func(c *gin.Context) {
-		if !config.GetBool("IS_FEATURE_ENABLED") {
-			c.Status(http.StatusBadRequest)
-			return
-		}
-
-		user, ok := c.Get("user")
-		if !ok {
-			c.Status(http.StatusUnauthorized)
-			return
-		}
-
-		u, ok := user.(User)
-		if !ok {
-			c.Status(http.StatusInternalServerError)
-			return
-		}
-
-		if u.UsedQuota >= config.GetInt("QUOTA_LIMIT") {
-			c.Status(http.StatusForbidden)
-			return
-		}
-			
-		doStuff()
-		c.Status(http.StatusOK)
-		return
-	})
-
-	r.Run()
-}
-`;
-
-const pythonCode = `from flask import Flask, request, jsonify
-from varsync import VarsyncClient
-import os
-
-app = Flask(__name__)
-
-config = VarsyncClient(
-    env = os.getenv("NODE_ENV"),
-    access_token = os.getenv("VARSYNC_ACCESS_TOKEN")
-)
-
-@app.route('/api', methods = ['GET'])
-def handler():
-    if not config.get("IS_FEATURE_ENABLED"):
-        return '', 400
-
-    user = get_current_user()
-
-    if user['used_quota'] <= config.get("QUOTA_LIMIT"):
-        do_stuff()
-        return '', 200
-
-    return '', 403
-`;
-
 const Route = () => (
 	<div>
 		<div className="grid justify-items-center gap-8 p-6 text-center text-white">
@@ -214,13 +121,7 @@ const Route = () => (
 						Add varsync SDK to your project and get running in minutes.
 					</p>
 				</div>
-				<CodeBlock
-					data={[
-						{ language: "javascript", code: jsCode },
-						{ language: "go", code: goCode },
-						{ language: "python", code: pythonCode },
-					]}
-				/>
+				<CodeBlock />
 			</section>
 			<section className="grid gap-4">
 				<h2 className="font-bold text-3xl">Why Varsync?</h2>
