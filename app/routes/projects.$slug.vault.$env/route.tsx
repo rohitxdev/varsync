@@ -245,10 +245,10 @@ const Variable = ({
 					<LuMoreVertical />
 				</Button>
 				<Popover
-					className="entering:fade-in entering:zoom-in-95 exiting:fade-out exiting:zoom-out-95 fill-mode-forwards entering:animate-in exiting:animate-out"
+					className="entering:fade-in entering:zoom-in-95 exiting:fade-out exiting:zoom-out-95 entering:animate-in exiting:animate-out fill-mode-forwards"
 					placement="bottom end"
 				>
-					<Menu className="w-24 overflow-hidden rounded-md bg-white font-medium text-black text-sm *:flex [&_svg]:size-4 [&_svg]:shrink-0 *:cursor-pointer *:items-center *:gap-2 [&_*:focus-visible]:bg-neutral-100 *:p-2 [&_*]:outline-none">
+					<Menu className="w-24 overflow-hidden rounded-md bg-white font-medium text-black text-sm *:flex *:cursor-pointer *:items-center *:gap-2 *:p-2 [&_*:focus-visible]:bg-neutral-100 [&_*]:outline-none [&_svg]:size-4 [&_svg]:shrink-0">
 						{typeof value === "string" && (
 							<MenuItem onAction={() => setIsEdited(true)}>
 								<LuPencil /> Edit
