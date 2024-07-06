@@ -50,7 +50,8 @@ export const NewProjectDialog = () => {
 					<InputField
 						label={
 							<>
-								Description <span className="text-2xs text-slate-400">(Optional)</span>
+								Description{" "}
+								<span className="text-2xs text-slate-400">(Optional)</span>
 							</>
 						}
 						value={description}
@@ -67,7 +68,11 @@ export const NewProjectDialog = () => {
 								>
 									<span>{item}</span>
 									<Button
-										onPress={() => setEnvs((items) => items.filter((_item, idx) => idx !== i))}
+										onPress={() =>
+											setEnvs((items) =>
+												items.filter((_item, idx) => idx !== i),
+											)
+										}
 										isDisabled={envs.length === 1}
 									>
 										<LuX />
@@ -91,7 +96,10 @@ export const NewProjectDialog = () => {
 										autoFocus
 										value={text}
 									/>
-									<Button className="px-2 py-1" onPress={() => setShowInput(false)}>
+									<Button
+										className="px-2 py-1"
+										onPress={() => setShowInput(false)}
+									>
 										<LuX />
 									</Button>
 								</div>
@@ -109,7 +117,11 @@ export const NewProjectDialog = () => {
 						<Button variant="secondary" onPress={close}>
 							Cancel
 						</Button>
-						<Button variant="primary" type="submit" isDisabled={fetcher.state === "submitting"}>
+						<Button
+							variant="primary"
+							type="submit"
+							isDisabled={fetcher.state === "submitting"}
+						>
 							{fetcher.state === "submitting" ? (
 								<Spinner className="size-5 fill-white" />
 							) : (
@@ -156,7 +168,10 @@ export const EditProjectDialog = ({
 					className="w-80"
 					onSubmit={(e) => {
 						e.preventDefault();
-						fetcher.submit({ slug, name, envs }, { method: "PATCH", encType: "application/json" });
+						fetcher.submit(
+							{ slug, name, envs },
+							{ method: "PATCH", encType: "application/json" },
+						);
 						closeFn.current = close;
 					}}
 				>
@@ -178,7 +193,11 @@ export const EditProjectDialog = ({
 								>
 									<span>{item}</span>
 									<Button
-										onPress={() => setEnvs((items) => items.filter((_item, idx) => idx !== i))}
+										onPress={() =>
+											setEnvs((items) =>
+												items.filter((_item, idx) => idx !== i),
+											)
+										}
 										isDisabled={envs.length === 1}
 									>
 										<LuX />
@@ -223,7 +242,11 @@ export const EditProjectDialog = ({
 						<Button variant="secondary" onPress={close}>
 							Cancel
 						</Button>
-						<Button variant="primary" type="submit" isDisabled={fetcher.state === "submitting"}>
+						<Button
+							variant="primary"
+							type="submit"
+							isDisabled={fetcher.state === "submitting"}
+						>
 							{fetcher.state === "submitting" ? (
 								<Spinner className="size-5 fill-white" />
 							) : (

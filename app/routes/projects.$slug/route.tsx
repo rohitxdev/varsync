@@ -1,31 +1,31 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Link, Outlet, useNavigate, redirect, useLoaderData } from "@remix-run/react";
-import { useState, type ComponentProps } from "react";
+import { Link, Outlet, redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { type ComponentProps, useState } from "react";
 import {
-	TabList,
 	Tab as AriaTab,
-	Tabs,
 	Button,
 	Menu,
-	MenuTrigger,
 	MenuItem,
+	MenuTrigger,
 	Popover,
+	TabList,
+	Tabs,
 } from "react-aria-components";
 import {
 	LuFileText,
 	LuKey,
 	LuLayers,
 	LuLogOut,
-	LuSettings,
 	LuMoreVertical,
+	LuSettings,
 	LuUser,
 } from "react-icons/lu";
+import { Modal } from "~/components/ui";
+import { getUserFromRequest } from "~/utils/auth.server";
 import { getProject } from "~/utils/db.server";
 import { useRootLoader } from "~/utils/hooks";
-import { LogOutDialog } from "../../components/dialogs";
-import { getUserFromRequest } from "~/utils/auth.server";
-import { Modal } from "~/components/ui";
 import LuVault from "../../assets/vault.svg?react";
+import { LogOutDialog } from "../../components/dialogs";
 
 export const loader = async (args: LoaderFunctionArgs) => {
 	const user = await getUserFromRequest(args.request);
@@ -47,7 +47,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 const Tab = ({ className, ...rest }: ComponentProps<typeof AriaTab>) => {
 	return (
 		<AriaTab
-			className={`flex cursor-pointer items-center justify-start gap-4 rounded px-4 py-1.5 font-medium text-slate-400 outline-none hover:bg-white/10 selected:font-semibold selected:text-white ${className}`}
+			className={`flex cursor-pointer items-center justify-start gap-4 rounded px-4 py-1.5 font-medium selected:font-semibold selected:text-white text-slate-400 outline-none hover:bg-white/10 ${className}`}
 			{...rest}
 		/>
 	);
@@ -63,7 +63,7 @@ const Route = () => {
 
 	return (
 		<div className="grid min-h-screen grid-cols-[auto_1fr] items-center divide-x-[1px] divide-white/10">
-			<div className="grid h-full w-64 grid-cols-1 grid-rows-[auto_auto_1fr_auto] content-start gap-4 p-2 font-medium">
+			<div className="grid h-full w-64 grid-cols-1 grid-rows-[auto_auto_1fr_auto] content-start gap-4 bg-slate-400/5 p-2 font-medium">
 				<Link className="flex items-center justify-center gap-3 p-4" to="/">
 					<img src="/logo.png" alt="Logo" height={24} width={24} />
 					<span className="font-semibold text-2xl">Varsync</span>
@@ -82,6 +82,10 @@ const Route = () => {
 							<LuKey />
 							<span>Access Tokens</span>
 						</Tab>
+						{/* <Tab id="/webhooks">
+							<LuWebhook />
+							<span>Webhooks</span>
+						</Tab> */}
 						<Tab id="/settings">
 							<LuSettings />
 							<span>Settings</span>
@@ -105,18 +109,23 @@ const Route = () => {
 					/>
 					<div className="flex w-1/2 flex-col gap-1">
 						<p className="text-sm">{user?.fullName!}</p>
-						<p className="overflow-hidden text-ellipsis text-neutral-300 text-xs">{user?.email}</p>
+						<p className="overflow-hidden text-ellipsis text-neutral-300 text-xs">
+							{user?.email}
+						</p>
 					</div>
 					<MenuTrigger>
 						<Button className="p-1">
 							<LuMoreVertical />
 						</Button>
-						<Popover className="entering:fade-in entering:zoom-in-95 exiting:fade-out exiting:zoom-out-95 fill-mode-forwards entering:animate-in exiting:animate-out">
-							<Menu className="w-24 overflow-hidden rounded-md bg-white font-medium text-black text-sm *:flex [&_svg]:size-4 [&_svg]:shrink-0 *:cursor-pointer *:items-center *:gap-2 [&_*:focus-visible]:bg-neutral-100 *:p-2 [&_*]:outline-none">
+						<Popover className="entering:fade-in entering:zoom-in-95 exiting:fade-out exiting:zoom-out-95 entering:animate-in exiting:animate-out fill-mode-forwards">
+							<Menu className="w-24 overflow-hidden rounded-md bg-white font-medium text-black text-sm *:flex *:cursor-pointer *:items-center *:gap-2 *:p-2 [&_*:focus-visible]:bg-neutral-100 [&_*]:outline-none [&_svg]:size-4 [&_svg]:shrink-0">
 								<MenuItem onAction={() => navigate("/account")}>
 									<LuUser className="size-5" /> Account
 								</MenuItem>
-								<MenuItem className="text-red-500" onAction={() => setShowLogOutDialog(true)}>
+								<MenuItem
+									className="text-red-500"
+									onAction={() => setShowLogOutDialog(true)}
+								>
 									<LuLogOut className="size-5" /> Log out
 								</MenuItem>
 							</Menu>

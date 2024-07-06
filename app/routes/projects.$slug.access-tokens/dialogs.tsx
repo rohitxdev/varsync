@@ -90,8 +90,9 @@ export const DeleteAccessTokenDialog = ({ token }: DeleteAccessTokenDialogProps)
 				<fetcher.Form className="grid w-[60ch] gap-2 p-6" method="DELETE">
 					<Heading className="font-semibold text-lg">Delete access token</Heading>
 					<p className="text-slate-400 text-sm">
-						Are you sure you want to delete `<span className="font-semibold">{token}</span>`? Apps
-						using this token will no longer be able to access this project's vault.
+						Are you sure you want to delete `
+						<span className="font-semibold">{token}</span>`? Apps using this token will
+						no longer be able to access this project's vault.
 					</p>
 					<div className="mt-2 flex justify-end gap-4 font-semibold text-sm">
 						<Button variant="secondary" onPress={close}>

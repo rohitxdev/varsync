@@ -6,6 +6,7 @@ import svgr from "vite-plugin-svgr";
 
 export default defineConfig(({ mode }) => {
 	const isDev = mode === "development";
+
 	return {
 		plugins: [
 			svgr(),
@@ -24,19 +25,16 @@ export default defineConfig(({ mode }) => {
 				silent: true,
 			}),
 		],
-
 		server: {
 			port: 3000,
 			host: true,
 			strictPort: true,
 		},
-
 		esbuild: {
 			supported: {
 				"top-level-await": true,
 			},
 		},
-
 		build: {
 			sourcemap: isDev,
 		},

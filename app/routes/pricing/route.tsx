@@ -28,7 +28,9 @@ const PricingCard = ({
 			<h2 className="font-bold text-xl">{price.name}</h2>
 			<p className="p-2 font-bold text-2xl">
 				${Number.parseFloat(price.unitPrice.amount) / 100}&nbsp;
-				<span className="font-medium text-slate-400 text-sm">/{price.billingCycle?.interval}</span>
+				<span className="font-medium text-slate-400 text-sm">
+					/{price.billingCycle?.interval}
+				</span>
 			</p>
 			<p className="text-slate-400 text-sm">{price.description}</p>
 		</div>

@@ -1,11 +1,10 @@
+import { parseDate } from "@internationalized/date";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect, useLoaderData, useSearchParams } from "@remix-run/react";
+import { z } from "zod";
 import { getUserFromRequest } from "~/utils/auth.server";
 import { getLogs } from "~/utils/db.server";
 import { DateRangePicker } from "./date-range-picker";
-import { z } from "zod";
-import { LuCalendar } from "react-icons/lu";
-import { QuotaUsage } from "./quota-usage";
 
 const logSchema = z.object({
 	projectId: z.string(),
@@ -19,56 +18,73 @@ export const loader = async (args: LoaderFunctionArgs) => {
 	const user = await getUserFromRequest(args.request);
 	if (!user) return redirect("/auth/log-in");
 
-	const { searchParams } = new URL(args.request.url);
-	const from = searchParams.get("from");
-	const to = searchParams.get("to");
+	const url = new URL(args.request.url);
+	const from = url.searchParams.get("from");
+	const to = url.searchParams.get("to");
+
+	if (!from) {
+		const fromDate = new Date();
+		fromDate.setHours(-144);
+		url.searchParams.set("from", fromDate.toISOString().split("T")[0]);
+	}
+	if (!to) {
+		url.searchParams.set("to", new Date().toISOString().split("T")[0]);
+	}
+	if (!from || !to) {
+		return redirect(url.toString());
+	}
 
 	const logs = await getLogs({
 		slug: args.params.slug!,
 		userId: user._id.toString(),
-		from: from ? new Date(from) : new Date(),
-		to: to ? new Date(to) : new Date(),
+		from: new Date(from),
+		to: new Date(to),
 	});
 	return { logs };
 };
 
 const Route = () => {
 	const { logs } = useLoaderData<typeof loader>();
-	const [_, setSearchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	return (
 		<div className="grid size-full max-h-screen grid-rows-[auto_1fr] content-start gap-4 p-6">
 			<div className="flex justify-between">
-				<h1 className="font-semibold text-4xl">Logs</h1>
-				<div className="flex items-center gap-2">
-					<LuCalendar className="size-6" />
-					<DateRangePicker
-						onChange={({ start, end }) => {
-							const from = start.toDate("IST").toISOString();
-							const to = end.toDate("IST").toISOString();
-							setSearchParams((params) => {
-								params.set("from", from);
-								params.set("to", to);
-								return params;
-							});
-						}}
-					/>
-				</div>
+				<h1 className="font-semibold text-3xl">Logs</h1>
+				<DateRangePicker
+					onChange={({ start, end }) => {
+						setSearchParams((params) => {
+							params.set("from", start.toString());
+							params.set("to", end.toString());
+							return params;
+						});
+					}}
+					defaultValue={{
+						start: parseDate(searchParams.get("from")!),
+						end: parseDate(searchParams.get("to")!),
+					}}
+				/>
 			</div>
 			<div className="grid gap-2 overflow-y-auto rounded border border-white/10 p-2">
-				{logs.map((item) => (
-					<div className="rounded bg-white/5 px-2 py-1" key={item.timestamp}>
-						<span className="mb-2 text-neutral-300 text-sm">{item.message}</span>
-						<p className="text-2xs text-slate-400">
-							{new Date(item.timestamp).toLocaleString("en-US", {
-								timeStyle: "short",
-								dateStyle: "medium",
-							})}
-						</p>
+				{logs.length > 0 ? (
+					logs.map((item) => (
+						<div className="rounded bg-white/5 px-3 py-2" key={item.timestamp}>
+							<span className="mb-2 text-neutral-300 text-sm">{item.message}</span>
+							<p className="text-2xs text-slate-400">
+								{new Date(item.timestamp).toLocaleString("en-US", {
+									timeStyle: "short",
+									dateStyle: "medium",
+								})}
+							</p>
+						</div>
+					))
+				) : (
+					<div className="grid place-items-center text-lg">
+						<p>No logs here.</p>
 					</div>
-				))}
+				)}
 			</div>
-			<QuotaUsage usedQuota={100000} quotaLimit={1000000} />
+			{/* <QuotaUsage usedQuota={100000} quotaLimit={1000000} /> */}
 		</div>
 	);
 };

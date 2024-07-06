@@ -1,42 +1,42 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect, useFetcher, useNavigate, useParams } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { z } from "zod";
-import {
-	LuTrash2,
-	LuUpload,
-	LuMoreVertical,
-	LuPencil,
-	LuX,
-	LuCheck,
-	LuFlag,
-	LuVariable,
-} from "react-icons/lu";
-import { addLog, createVariable, deleteVariable, setVariable } from "~/utils/db.server";
 import {
 	Button,
-	TooltipTrigger,
-	Tooltip,
-	OverlayArrow,
+	Input,
 	Menu,
 	MenuItem,
 	MenuTrigger,
+	OverlayArrow,
 	Popover,
-	Input,
+	Tooltip,
+	TooltipTrigger,
 } from "react-aria-components";
+import {
+	LuCheck,
+	LuFlag,
+	LuMoreVertical,
+	LuPencil,
+	LuTrash2,
+	LuUpload,
+	LuVariable,
+	LuX,
+} from "react-icons/lu";
+import { z } from "zod";
+import Void from "~/assets/void.svg?react";
+import { showToast } from "~/components/toast";
+import { Modal, Select, Switch } from "~/components/ui";
+import { getUserFromRequest } from "~/utils/auth.server";
+import { addLog, createVariable, deleteVariable, setVariable } from "~/utils/db.server";
 import { useProject } from "~/utils/hooks";
+import Spinner from "../../assets/spinner.svg?react";
 import {
 	DeleteVariableDialog,
 	ImportVariablesDialog,
 	NewFeatureFlagDialog,
 	NewVariableDialog,
 } from "./dialogs";
-import { Modal, Select, Switch } from "~/components/ui";
-import Void from "~/assets/void.svg?react";
 import { SearchBar } from "./search-bar";
-import { getUserFromRequest } from "~/utils/auth.server";
-import { showToast } from "~/components/toast";
-import Spinner from "../../assets/spinner.svg?react";
 
 const newVarsSchema = z.object({
 	id: z.string().optional(),
@@ -63,10 +63,8 @@ export const action = async (args: ActionFunctionArgs) => {
 		case "POST": {
 			const parsed = newVarsSchema.safeParse(body);
 			if (!parsed.success) return null;
-			console.log(parsed.data);
 
 			const { name, value } = parsed.data;
-
 			await createVariable({
 				slug,
 				name,
@@ -83,7 +81,7 @@ export const action = async (args: ActionFunctionArgs) => {
 		}
 		case "PUT": {
 			const { name, value } = updateVariableRequest.parse(body);
-			setVariable({
+			await setVariable({
 				name,
 				value,
 				env,
@@ -101,7 +99,12 @@ export const action = async (args: ActionFunctionArgs) => {
 		}
 		case "DELETE": {
 			const { name } = deleteVariableRequest.parse(body);
-			deleteVariable({ name, env, slug, userId: user._id.toString() });
+			await deleteVariable({
+				name,
+				env,
+				slug,
+				userId: user._id.toString(),
+			});
 			addLog({
 				slug,
 				env,
@@ -151,6 +154,7 @@ const Variable = ({
 				encType: "application/json",
 			},
 		);
+		setIsEdited(false);
 		showToast(
 			<p className="font-medium">
 				Set&nbsp;
@@ -202,6 +206,11 @@ const Variable = ({
 							className="bg-transparent outline-none"
 							value={newValue.toString()}
 							onInput={(e) => setNewValue(e.currentTarget.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" && newValue.toString() !== value) {
+									updateVariable({ name, value: newValue });
+								}
+							}}
 							autoFocus
 						/>
 						<div className="flex gap-2">
@@ -216,7 +225,9 @@ const Variable = ({
 								className="flex items-center justify-center disabled:text-neutral-400"
 								onClick={() => updateVariable({ name, value: newValue })}
 								type="button"
-								disabled={newValue.toString() === value || fetcher.state === "submitting"}
+								disabled={
+									newValue.toString() === value || fetcher.state === "submitting"
+								}
 							>
 								{fetcher.state === "submitting" ? (
 									<Spinner className="size-4 fill-white" />
@@ -254,7 +265,10 @@ const Variable = ({
 								<LuPencil /> Edit
 							</MenuItem>
 						)}
-						<MenuItem className="text-red-500" onAction={() => setShowDeleteModal(true)}>
+						<MenuItem
+							className="text-red-500"
+							onAction={() => setShowDeleteModal(true)}
+						>
 							<LuTrash2 /> Delete
 						</MenuItem>
 					</Menu>
@@ -347,12 +361,19 @@ export default function Route() {
 				<div className="flex h-full flex-col gap-2 rounded-lg">
 					{variables.length > 0 ? (
 						variables.map(([name, value]) => (
-							<Variable name={name} value={value} searchTerm={searchTerm} key={name} />
+							<Variable
+								name={name}
+								value={value}
+								searchTerm={searchTerm}
+								key={name}
+							/>
 						))
 					) : (
 						<div className="m-auto text-center">
 							<Void className="size-64" />
-							<p className="mt-4 text-slate-400 text-sm">Stare into the abyss long enough...</p>
+							<p className="mt-4 text-slate-400 text-sm">
+								Stare into the abyss long enough...
+							</p>
 						</div>
 					)}
 				</div>

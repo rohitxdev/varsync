@@ -27,7 +27,9 @@ export const showToast = (content: ReactNode, type?: "success" | "warning" | "er
 			break;
 	}
 	toast.custom(
-		<div className={`overflow-hidden rounded-md border bg-dark duration-100 ${toastBorderColor}`}>
+		<div
+			className={`overflow-hidden rounded-md border bg-dark duration-100 ${toastBorderColor}`}
+		>
 			<div className={`flex min-w-80 items-center gap-4 px-6 py-4 ${toastBackgroundColor}`}>
 				{icon}
 				{content}

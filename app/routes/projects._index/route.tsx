@@ -88,7 +88,8 @@ const Route = () => {
 							{item.description}
 						</p>
 						<p className="mt-auto font-normal text-slate-400 text-sm">
-							{item.envs.length} {item.envs.length === 1 ? "environment" : "environments"}
+							{item.envs.length}{" "}
+							{item.envs.length === 1 ? "environment" : "environments"}
 						</p>
 					</Link>
 				))}

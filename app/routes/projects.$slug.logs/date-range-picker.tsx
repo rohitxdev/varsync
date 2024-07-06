@@ -1,10 +1,10 @@
 import type { ComponentProps } from "react";
 import {
+	DateRangePicker as AriaDateRangePicker,
 	Button,
 	CalendarCell,
 	CalendarGrid,
 	DateInput,
-	DateRangePicker as AriaDateRangePicker,
 	DateSegment,
 	Dialog,
 	Group,
@@ -12,23 +12,25 @@ import {
 	Popover,
 	RangeCalendar,
 } from "react-aria-components";
-import { LuChevronLeft, LuChevronRight, LuChevronsUpDown } from "react-icons/lu";
+import { LuCalendar, LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 export const DateRangePicker = ({
 	className,
 	...rest
 }: ComponentProps<typeof AriaDateRangePicker>) => (
 	<AriaDateRangePicker className={`w-64 ${className}`} {...rest}>
-		<Group className="flex items-center gap-1.5 rounded border border-white/10 bg-white/5 px-2 py-1">
-			<DateInput className="ml-auto flex" slot="start">
-				{(segment) => <DateSegment segment={segment} />}
-			</DateInput>
-			<span aria-hidden="true">–</span>
-			<DateInput className="mr-auto flex" slot="end">
-				{(segment) => <DateSegment segment={segment} />}
-			</DateInput>
-			<Button>
-				<LuChevronsUpDown />
+		<Group className="flex h-9 items-center gap-1.5 divide-x-[1px] divide-white/10 rounded border border-white/10 bg-white/5">
+			<div className="flex w-full items-center gap-1.5">
+				<DateInput className="ml-auto flex" slot="start">
+					{(segment) => <DateSegment segment={segment} />}
+				</DateInput>
+				<span aria-hidden="true">-</span>
+				<DateInput className="mr-auto flex" slot="end">
+					{(segment) => <DateSegment segment={segment} />}
+				</DateInput>
+			</div>
+			<Button className="h-full px-3">
+				<LuCalendar className="size-4" />
 			</Button>
 		</Group>
 		<Popover className="rounded-lg border border-white/10 bg-dark">
@@ -46,7 +48,7 @@ export const DateRangePicker = ({
 					<CalendarGrid>
 						{(date) => (
 							<CalendarCell
-								className="flex size-7 items-center justify-center rounded-full text-center text-sm selected:bg-blue-500"
+								className="flex size-7 items-center justify-center rounded-full selected:bg-blue-500 text-center text-sm"
 								date={date}
 							/>
 						)}

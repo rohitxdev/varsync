@@ -87,9 +87,10 @@ const Route = () => (
 						Manage <span>feature flags</span> and <span>configs</span> with ease.
 					</h1>
 					<h2 className="text-slate-400">
-						Varsync allows you to effortlessly manage and synchronize environment variables across
-						multiple environments. Simplify your configuration process and enable smooth, controlled
-						feature rollouts with our intuitive interface and real-time updates.
+						Varsync allows you to effortlessly manage and synchronize environment
+						variables across multiple environments. Simplify your configuration process
+						and enable smooth, controlled feature rollouts with our intuitive interface
+						and real-time updates.
 					</h2>
 					<div className="flex items-center justify-start gap-6 py-4 text-center *:h-10 *:w-32">
 						<Link
@@ -116,7 +117,9 @@ const Route = () => (
 			</section>
 			<section className="flex w-full flex-wrap items-center gap-8 overflow-hidden md:flex-row-reverse md:justify-center md:gap-16">
 				<div className="text-start">
-					<h2 className="mb-2 font-bold text-4xl max-md:text-3xl">Integrate in minutes.</h2>
+					<h2 className="mb-2 font-bold text-4xl max-md:text-3xl">
+						Integrate in minutes.
+					</h2>
 					<p className="text-slate-400">
 						Add varsync SDK to your project and get running in minutes.
 					</p>
@@ -133,8 +136,12 @@ const Route = () => (
 						>
 							<div className="*:size-8">{item.icon}</div>
 							<div className="w-3/4">
-								<h3 className="mb-1 text-balance font-semibold text-lg">{item.title}</h3>
-								<p className="font-medium text-slate-400 text-sm">{item.description}</p>
+								<h3 className="mb-1 text-balance font-semibold text-lg">
+									{item.title}
+								</h3>
+								<p className="font-medium text-slate-400 text-sm">
+									{item.description}
+								</p>
 							</div>
 						</li>
 					))}

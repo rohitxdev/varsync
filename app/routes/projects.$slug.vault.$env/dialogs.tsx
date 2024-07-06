@@ -45,7 +45,11 @@ export const NewFeatureFlagDialog = () => {
 					<div className="mt-2 flex flex-col gap-1 font-medium text-sm">
 						<p className="text-slate-400 text-xs">Default value</p>
 						<div className="flex items-center gap-4">
-							<Switch name="value" checked={value} onChange={() => setValue((val) => !val)} />
+							<Switch
+								name="value"
+								checked={value}
+								onChange={() => setValue((val) => !val)}
+							/>
 							<span className="font-semibold">{value ? "True" : "False"}</span>
 						</div>
 					</div>
@@ -59,7 +63,11 @@ export const NewFeatureFlagDialog = () => {
 							type="submit"
 							isDisabled={fetcher.state === "submitting"}
 						>
-							{fetcher.state === "submitting" ? <Spinner className="size-5 fill-white" /> : "Add"}
+							{fetcher.state === "submitting" ? (
+								<Spinner className="size-5 fill-white" />
+							) : (
+								"Add"
+							)}
 						</Button>
 					</div>
 				</fetcher.Form>
@@ -90,7 +98,10 @@ export const NewVariableDialog = () => {
 					method="POST"
 					onSubmit={async (e) => {
 						e.preventDefault();
-						fetcher.submit({ name, value }, { method: "POST", encType: "application/json" });
+						fetcher.submit(
+							{ name, value },
+							{ method: "POST", encType: "application/json" },
+						);
 						closeFn.current = close;
 					}}
 				>
@@ -101,8 +112,16 @@ export const NewVariableDialog = () => {
 						<Button variant="secondary" onPress={close}>
 							Cancel
 						</Button>
-						<Button variant="primary" type="submit" isDisabled={fetcher.state === "submitting"}>
-							{fetcher.state === "submitting" ? <Spinner className="size-5 fill-white" /> : "Save"}
+						<Button
+							variant="primary"
+							type="submit"
+							isDisabled={fetcher.state === "submitting"}
+						>
+							{fetcher.state === "submitting" ? (
+								<Spinner className="size-5 fill-white" />
+							) : (
+								"Save"
+							)}
 						</Button>
 					</div>
 				</fetcher.Form>
@@ -120,7 +139,9 @@ export const DeleteVariableDialog = ({ onAction }: DeleteVariableDialogProps) =>
 		{({ close }) => (
 			<>
 				<Heading className="font-semibold text-xl">Delete variable</Heading>
-				<p className="text-neutral-300 text-sm">It will be deleted from all envs of the project.</p>
+				<p className="text-neutral-300 text-sm">
+					It will be deleted from all envs of the project.
+				</p>
 				<div className="mt-2 flex justify-end gap-4 font-semibold text-sm">
 					<Button variant="secondary" onPress={close}>
 						Cancel

@@ -25,6 +25,8 @@
 	},
 	"formatter": {
 		"indentWidth": 4,
-		"lineWidth": 100
+		"lineWidth": 100,
+		"indentStyle": "tab",
+		"enabled": true
 	}
 }

@@ -1,4 +1,4 @@
-import { type ActionFunctionArgs, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { type ActionFunctionArgs, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { useState } from "react";
 import { LuSave } from "react-icons/lu";
@@ -42,37 +42,45 @@ const Route = () => {
 	if (!user) return null;
 
 	return (
-		<div className="grid p-6">
+		<div className="p-6">
 			<h1 className="mb-4 font-semibold text-4xl">Account</h1>
-			<fetcher.Form
-				className="flex w-80 flex-col gap-4"
-				method="POST"
-				onSubmit={() => setIsModified(false)}
-			>
-				<h2 className="font-semibold text-xl">Profile</h2>
-				<InputField
-					className="cursor-not-allowed disabled:brightness-75"
-					label="Email"
-					name="email"
-					defaultValue={user.email}
-					isDisabled
-				/>
-				<InputField
-					label="Name"
-					name="name"
-					defaultValue={user.fullName ?? ""}
-					onChange={() => setIsModified(true)}
-					isRequired
-				/>
-				<Button
-					className="mr-auto text-sm duration-100 disabled:cursor-not-allowed disabled:brightness-50"
-					variant="primary"
-					type="submit"
-					isDisabled={!isModified || fetcher.state === "submitting"}
+			<div className="grid gap-8">
+				<fetcher.Form
+					className="flex w-80 flex-col gap-4"
+					method="POST"
+					onSubmit={() => setIsModified(false)}
 				>
-					Save <LuSave className="size-4" />
-				</Button>
-			</fetcher.Form>
+					<h2 className="font-semibold text-xl">Profile</h2>
+					<InputField
+						className="cursor-not-allowed disabled:brightness-75"
+						label="Email"
+						name="email"
+						defaultValue={user.email}
+						isDisabled
+					/>
+					<InputField
+						label="Name"
+						name="name"
+						defaultValue={user.fullName ?? ""}
+						onChange={() => setIsModified(true)}
+						isRequired
+					/>
+					<Button
+						className="mr-auto text-sm duration-100 disabled:cursor-not-allowed disabled:brightness-50"
+						variant="primary"
+						type="submit"
+						isDisabled={!isModified || fetcher.state === "submitting"}
+					>
+						Save <LuSave className="size-4" />
+					</Button>
+				</fetcher.Form>
+				<fetcher.Form className="flex w-80 flex-col gap-4" method="POST">
+					<h2 className="font-semibold text-xl">Billing</h2>
+					<Button className="border border-red-500 text-red-500" variant="tertiary">
+						Cancel subscription
+					</Button>
+				</fetcher.Form>
+			</div>
 		</div>
 	);
 };

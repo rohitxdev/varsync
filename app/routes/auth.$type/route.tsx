@@ -2,7 +2,7 @@ import { type ActionFunctionArgs, json, type LoaderFunctionArgs, redirect } from
 import { Form, Link, useLoaderData, useNavigation, useParams } from "@remix-run/react";
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Button } from "react-aria-components";
 import toast from "react-hot-toast";
 import { LuArrowLeft } from "react-icons/lu";
@@ -106,7 +106,7 @@ export const action = async (args: ActionFunctionArgs) => {
 		}
 
 		case "log-out":
-			return json(null, {
+			return redirect("/", {
 				headers: {
 					"Set-Cookie": await destroySession(session),
 				},
@@ -160,6 +160,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 				accessType: "offline",
 			}),
 			gitHubAuthUrl: null,
+			reload: false,
 		};
 
 	switch (searchParams.get("state")) {
@@ -190,11 +191,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
 				});
 				session.set("userId", userId);
 			}
-			return redirect("/", {
-				headers: {
-					"Set-Cookie": await commitSession(session),
+			return json(
+				{ googleAuthUrl: null, gitHubAuthUrl: null, reload: true },
+				{
+					headers: {
+						"Set-Cookie": await commitSession(session),
+					},
 				},
-			});
+			);
 		}
 		case "github": {
 			return null;
@@ -215,6 +219,13 @@ export default function Route() {
 	const { state } = useNavigation();
 	const { user } = useRootLoader();
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: only need to check once
+	useEffect(() => {
+		if (data?.reload) {
+			location.reload();
+		}
+	}, []);
+
 	return (
 		<div className="flex h-screen w-full flex-col items-center justify-center gap-12">
 			<Link
@@ -224,7 +235,9 @@ export default function Route() {
 			>
 				<LuArrowLeft className="size-full" />
 			</Link>
-			{user ? (
+			{data?.reload ? (
+				<Spinner className="mx-auto size-12 fill-white" />
+			) : user ? (
 				<>
 					<h2 className="font-semibold text-2xl">You are already logged in.</h2>
 				</>
@@ -239,7 +252,13 @@ export default function Route() {
 						method="POST"
 						action={`/auth/${authType}`}
 					>
-						<InputField type="email" name="email" autoComplete="email" label="Email" isRequired />
+						<InputField
+							type="email"
+							name="email"
+							autoComplete="email"
+							label="Email"
+							isRequired
+						/>
 						{authType === "forgot-password" && (
 							<Button
 								type="submit"
@@ -290,7 +309,8 @@ export default function Route() {
 									name="confirm-password"
 									validate={(val) => {
 										if (!val) return "Please enter your password.";
-										if (val !== passwordRef.current) return "Passwords do not match.";
+										if (val !== passwordRef.current)
+											return "Passwords do not match.";
 									}}
 									label="Confirm password"
 									isRequired
@@ -314,7 +334,9 @@ export default function Route() {
 									)}
 								</Button>
 								<p className="-mt-2 text-right text-xs">
-									{authType === "log-in" ? "Don't have an account?" : "Already have an account?"}
+									{authType === "log-in"
+										? "Don't have an account?"
+										: "Already have an account?"}
 									<Link
 										replace
 										to={`/auth/${authType === "log-in" ? "sign-up" : "log-in"}`}
@@ -334,7 +356,12 @@ export default function Route() {
 										className="flex h-12 w-full items-center justify-center gap-5 rounded-lg bg-white font-semibold text-black"
 									>
 										Continue with Google
-										<img src="/google.svg" alt="Google Logo" height={24} width={24} />
+										<img
+											src="/google.svg"
+											alt="Google Logo"
+											height={24}
+											width={24}
+										/>
 									</Link>
 								)}
 								{gitHubAuthUrl && (
@@ -343,7 +370,12 @@ export default function Route() {
 										className="flex h-12 w-full items-center justify-center gap-5 rounded-lg bg-white font-semibold text-black"
 									>
 										Continue with GitHub
-										<img src="/github.svg" alt="GitHub Logo" height={24} width={24} />
+										<img
+											src="/github.svg"
+											alt="GitHub Logo"
+											height={24}
+											width={24}
+										/>
 									</Link>
 								)}
 							</>

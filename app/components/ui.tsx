@@ -21,7 +21,7 @@ interface SwitchProps extends Omit<ComponentProps<"input">, "type" | "onInput"> 
 export const Switch = ({ className, ...rest }: SwitchProps) => {
 	return (
 		<input
-			className={`relative isolate box-content h-5 w-10 appearance-none rounded-full bg-neutral-600 p-0.5 before:absolute before:top-0.5 before:left-0.5 before:z-10 before:size-5 checked:before:translate-x-full before:rounded-full before:bg-white checked:bg-blue-600 before:duration-100 checked:duration-200 before:content-[''] ${className}`}
+			className={`relative isolate box-content h-5 w-10 appearance-none rounded-full bg-neutral-600 p-0.5 before:absolute before:top-0.5 before:left-0.5 before:z-10 before:size-5 before:rounded-full before:bg-white before:duration-100 before:content-[''] checked:bg-blue-600 checked:duration-200 checked:before:translate-x-full ${className}`}
 			type="checkbox"
 			{...rest}
 		/>
@@ -79,9 +79,9 @@ export const Modal = ({
 	return (
 		<DialogTrigger isOpen={isOpen} onOpenChange={onOpenChange}>
 			{children}
-			<AriaModalOverlay className="fixed inset-0 flex min-h-full items-center justify-center bg-black/60 duration-150">
+			<AriaModalOverlay className="fixed inset-0 z-50 flex min-h-full items-center justify-center bg-black/60 duration-150">
 				<AriaModal
-					className={`entering:zoom-in-95 exiting:zoom-out-95 bg-dark shadow-xl outline-none *:max-w-[90vw] entering:animate-in exiting:animate-out *:border *:border-white/20 *:bg-white/5 *:outline-none entering:duration-200 exiting:duration-200 entering:ease-out exiting:ease-in ${className}`}
+					className={`entering:zoom-in-95 exiting:zoom-out-95 entering:animate-in exiting:animate-out bg-dark shadow-xl outline-none entering:duration-200 exiting:duration-200 entering:ease-out exiting:ease-in *:max-w-[90vw] *:border *:border-white/20 *:bg-white/5 *:outline-none ${className}`}
 					{...rest}
 				>
 					{dialog}

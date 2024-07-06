@@ -68,7 +68,12 @@ const Route = () => {
 			<div className="flex items-center justify-between gap-4">
 				<h1 className="mb-2 font-semibold text-3xl">Access Tokens</h1>
 				<Modal dialog={<NewKeyDialog />}>
-					<Button className="text-sm" variant="primary" type="submit" isDisabled={isSubmitting}>
+					<Button
+						className="text-sm"
+						variant="primary"
+						type="submit"
+						isDisabled={isSubmitting}
+					>
 						<LuPlus className="size-5" /> New Access Token
 					</Button>
 				</Modal>
@@ -89,9 +94,16 @@ const Route = () => {
 								<tr key={item?._id}>
 									<td>{item.label}</td>
 									<td>
-										<span className="overflow-hidden">{new Array(20).fill("*").join("")}</span>
-										<span>{item.access_token.slice(item.access_token.length - 8)}</span>
-										<CopyButton className="ml-2 p-1 align-middle" text={item.access_token} />
+										<span className="overflow-hidden">
+											{new Array(20).fill("*").join("")}
+										</span>
+										<span>
+											{item.access_token.slice(item.access_token.length - 8)}
+										</span>
+										<CopyButton
+											className="ml-2 p-1 align-middle"
+											text={item.access_token}
+										/>
 									</td>
 									<td>{item.env}</td>
 									<td>
@@ -103,7 +115,9 @@ const Route = () => {
 											: "-"}
 									</td>
 									<td>
-										<Modal dialog={<DeleteAccessTokenDialog token={item.label} />}>
+										<Modal
+											dialog={<DeleteAccessTokenDialog token={item.label} />}
+										>
 											<Button className="flex rounded border border-red-500/10 p-1.5 text-red-500">
 												<LuTrash />
 											</Button>

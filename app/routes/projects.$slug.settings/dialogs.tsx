@@ -36,7 +36,8 @@ export const DeleteProjectDialog = ({ projectName, slug }: DeleteProjectDialogPr
 				>
 					<Heading className="font-semibold text-xl">Delete Project</Heading>
 					<p className="mt-1 text-slate-400 text-sm">
-						This project and all its environments will be deleted. This action cannot be undone.
+						This project and all its environments will be deleted. This action cannot be
+						undone.
 					</p>
 					<TextField
 						className="group mt-6 flex flex-col gap-1"
@@ -45,7 +46,8 @@ export const DeleteProjectDialog = ({ projectName, slug }: DeleteProjectDialogPr
 						isRequired
 					>
 						<Label className="font-normal text-xs">
-							Please type <span className="select-none font-semibold">{projectName}</span> to
+							Please type{" "}
+							<span className="select-none font-semibold">{projectName}</span> to
 							confirm.
 						</Label>
 						<Input className="rounded border border-white/10 bg-transparent px-2 py-1 invalid:outline-red-500" />

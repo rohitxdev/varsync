@@ -1,8 +1,8 @@
+import jwt from "jsonwebtoken";
 import { MongoClient, ObjectId, type UpdateFilter } from "mongodb";
+import slugify from "slugify";
 import { z } from "zod";
 import { config } from "./config.server";
-import slugify from "slugify";
-import jwt from "jsonwebtoken";
 
 const toSlug = (text: string) => slugify(text, { lower: true, trim: true });
 
@@ -222,7 +222,6 @@ export const setVariable = async ({
 
 export const deleteVariable = async ({
 	name,
-	env,
 	slug,
 	userId,
 }: {

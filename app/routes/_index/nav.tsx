@@ -11,7 +11,7 @@ export const NavBar = () => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (
-		<nav className="relative top-0 z-10 flex w-full items-center justify-between gap-6 bg-dark max-md:sticky max-md:py-6">
+		<nav className="relative top-0 z-10 flex w-full items-center justify-between gap-6 max-md:sticky max-md:py-6">
 			<div className="flex items-center justify-center gap-2">
 				<img
 					className="object-contain max-md:size-6"
@@ -56,31 +56,33 @@ export const NavBar = () => {
 					</div>
 				)}
 			</div>
-			{user ? (
-				<div className="flex items-center gap-2">
-					<Modal dialog={<LogOutDialog />}>
-						<Button className="text-white" variant="tertiary">
-							Log out
-						</Button>
-					</Modal>
-					{user.pictureUrl && (
-						<img
-							className="rounded-full border border-white/10"
-							src={user.pictureUrl}
-							height={48}
-							width={48}
-							alt="User"
-						/>
-					)}
-				</div>
-			) : (
-				<Link
-					className="rounded-md border border-blue-600 px-4 py-2 duration-100 hover:bg-blue-600"
-					to="/auth/login"
-				>
-					Log In
-				</Link>
-			)}
+			<div className="flex h-10 items-center gap-2">
+				{user ? (
+					<>
+						<Modal dialog={<LogOutDialog />}>
+							<Button className="text-white" variant="tertiary">
+								Log out
+							</Button>
+						</Modal>
+						{user.pictureUrl && (
+							<img
+								className="rounded-full border border-white/10"
+								src={user.pictureUrl}
+								height={40}
+								width={40}
+								alt="User"
+							/>
+						)}
+					</>
+				) : (
+					<Link
+						className="rounded-md border border-blue-600 px-4 py-2 duration-100 hover:bg-blue-600"
+						to="/auth/login"
+					>
+						Log In
+					</Link>
+				)}
+			</div>
 		</nav>
 	);
 };
