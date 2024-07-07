@@ -7,7 +7,8 @@
 		"dev": "remix vite:dev",
 		"build": "remix vite:build",
 		"start": "node server.js",
-		"pre-commit": "tsc && npm biome format --write app"
+		"pre-commit": "tsc && npm biome format --write app",
+		"checkpoint": "git add . && git commit -m \"$(echo \"checkpoint at $(date)\")\" && git push"
 	},
 	"dependencies": {
 		"@aws-sdk/client-ses": "^3.600.0",
