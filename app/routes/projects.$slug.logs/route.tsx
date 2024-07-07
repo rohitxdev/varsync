@@ -65,7 +65,7 @@ const Route = () => {
 					}}
 				/>
 			</div>
-			<div className="grid gap-2 overflow-y-auto rounded border border-white/10 p-2">
+			<div className="grid content-start gap-2 overflow-y-auto rounded border border-white/10 p-2">
 				{logs.length > 0 ? (
 					logs.map((item) => (
 						<div className="rounded bg-white/5 px-3 py-2" key={item.timestamp}>
