@@ -1,4 +1,4 @@
-import { type ActionFunctionArgs, json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { type ActionFunctionArgs, type LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, Link, useLoaderData, useNavigation, useParams } from "@remix-run/react";
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
@@ -18,16 +18,14 @@ import {
 	getSession,
 } from "~/utils/auth.server";
 
-import { getRandomNumber } from "~/utils/misc";
-import { createUser, getUserByEmail, updateUser } from "~/utils/db.server";
-import { config } from "~/utils/config.server";
-import { useRootLoader } from "~/utils/hooks";
 import { InputField } from "~/components/ui";
+import { config } from "~/utils/config.server";
+import { createUser, getUserByEmail, updateUser } from "~/utils/db.server";
+import { useRootLoader } from "~/utils/hooks";
+import { getRandomNumber } from "~/utils/misc";
 import Spinner from "../../assets/spinner.svg?react";
 
 const authTypeSchema = z.enum(["log-in", "sign-up", "forgot-password"]);
-
-const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
 
 const logInBodySchema = z.object({
 	email: z.string().email(),
@@ -37,12 +35,7 @@ const logInBodySchema = z.object({
 const signUpBodySchema = z
 	.object({
 		email: z.string().email(),
-		password: z
-			.string()
-			.regex(
-				validPasswordRegex,
-				"Password has to be at least 8 characters and contain 1 uppercase letter, 1 number, and 1 special character",
-			),
+		password: z.string().min(8, "Password has to be at least 8 characters long."),
 		"confirm-password": z.string(),
 	})
 	.refine((val) => val.password === val["confirm-password"]);
@@ -280,9 +273,11 @@ export default function Route() {
 								validate={(val) => {
 									if (!val) return "Please enter your password.";
 									if (authType === "log-in") return;
-									if (validPasswordRegex.test(val)) return;
-									return "Password has to be at least 8 characters and contain 1 uppercase letter, 1 number, and 1 special character.";
+									if (val.length < 8)
+										return "Password has to be at least 8 characters long.";
+									return;
 								}}
+								minLength={8}
 								onInput={(e) => {
 									passwordRef.current = e.currentTarget.value;
 								}}
@@ -308,10 +303,11 @@ export default function Route() {
 									type="text"
 									name="confirm-password"
 									validate={(val) => {
-										if (!val) return "Please enter your password.";
+										if (!val) return "Please confirm your password.";
 										if (val !== passwordRef.current)
-											return "Passwords do not match.";
+											return "Passwords have to match.";
 									}}
+									minLength={8}
 									label="Confirm password"
 									isRequired
 								/>

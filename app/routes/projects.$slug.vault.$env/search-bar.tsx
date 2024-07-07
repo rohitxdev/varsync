@@ -1,6 +1,6 @@
 import { type ComponentRef, useEffect, useId, useRef, useState } from "react";
-import { LuSearch, LuX } from "react-icons/lu";
 import { Button, type Input } from "react-aria-components";
+import { LuSearch, LuX } from "react-icons/lu";
 interface SearchBarProps {
 	onTextChange: (text: string) => void;
 }
@@ -11,7 +11,7 @@ export const SearchBar = ({ onTextChange }: SearchBarProps) => {
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "/" && document.activeElement !== inputRef.current) {
+			if (e.key === "/" && document.activeElement === document.body) {
 				e.preventDefault();
 				inputRef.current?.focus();
 			}

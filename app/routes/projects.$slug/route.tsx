@@ -19,6 +19,7 @@ import {
 	LuMoreVertical,
 	LuSettings,
 	LuUser,
+	LuWebhook,
 } from "react-icons/lu";
 import { Modal } from "~/components/ui";
 import { getUserFromRequest } from "~/utils/auth.server";
@@ -64,8 +65,8 @@ const Route = () => {
 	return (
 		<div className="grid min-h-screen grid-cols-[auto_1fr] items-center divide-x-[1px] divide-white/10">
 			<div className="grid h-full w-64 grid-cols-1 grid-rows-[auto_auto_1fr_auto] content-start gap-4 bg-slate-400/5 p-2 font-medium">
-				<Link className="flex items-center justify-center gap-3 p-4" to="/">
-					<img src="/logo.png" alt="Logo" height={24} width={24} />
+				<Link className="flex items-center gap-3 p-4 pb-0" to="/">
+					<img src="/logo.png" alt="Logo" height={28} width={28} />
 					<span className="font-semibold text-2xl">Varsync</span>
 				</Link>
 				<Tabs onSelectionChange={(key) => navigate(`/projects/${slug}${key.toString()}`)}>
@@ -82,10 +83,10 @@ const Route = () => {
 							<LuKey />
 							<span>Access Tokens</span>
 						</Tab>
-						{/* <Tab id="/webhooks">
+						<Tab id="/webhooks">
 							<LuWebhook />
 							<span>Webhooks</span>
-						</Tab> */}
+						</Tab>
 						<Tab id="/settings">
 							<LuSettings />
 							<span>Settings</span>
@@ -108,17 +109,17 @@ const Route = () => {
 						width={48}
 					/>
 					<div className="flex w-1/2 flex-col gap-1">
-						<p className="text-sm">{user?.fullName!}</p>
+						<p>{user?.fullName ?? user?.email.split("@")[0]}</p>
 						<p className="overflow-hidden text-ellipsis text-neutral-300 text-xs">
 							{user?.email}
 						</p>
 					</div>
 					<MenuTrigger>
-						<Button className="p-1">
+						<Button className="rounded p-2 hover:bg-white/10">
 							<LuMoreVertical />
 						</Button>
 						<Popover className="entering:fade-in entering:zoom-in-95 exiting:fade-out exiting:zoom-out-95 entering:animate-in exiting:animate-out fill-mode-forwards">
-							<Menu className="w-24 overflow-hidden rounded-md bg-white font-medium text-black text-sm *:flex *:cursor-pointer *:items-center *:gap-2 *:p-2 [&_*:focus-visible]:bg-neutral-100 [&_*]:outline-none [&_svg]:size-4 [&_svg]:shrink-0">
+							<Menu className="w-28 overflow-hidden rounded-md bg-white font-medium text-black text-sm *:flex *:h-11 *:cursor-pointer *:items-center *:justify-center *:gap-2 [&_*:focus-visible]:bg-neutral-100 [&_*]:outline-none [&_svg]:size-5 [&_svg]:shrink-0">
 								<MenuItem onAction={() => navigate("/account")}>
 									<LuUser className="size-5" /> Account
 								</MenuItem>

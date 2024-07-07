@@ -1,15 +1,15 @@
-import { LuSave, LuTrash2 } from "react-icons/lu";
-import { InputField, Modal } from "~/components/ui";
-import { DeleteProjectDialog } from "./dialogs";
-import { useProject } from "~/utils/hooks";
-import { redirect, type ActionFunctionArgs } from "@remix-run/node";
-import { z } from "zod";
-import { deleteProject, updateProject2 } from "~/utils/db.server";
-import { getUserFromRequest } from "~/utils/auth.server";
+import { type ActionFunctionArgs, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
-import { Button } from "~/components/buttons";
-import Spinner from "../../assets/spinner.svg?react";
 import { useState } from "react";
+import { LuSave, LuTrash2 } from "react-icons/lu";
+import { z } from "zod";
+import { Button } from "~/components/buttons";
+import { InputField, Modal } from "~/components/ui";
+import { getUserFromRequest } from "~/utils/auth.server";
+import { deleteProject, updateProject2 } from "~/utils/db.server";
+import { useProject } from "~/utils/hooks";
+import Spinner from "../../assets/spinner.svg?react";
+import { DeleteProjectDialog } from "./dialogs";
 
 const deleteProjectSchema = z.object({
 	slug: z.string().min(1),
@@ -41,7 +41,7 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 export default function Route() {
-	const { name, description, slug } = useProject();
+	const { name, description, slug, envs } = useProject();
 	const fetcher = useFetcher();
 	const [isModified, setIsModified] = useState(false);
 
@@ -87,6 +87,27 @@ export default function Route() {
 					)}
 				</Button>
 			</fetcher.Form>
+			<div className="grid w-full max-w-[500px] gap-4">
+				<h2 className="font-semibold text-xl">Themes</h2>
+				<table className="divide-y divide-white/10 text-start">
+					<thead>
+						<tr className="text-slate-400 text-sm *:p-4">
+							<th>Environment</th>
+							<th>Color</th>
+						</tr>
+					</thead>
+					<tbody className="divide-y divide-white/10 text-center">
+						{Object.keys(envs).map((item) => (
+							<tr className="*:p-4" key={item}>
+								<td>{item}</td>
+								<td>
+									<input type="color" />
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
 			<div className="grid w-full max-w-[500px] gap-4">
 				<h2 className="font-semibold text-xl">Danger</h2>
 				<div className="flex items-center justify-between gap-4 font-medium text-red-500">
