@@ -1,7 +1,7 @@
 import { type ActionFunctionArgs, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { useState } from "react";
-import { LuSave, LuTrash2 } from "react-icons/lu";
+import { LuSave, LuSkull } from "react-icons/lu";
 import { z } from "zod";
 import { Button } from "~/components/buttons";
 import { InputField, Modal } from "~/components/ui";
@@ -114,7 +114,7 @@ export default function Route() {
 					<p>Delete project</p>
 					<Modal dialog={<DeleteProjectDialog slug={slug} projectName={name} />}>
 						<Button className="rounded-lg border border-red-500/10 p-2">
-							<LuTrash2 />
+							<LuSkull />
 						</Button>
 					</Modal>
 				</div>

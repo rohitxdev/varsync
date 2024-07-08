@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
-import reactAriaPlugin from "tailwindcss-react-aria-components";
 import animatePlugin from "tailwindcss-animate";
+import reactAriaPlugin from "tailwindcss-react-aria-components";
 
 export default {
 	content: ["./app/**/*.{js,jsx,ts,tsx}"],
@@ -14,7 +14,7 @@ export default {
 				"2xs": "0.625rem",
 			},
 			colors: {
-				dark: "#101116",
+				dark: "#0A0A11",
 				blurple: "#6C63FF",
 			},
 		},

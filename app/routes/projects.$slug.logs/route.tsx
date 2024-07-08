@@ -22,15 +22,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 	const from = url.searchParams.get("from");
 	const to = url.searchParams.get("to");
 
-	if (!from) {
-		const fromDate = new Date();
-		fromDate.setHours(-144);
-		url.searchParams.set("from", fromDate.toISOString().split("T")[0]);
-	}
-	if (!to) {
-		url.searchParams.set("to", new Date().toISOString().split("T")[0]);
-	}
 	if (!from || !to) {
+		const date = new Date();
+		date.setHours(0, 0, 0, 0);
+		url.searchParams.set("from", date.toISOString().split("T")[0]);
+		date.setHours(23, 59, 59, 999);
+		url.searchParams.set("to", date.toISOString().split("T")[0]);
 		return redirect(url.toString());
 	}
 
@@ -40,11 +37,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
 		from: new Date(from),
 		to: new Date(to),
 	});
-	return { logs };
+
+	return {
+		logs,
+		locale: args.request.headers.get("Accept-Language")!.split(",")[0] ?? "en-US",
+	};
 };
 
 const Route = () => {
-	const { logs } = useLoaderData<typeof loader>();
+	const { logs, locale } = useLoaderData<typeof loader>();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	return (
@@ -71,7 +72,7 @@ const Route = () => {
 						<div className="rounded bg-white/5 px-3 py-2" key={item.timestamp}>
 							<span className="mb-2 text-neutral-300 text-sm">{item.message}</span>
 							<p className="text-2xs text-slate-400">
-								{new Date(item.timestamp).toLocaleString("en-US", {
+								{new Date(item.timestamp).toLocaleString(locale, {
 									timeStyle: "short",
 									dateStyle: "medium",
 								})}

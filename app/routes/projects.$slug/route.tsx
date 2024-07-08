@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Link, Outlet, redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { Link, Outlet, redirect, useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import { type ComponentProps, useState } from "react";
 import {
 	Tab as AriaTab,
@@ -12,6 +12,7 @@ import {
 	Tabs,
 } from "react-aria-components";
 import {
+	LuExternalLink,
 	LuFileText,
 	LuKey,
 	LuLayers,
@@ -48,7 +49,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 const Tab = ({ className, ...rest }: ComponentProps<typeof AriaTab>) => {
 	return (
 		<AriaTab
-			className={`flex cursor-pointer items-center justify-start gap-4 rounded px-4 py-1.5 font-medium selected:font-semibold selected:text-white text-slate-400 outline-none hover:bg-white/10 ${className}`}
+			className={`flex h-9 cursor-pointer items-center justify-start gap-4 rounded px-4 font-medium selected:font-semibold selected:text-white text-slate-400 outline-none hover:bg-white/10 ${className}`}
 			{...rest}
 		/>
 	);
@@ -61,33 +62,37 @@ const Route = () => {
 	const envs = Object.keys(project.envs);
 	const { user } = useRootLoader();
 	const [showLogOutDialog, setShowLogOutDialog] = useState(false);
+	const { pathname } = useLocation();
 
 	return (
 		<div className="grid min-h-screen grid-cols-[auto_1fr] items-center divide-x-[1px] divide-white/10">
-			<div className="grid h-full w-64 grid-cols-1 grid-rows-[auto_auto_1fr_auto] content-start gap-4 bg-slate-400/5 p-2 font-medium">
+			<div className="grid h-full w-64 grid-cols-1 grid-rows-[auto_auto_1fr_auto] content-start gap-4 bg-neutral-500/5 p-2 font-medium">
 				<Link className="flex items-center gap-3 p-4 pb-0" to="/">
 					<img src="/logo.png" alt="Logo" height={28} width={28} />
 					<span className="font-semibold text-2xl">Varsync</span>
 				</Link>
-				<Tabs onSelectionChange={(key) => navigate(`/projects/${slug}${key.toString()}`)}>
+				<Tabs
+					defaultSelectedKey={pathname}
+					onSelectionChange={(key) => navigate(key.toString())}
+				>
 					<TabList>
-						<Tab id={`/vault/${envs[0]}`}>
+						<Tab id={`/projects/${slug}/vault/${envs[0]}`}>
 							<LuVault className="size-5" />
 							<span>Vault</span>
 						</Tab>
-						<Tab id="/logs">
+						<Tab id={`/projects/${slug}/logs`}>
 							<LuFileText />
 							<span>Logs</span>
 						</Tab>
-						<Tab id="/access-tokens">
+						<Tab id={`/projects/${slug}/access-tokens`}>
 							<LuKey />
 							<span>Access Tokens</span>
 						</Tab>
-						<Tab id="/webhooks">
+						<Tab id={`/projects/${slug}/webhooks`}>
 							<LuWebhook />
 							<span>Webhooks</span>
 						</Tab>
-						<Tab id="/settings">
+						<Tab id={`/projects/${slug}/settings`}>
 							<LuSettings />
 							<span>Settings</span>
 						</Tab>
@@ -95,10 +100,11 @@ const Route = () => {
 				</Tabs>
 				<br />
 				<Link
-					className="flex cursor-pointer items-center justify-start gap-4 rounded px-4 py-1.5 hover:bg-white/10"
+					className="group flex h-9 cursor-pointer items-center justify-start gap-4 rounded px-4 text-slate-400 hover:bg-white/10"
 					to="/projects"
 				>
 					<LuLayers /> Projects
+					<LuExternalLink className="invisible ml-auto group-hover:visible" />
 				</Link>
 				<div className="flex items-center gap-4 p-2">
 					<img
