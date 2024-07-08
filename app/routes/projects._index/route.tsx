@@ -1,13 +1,13 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect, useLoaderData, Link } from "@remix-run/react";
-import { ProfileMenu } from "~/components/profile-menu";
-import { LuArrowRight, LuPlus } from "react-icons/lu";
+import { Link, redirect, useLoaderData } from "@remix-run/react";
 import { Button } from "react-aria-components";
+import { LuArrowRight, LuPlus } from "react-icons/lu";
 import { z } from "zod";
-import { createProject, deleteProject, getAllProjects, updateProject } from "~/utils/db.server";
-import { NewProjectDialog } from "./dialogs";
+import { ProfileMenu } from "~/components/profile-menu";
 import { Modal } from "~/components/ui";
 import { getUserFromRequest } from "~/utils/auth.server";
+import { createProject, deleteProject, getAllProjects, updateProject } from "~/utils/db.server";
+import { NewProjectDialog } from "./dialogs";
 
 export const loader = async (args: ActionFunctionArgs) => {
 	const user = await getUserFromRequest(args.request);
@@ -76,7 +76,7 @@ const Route = () => {
 			<div className="mt-6 flex flex-wrap gap-4">
 				{projects.map((item) => (
 					<Link
-						className="group flex h-48 w-80 grow flex-col items-start gap-4 overflow-hidden text-ellipsis rounded-md border border-white/10 bg-white/5 p-4 font-semibold text-lg leading-none duration-100 sm:grow-0 hover:bg-white/10"
+						className="group flex h-48 w-80 grow flex-col items-start gap-4 overflow-hidden text-ellipsis rounded-md border border-white/10 bg-white/5 p-4 font-semibold text-lg leading-none duration-100 hover:bg-white/10 sm:grow-0"
 						key={item._id}
 						to={{ pathname: `/projects/${item.slug}`, search: `env=${item.envs[0]}` }}
 					>

@@ -1,20 +1,21 @@
-import { useId, useState, type ComponentProps, type ReactNode } from "react";
-import { LuChevronDown, LuChevronsUpDown } from "react-icons/lu";
+import { type ComponentProps, type ReactNode, useId, useState } from "react";
 import {
-	Select as AriaSelect,
-	SelectValue,
-	Button,
-	Popover,
-	ListBox,
-	ListBoxItem,
-	DialogTrigger,
-	ModalOverlay as AriaModalOverlay,
+	ComboBox as AriaComboBox,
 	Modal as AriaModal,
+	ModalOverlay as AriaModalOverlay,
+	Select as AriaSelect,
+	Button,
+	DialogTrigger,
+	FieldError,
 	Input,
 	Label,
+	ListBox,
+	ListBoxItem,
+	Popover,
+	SelectValue,
 	TextField,
-	FieldError,
 } from "react-aria-components";
+import { LuChevronDown, LuChevronsUpDown } from "react-icons/lu";
 
 interface SwitchProps extends Omit<ComponentProps<"input">, "type" | "onInput"> {}
 
@@ -60,6 +61,38 @@ export const Select = ({ options, placement, label, className, ...rest }: Select
 				</ListBox>
 			</Popover>
 		</AriaSelect>
+	);
+};
+
+interface ComboBoxProps extends ComponentProps<typeof AriaComboBox> {
+	options: ReactNode[];
+	placement?: ComponentProps<typeof Popover>["placement"];
+	label?: ReactNode;
+}
+
+export const ComboBox = ({ options, placement, label, className, ...rest }: ComboBoxProps) => {
+	return (
+		<AriaComboBox className={`mr-auto ${className}`} {...rest}>
+			<Label className="text-slate-400 text-xs empty:hidden">{label}</Label>
+			<Button className="flex h-9 w-full items-center justify-between rounded-md border border-white/10 font-medium *:shrink-0">
+				<Input className="min-w-0 overflow-hidden text-ellipsis bg-transparent px-2 text-start capitalize" />
+				<LuChevronsUpDown className="mx-2 stroke-[3]" />
+			</Button>
+			<Popover className="bg-dark" placement={placement}>
+				<ListBox className="w-[--trigger-width] rounded-md border border-white/10 p-1 font-medium">
+					{options.map((item, i) => (
+						<ListBoxItem
+							className="overflow-hidden text-ellipsis rounded py-1 pr-2 pl-3 capitalize outline-none focus:bg-white/5"
+							// biome-ignore lint/suspicious/noArrayIndexKey: No way to get a stable key
+							key={i}
+							id={item?.toString()}
+						>
+							{item}
+						</ListBoxItem>
+					))}
+				</ListBox>
+			</Popover>
+		</AriaComboBox>
 	);
 };
 

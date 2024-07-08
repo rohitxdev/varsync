@@ -12,34 +12,37 @@ import {
 	Tabs,
 } from "react-aria-components";
 import {
-	LuExternalLink,
 	LuFileText,
 	LuKey,
-	LuLayers,
 	LuLogOut,
 	LuMoreVertical,
 	LuSettings,
 	LuUser,
 	LuWebhook,
 } from "react-icons/lu";
-import { Modal } from "~/components/ui";
+import { ComboBox, Modal } from "~/components/ui";
 import { getUserFromRequest } from "~/utils/auth.server";
-import { getProject } from "~/utils/db.server";
+import { getAllProjects, getProject } from "~/utils/db.server";
 import { useRootLoader } from "~/utils/hooks";
 import LuVault from "../../assets/vault.svg?react";
 import { LogOutDialog } from "../../components/dialogs";
+import { ThemeToggle } from "./theme-toggle";
 
 export const loader = async (args: LoaderFunctionArgs) => {
 	const user = await getUserFromRequest(args.request);
 	if (!user) return redirect("/");
 
-	const project = await getProject({
-		slug: args.params.slug!,
-		userId: user._id.toString(),
-	});
+	const [project, projects] = await Promise.all([
+		getProject({
+			slug: args.params.slug!,
+			userId: user._id.toString(),
+		}),
+		getAllProjects(user._id.toString()),
+	]);
+
 	if (!project?._id) return redirect("/projects", { statusText: "Project not found" });
 
-	return { project };
+	return { project, projects };
 };
 
 export const meta: MetaFunction<typeof loader> = (args) => {
@@ -56,7 +59,7 @@ const Tab = ({ className, ...rest }: ComponentProps<typeof AriaTab>) => {
 };
 
 const Route = () => {
-	const { project } = useLoaderData<typeof loader>();
+	const { project, projects } = useLoaderData<typeof loader>();
 	const navigate = useNavigate();
 	const slug = project.slug;
 	const envs = Object.keys(project.envs);
@@ -67,10 +70,22 @@ const Route = () => {
 	return (
 		<div className="grid min-h-screen grid-cols-[auto_1fr] items-center divide-x-[1px] divide-white/10">
 			<div className="grid h-full w-64 grid-cols-1 grid-rows-[auto_auto_1fr_auto] content-start gap-4 bg-neutral-500/5 p-2 font-medium">
-				<Link className="m-4 mb-0 flex items-center gap-3" to="/">
-					<img src="/logo.png" alt="Logo" height={28} width={28} />
+				<Link className="m-4 mb-0 flex items-center justify-center gap-3" to="/">
+					<img src="/logo.png" alt="Logo" height={24} width={24} />
 					<span className="font-semibold text-2xl">Varsync</span>
 				</Link>
+				<ComboBox
+					className="w-full px-2"
+					defaultSelectedKey={project.name}
+					options={projects.map((item) => item.name)}
+					onSelectionChange={(key) => {
+						const currentProject = projects.find(
+							(item) => item.name === key?.toString(),
+						);
+						if (!currentProject) return;
+						location.href = location.href.replace(slug, currentProject.slug);
+					}}
+				/>
 				<Tabs
 					defaultSelectedKey={pathname}
 					onSelectionChange={(key) => navigate(key.toString())}
@@ -99,13 +114,7 @@ const Route = () => {
 					</TabList>
 				</Tabs>
 				<br />
-				<Link
-					className="group flex h-9 cursor-pointer items-center justify-start gap-4 rounded px-4 text-slate-400 text-sm hover:bg-white/10"
-					to="/projects"
-				>
-					<LuLayers /> Projects
-					<LuExternalLink className="invisible ml-auto group-hover:visible" />
-				</Link>
+				<ThemeToggle />
 				<div className="flex items-center gap-4 p-2">
 					<img
 						className="rounded-full border border-white/10"

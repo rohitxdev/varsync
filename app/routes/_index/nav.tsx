@@ -11,7 +11,7 @@ export const NavBar = () => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (
-		<nav className="relative top-0 z-10 flex w-full items-center justify-between gap-6 max-md:sticky max-md:py-6">
+		<nav className="relative top-0 z-10 flex w-full items-center justify-between gap-6 bg-dark max-md:sticky max-md:py-6">
 			<div className="flex items-center justify-center gap-2">
 				<img
 					className="object-contain max-md:size-6"
