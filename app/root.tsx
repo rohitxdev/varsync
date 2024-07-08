@@ -1,6 +1,7 @@
 import "~/root.css";
 import { Toaster } from "react-hot-toast";
 
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import {
 	Links,
 	Meta,
@@ -10,12 +11,11 @@ import {
 	useRevalidator,
 	useRouteError,
 } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { getUserFromRequest } from "./utils/auth.server";
-import { LOCALE_UK } from "./utils/misc";
-import { config } from "./utils/config.server";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import { useEffect } from "react";
+import { getUserFromRequest } from "./utils/auth.server";
+import { config } from "./utils/config.server";
+import { LOCALE_UK } from "./utils/misc";
 
 export const ErrorBoundary = () => {
 	const error = useRouteError();
@@ -100,6 +100,11 @@ const App = () => {
 				<link
 					href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
 					rel="stylesheet"
+				/>
+				<script
+					defer
+					src="https://cloud.umami.is/script.js"
+					data-website-id="6dbfc4c0-1637-4590-a923-07a965dd673c"
 				/>
 				<link rel="shortcut icon" href="/logo.svg" type="image/svg+xml" />
 				<Meta />
