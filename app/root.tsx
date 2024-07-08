@@ -103,7 +103,7 @@ const App = () => {
 					href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
 					rel="stylesheet"
 				/>
-				{pathname.includes("/projects") && (
+				{!pathname.includes("/projects") && (
 					<script
 						defer
 						src="https://cloud.umami.is/script.js"
