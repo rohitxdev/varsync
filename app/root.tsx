@@ -8,6 +8,7 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useLocation,
 	useRevalidator,
 	useRouteError,
 } from "@remix-run/react";
@@ -81,6 +82,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 const App = () => {
 	const { revalidate } = useRevalidator();
+	const { pathname } = useLocation();
 
 	useEffect(() => {
 		const handleVisibilityChange = () => document.visibilityState === "visible" && revalidate();
@@ -101,11 +103,13 @@ const App = () => {
 					href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
 					rel="stylesheet"
 				/>
-				<script
-					defer
-					src="https://cloud.umami.is/script.js"
-					data-website-id="6dbfc4c0-1637-4590-a923-07a965dd673c"
-				/>
+				{pathname.includes("/projects") && (
+					<script
+						defer
+						src="https://cloud.umami.is/script.js"
+						data-website-id="6dbfc4c0-1637-4590-a923-07a965dd673c"
+					/>
+				)}
 				<link rel="shortcut icon" href="/logo.svg" type="image/svg+xml" />
 				<Meta />
 				<Links />
