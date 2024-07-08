@@ -49,7 +49,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 const Tab = ({ className, ...rest }: ComponentProps<typeof AriaTab>) => {
 	return (
 		<AriaTab
-			className={`flex h-9 cursor-pointer items-center justify-start gap-4 rounded px-4 font-medium selected:font-semibold selected:text-white text-slate-400 outline-none hover:bg-white/10 ${className}`}
+			className={`flex h-9 cursor-pointer items-center justify-start gap-4 rounded px-4 font-medium selected:font-semibold selected:text-white text-slate-400 text-sm outline-none hover:bg-white/10 ${className}`}
 			{...rest}
 		/>
 	);
@@ -67,7 +67,7 @@ const Route = () => {
 	return (
 		<div className="grid min-h-screen grid-cols-[auto_1fr] items-center divide-x-[1px] divide-white/10">
 			<div className="grid h-full w-64 grid-cols-1 grid-rows-[auto_auto_1fr_auto] content-start gap-4 bg-neutral-500/5 p-2 font-medium">
-				<Link className="flex items-center gap-3 p-4 pb-0" to="/">
+				<Link className="m-4 mb-0 flex items-center gap-3" to="/">
 					<img src="/logo.png" alt="Logo" height={28} width={28} />
 					<span className="font-semibold text-2xl">Varsync</span>
 				</Link>
@@ -77,7 +77,7 @@ const Route = () => {
 				>
 					<TabList>
 						<Tab id={`/projects/${slug}/vault/${envs[0]}`}>
-							<LuVault className="size-5" />
+							<LuVault className="size-4" />
 							<span>Vault</span>
 						</Tab>
 						<Tab id={`/projects/${slug}/logs`}>
@@ -100,7 +100,7 @@ const Route = () => {
 				</Tabs>
 				<br />
 				<Link
-					className="group flex h-9 cursor-pointer items-center justify-start gap-4 rounded px-4 text-slate-400 hover:bg-white/10"
+					className="group flex h-9 cursor-pointer items-center justify-start gap-4 rounded px-4 text-slate-400 text-sm hover:bg-white/10"
 					to="/projects"
 				>
 					<LuLayers /> Projects
@@ -116,7 +116,7 @@ const Route = () => {
 					/>
 					<div className="flex w-1/2 flex-col gap-1">
 						<p>{user?.fullName ?? user?.email.split("@")[0]}</p>
-						<p className="overflow-hidden text-ellipsis text-neutral-300 text-xs">
+						<p className="overflow-hidden text-ellipsis text-slate-400 text-xs">
 							{user?.email}
 						</p>
 					</div>

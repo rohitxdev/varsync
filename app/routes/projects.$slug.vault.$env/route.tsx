@@ -293,11 +293,19 @@ export default function Route() {
 						onSelectionChange={(key) => navigate(`/projects/${slug}/vault/${key}`)}
 					/>
 					<SearchBar onTextChange={setSearchTerm} />
-					<Button variant="primary" onPress={() => setShowInputType("flag")}>
+					<Button
+						className="text-sm"
+						variant="primary"
+						onPress={() => setShowInputType("flag")}
+					>
 						<LuFlag className="stroke-[3]" />
 						Add flag
 					</Button>
-					<Button variant="primary" onPress={() => setShowInputType("variable")}>
+					<Button
+						className="text-sm"
+						variant="primary"
+						onPress={() => setShowInputType("variable")}
+					>
 						<LuVariable className="stroke-[3]" />
 						Add variable
 					</Button>
@@ -315,7 +323,7 @@ export default function Route() {
 							/>
 						}
 					>
-						<Button className="flex h-9 items-center gap-2 rounded bg-neutral-100 px-4 font-medium text-black">
+						<Button className="text-sm" variant="secondary">
 							<LuUpload />
 							Import
 						</Button>
@@ -351,6 +359,11 @@ export default function Route() {
 									className="bg-transparent outline-none"
 									name="name"
 									type="text"
+									onKeyDown={(e) => {
+										if (e.key === "Escape") {
+											setShowInputType(null);
+										}
+									}}
 									autoFocus
 									required
 								/>
