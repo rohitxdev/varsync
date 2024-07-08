@@ -11,7 +11,7 @@ import { NewProjectDialog } from "./dialogs";
 
 export const loader = async (args: ActionFunctionArgs) => {
 	const user = await getUserFromRequest(args.request);
-	if (!user) return redirect("/");
+	if (!user) return redirect("/auth/log-in");
 
 	return { projects: await getAllProjects(user._id.toString()) };
 };

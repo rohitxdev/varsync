@@ -8,6 +8,7 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useLoaderData,
 	useLocation,
 	useRevalidator,
 	useRouteError,
@@ -21,6 +22,8 @@ import { LOCALE_UK } from "./utils/misc";
 export const ErrorBoundary = () => {
 	const error = useRouteError();
 	captureRemixErrorBoundaryError(error);
+
+	if (import.meta.env.PROD) return null;
 
 	return (
 		<div
@@ -67,6 +70,8 @@ const clientConfig = {
 	IS_PAYMENT_ENABLED: config.IS_PAYMENT_ENABLED,
 	PADDLE_CLIENT_TOKEN: config.VITE_PADDLE_CLIENT_TOKEN,
 	PADDLE_ENVIRONMENT: config.VITE_PADDLE_ENVIRONMENT,
+	UMAMI_WEBSITE_ID: config.UMAMI_WEBSITE_ID,
+	API_RATE_LIMIT_PER_MINUTE: config.API_RATE_LIMIT_PER_MINUTE,
 } as const;
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -83,6 +88,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 const App = () => {
 	const { revalidate } = useRevalidator();
 	const { pathname } = useLocation();
+	const data = useLoaderData<typeof loader>();
 
 	useEffect(() => {
 		const handleVisibilityChange = () => document.visibilityState === "visible" && revalidate();
@@ -103,11 +109,11 @@ const App = () => {
 					href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
 					rel="stylesheet"
 				/>
-				{!pathname.includes("/projects") && (
+				{data.config.APP_ENV === "production" && !pathname.includes("/projects") && (
 					<script
 						defer
 						src="https://cloud.umami.is/script.js"
-						data-website-id="6dbfc4c0-1637-4590-a923-07a965dd673c"
+						data-website-id={data.config.UMAMI_WEBSITE_ID}
 					/>
 				)}
 				<link rel="shortcut icon" href="/logo.svg" type="image/svg+xml" />

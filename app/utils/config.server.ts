@@ -11,9 +11,9 @@ const booleanEnum = z.enum(["true", "false"]);
 export const config = z
 	.object({
 		APP_ENV: z.enum(["development", "production", "test"]),
-		IS_SIGN_UP_ENABLED: booleanEnum,
-		IS_LOG_IN_ENABLED: booleanEnum,
-		IS_PAYMENT_ENABLED: booleanEnum,
+		IS_SIGN_UP_ENABLED: booleanEnum.transform((item) => item === "true"),
+		IS_LOG_IN_ENABLED: booleanEnum.transform((item) => item === "true"),
+		IS_PAYMENT_ENABLED: booleanEnum.transform((item) => item === "true"),
 		GOOGLE_CLIENT_ID: z.string().min(1),
 		GOOGLE_CLIENT_SECRET: z.string().min(1),
 		JWT_SIGNING_KEY: z.string().min(1),
@@ -29,11 +29,10 @@ export const config = z
 		PADDLE_API_KEY: z.string().min(1),
 		VITE_PADDLE_CLIENT_TOKEN: z.string().min(1),
 		VITE_PADDLE_ENVIRONMENT: z.enum(["sandbox", "production"]),
+		UMAMI_WEBSITE_ID: z.string().min(1),
+		API_RATE_LIMIT_PER_MINUTE: z
+			.string()
+			.min(1)
+			.transform((item) => Number.parseInt(item, 10)),
 	})
-	.transform((item) => ({
-		...item,
-		IS_SIGN_UP_ENABLED: item.IS_SIGN_UP_ENABLED === "true",
-		IS_LOG_IN_ENABLED: item.IS_LOG_IN_ENABLED === "true",
-		IS_PAYMENT_ENABLED: item.IS_PAYMENT_ENABLED === "true",
-	}))
 	.parse(process.env);

@@ -140,7 +140,7 @@ export const AccordionItem = ({ title, description }: AccordionItemProps) => {
 			aria-labelledby={`title-${id}`}
 		>
 			<button
-				className="flex w-full items-center justify-between font-semibold text-xl"
+				className="flex w-full items-center justify-between font-semibold text-lg"
 				type="button"
 				onClick={() => setIsOpen((val) => !val)}
 			>
@@ -154,7 +154,7 @@ export const AccordionItem = ({ title, description }: AccordionItemProps) => {
 				/>
 			</button>
 			<div
-				className={`grid ${
+				className={`grid text-slate-400 ${
 					isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
 				} duration-150`}
 				aria-hidden={!isOpen}
