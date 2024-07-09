@@ -1,8 +1,8 @@
-import jwt from "jsonwebtoken";
 import { MongoClient, ObjectId, type UpdateFilter } from "mongodb";
 import slugify from "slugify";
 import { z } from "zod";
 import { config } from "./config.server";
+import { generateApiKey } from "./misc";
 
 const toSlug = (text: string) => slugify(text, { lower: true, trim: true });
 
@@ -28,23 +28,12 @@ await connectToDb();
 
 const db = mongoClient.db("varsync");
 
-//Projects
-
-const apiKeySchema = z.object({
-	_id: z.string().uuid(),
-	label: z.string().min(1),
-	key: z.string().min(1),
-	env: z.string().min(1),
-	lastUsed: z.string().optional(),
-});
-
 const projectSchema = z.object({
 	name: z.string().min(1),
 	description: z.string().min(1).optional(),
 	slug: z.string().min(1),
 	envs: z.record(z.record(z.string().or(z.boolean()))),
 	default_values: z.record(z.string().or(z.boolean())),
-	access_tokens: z.array(apiKeySchema),
 	userId: z.string().min(1),
 });
 
@@ -93,7 +82,6 @@ export const createProject = async ({
 		slug: toSlug(name),
 		envs: updatedEnvs,
 		default_values: {},
-		access_tokens: [],
 		userId,
 	});
 };
@@ -114,8 +102,8 @@ export const updateProject = async ({
 	await projects.updateOne({ slug, userId }, { $set: { name: name, slug: toSlug(name), envs } });
 };
 
-const accessTokenSchema = z.object({
-	access_token: z.string().min(1),
+const apiKeySchema = z.object({
+	key: z.string().min(1),
 	label: z.string().min(1),
 	env: z.string().min(1),
 	last_used: z.string().nullish(),
@@ -123,9 +111,10 @@ const accessTokenSchema = z.object({
 	user_id: z.string().min(1),
 });
 
-const accessTokens = db.collection<z.infer<typeof accessTokenSchema>>("access_tokens");
+const apiKeys = db.collection<z.infer<typeof apiKeySchema>>("api_keys");
+await apiKeys.createIndex({ label: 1 }, { unique: true });
 
-export const createAccessToken = async ({
+export const createApiKey = async ({
 	label,
 	env,
 	projectId,
@@ -137,8 +126,8 @@ export const createAccessToken = async ({
 	userId: string;
 }) => {
 	const id = new ObjectId();
-	return await accessTokens.insertOne({
-		access_token: jwt.sign({ sub: id }, config.JWT_SIGNING_KEY),
+	return await apiKeys.insertOne({
+		key: generateApiKey({ env, projectId }),
 		label,
 		env,
 		project_id: projectId,
@@ -147,8 +136,11 @@ export const createAccessToken = async ({
 	});
 };
 
-export const getAllAccessTokens = async (projectId: string, userId: string) =>
-	await accessTokens.find({ project_id: projectId, user_id: userId }).toArray();
+export const deleteApiKey = async ({ label, projectId }: { label: string; projectId: string }) =>
+	await apiKeys.deleteOne({ label, project_id: projectId });
+
+export const getAllApiKeys = async (projectId: string, userId: string) =>
+	await apiKeys.find({ project_id: projectId, user_id: userId }).toArray();
 
 export const updateProject2 = async ({
 	name,
@@ -332,25 +324,6 @@ export const addLog = async ({
 
 export const updateUserName = async (name: string, userId: string) =>
 	await users.updateOne({ _id: new ObjectId(userId) }, { $set: { fullName: name } });
-
-//Api Keys
-
-export const getAllKeys = async (slug: string, userId: string) => {
-	const project = await projects.findOne({ slug, userId });
-	if (!project) return [];
-
-	return project.access_tokens;
-};
-
-export const deleteKey = async ({
-	label,
-	slug,
-	userId,
-}: {
-	label: string;
-	slug: string;
-	userId: string;
-}) => await projects.updateOne({ slug, userId }, { $pull: { access_tokens: { label } } });
 
 //Webhooks
 

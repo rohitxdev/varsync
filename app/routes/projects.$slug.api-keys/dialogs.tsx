@@ -7,11 +7,7 @@ import { Button } from "~/components/buttons";
 import { InputField, Select } from "~/components/ui";
 import { useProject } from "~/utils/hooks";
 
-interface NewKeyDialogProps {
-	projectName?: string;
-}
-
-export const NewKeyDialog = (props: NewKeyDialogProps) => {
+export const NewKeyDialog = () => {
 	const fetcher = useFetcher();
 	const closeFn = useRef<(() => void) | null>(null);
 	const { envs } = useProject();
@@ -71,12 +67,13 @@ export const NewKeyDialog = (props: NewKeyDialogProps) => {
 	);
 };
 
-interface DeleteAccessTokenDialogProps {
-	token: string;
+interface DeleteApiKeyDialogProps {
+	apiKeyLabel: string;
 }
-export const DeleteAccessTokenDialog = ({ token }: DeleteAccessTokenDialogProps) => {
+export const DeleteApiKeyDialog = (props: DeleteApiKeyDialogProps) => {
 	const fetcher = useFetcher();
 	const closeFn = useRef<(() => void) | null>(null);
+	const { _id } = useProject();
 
 	useEffect(() => {
 		if (fetcher.state === "idle") {
@@ -87,14 +84,25 @@ export const DeleteAccessTokenDialog = ({ token }: DeleteAccessTokenDialogProps)
 	return (
 		<Dialog className="rounded-md bg-dark">
 			{({ close }) => (
-				<fetcher.Form className="grid w-[60ch] gap-2 p-6" method="DELETE">
-					<Heading className="font-semibold text-lg">Delete access token</Heading>
+				<fetcher.Form
+					className="grid w-[60ch] gap-2 p-6"
+					method="DELETE"
+					onSubmit={(e) => {
+						e.preventDefault();
+						fetcher.submit(
+							{ label: props.apiKeyLabel, projectId: _id },
+							{ method: "DELETE" },
+						);
+						closeFn.current = close;
+					}}
+				>
+					<Heading className="font-semibold text-lg">Delete API key</Heading>
 					<p className="text-slate-400 text-sm">
 						Are you sure you want to delete `
-						<span className="font-semibold">{token}</span>`? Apps using this token will
-						no longer be able to access this project's vault.
+						<span className="font-semibold">{props.apiKeyLabel}</span>`? Apps using this
+						key will no longer be able to access this project's vault.
 					</p>
-					<div className="mt-2 flex justify-end gap-4 font-semibold text-sm">
+					<div className="mt-2 flex justify-end gap-4 font-semibold text-sm *:w-28">
 						<Button variant="secondary" onPress={close}>
 							Cancel
 						</Button>
@@ -105,8 +113,6 @@ export const DeleteAccessTokenDialog = ({ token }: DeleteAccessTokenDialogProps)
 								closeFn.current = close;
 							}}
 							type="submit"
-							name="label"
-							value={token}
 							isDisabled={fetcher.state === "submitting"}
 						>
 							{fetcher.state === "submitting" ? (

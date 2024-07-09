@@ -99,9 +99,9 @@ const Route = () => {
 							<LuFileText />
 							<span>Logs</span>
 						</Tab>
-						<Tab id={`/projects/${slug}/access-tokens`}>
+						<Tab id={`/projects/${slug}/api-keys`}>
 							<LuKey />
-							<span>Access Tokens</span>
+							<span>API Keys</span>
 						</Tab>
 						<Tab id={`/projects/${slug}/webhooks`}>
 							<LuWebhook />

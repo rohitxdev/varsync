@@ -1,20 +1,12 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, useFetcher, useLoaderData } from "@remix-run/react";
 import { LuPlus, LuTrash } from "react-icons/lu";
-import { DeleteAccessTokenDialog, NewKeyDialog } from "./dialogs";
+import { Button, CopyButton } from "~/components/buttons";
 import { Modal } from "~/components/ui";
 import { getUserFromRequest } from "~/utils/auth.server";
-import { Button, CopyButton } from "~/components/buttons";
-import { z } from "zod";
+import { createApiKey, deleteApiKey, getAllApiKeys, getProject } from "~/utils/db.server";
 import KeysScene from "../../assets/keys-scene.svg?react";
-import { createAccessToken, deleteKey, getAllAccessTokens, getProject } from "~/utils/db.server";
-
-const apiKeySchema = z.object({
-	_id: z.string(),
-	label: z.string().min(1),
-	key: z.string().min(1),
-	lastUsed: z.string().min(1),
-});
+import { DeleteApiKeyDialog, NewKeyDialog } from "./dialogs";
 
 export const loader = async (args: LoaderFunctionArgs) => {
 	const user = await getUserFromRequest(args.request);
@@ -25,7 +17,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 	if (!project) return json(null, { status: 404, statusText: "Project not found" });
 
 	return {
-		accessTokens: await getAllAccessTokens(project._id.toString(), user._id.toString()),
+		accessTokens: await getAllApiKeys(project._id.toString(), user._id.toString()),
 	};
 };
 
@@ -43,12 +35,13 @@ export const action = async (args: ActionFunctionArgs) => {
 			const projectId = formData.get("projectId")?.toString()!;
 			const env = formData.get("env")?.toString()!;
 			const label = formData.get("label")?.toString()!;
-			await createAccessToken({ projectId, env, label, userId: user._id.toString() });
+			await createApiKey({ projectId, env, label, userId: user._id.toString() });
 			break;
 		}
 		case "DELETE": {
+			const projectId = formData.get("projectId")?.toString()!;
 			const label = formData.get("label")?.toString()!;
-			await deleteKey({ label, slug, userId: user._id.toString() });
+			await deleteApiKey({ label, projectId });
 			break;
 		}
 		default:
@@ -66,7 +59,7 @@ const Route = () => {
 	return (
 		<div className="h-full px-8 py-6">
 			<div className="flex items-center justify-between gap-4">
-				<h1 className="mb-2 font-semibold text-3xl">Access Tokens</h1>
+				<h1 className="mb-2 font-semibold text-3xl">API Keys</h1>
 				<Modal dialog={<NewKeyDialog />}>
 					<Button
 						className="text-sm"
@@ -74,7 +67,7 @@ const Route = () => {
 						type="submit"
 						isDisabled={isSubmitting}
 					>
-						<LuPlus className="size-5" /> New Access Token
+						<LuPlus className="size-5" /> New API Key
 					</Button>
 				</Modal>
 			</div>
@@ -84,7 +77,7 @@ const Route = () => {
 						<thead className="border-white/10 border-b">
 							<tr className="text-slate-400 *:font-medium">
 								<th>Label</th>
-								<th>Token</th>
+								<th>Key</th>
 								<th>Environment</th>
 								<th>Last used</th>
 							</tr>
@@ -94,15 +87,13 @@ const Route = () => {
 								<tr key={item?._id}>
 									<td>{item.label}</td>
 									<td>
+										<span>{item.key.slice(0, 7)}</span>
 										<span className="overflow-hidden">
 											{new Array(20).fill("*").join("")}
 										</span>
-										<span>
-											{item.access_token.slice(item.access_token.length - 8)}
-										</span>
 										<CopyButton
 											className="ml-2 p-1 align-middle"
-											text={item.access_token}
+											text={item.key}
 										/>
 									</td>
 									<td>{item.env}</td>
@@ -116,7 +107,7 @@ const Route = () => {
 									</td>
 									<td>
 										<Modal
-											dialog={<DeleteAccessTokenDialog token={item.label} />}
+											dialog={<DeleteApiKeyDialog apiKeyLabel={item.label} />}
 										>
 											<Button className="flex rounded border border-red-500/10 p-1.5 text-red-500">
 												<LuTrash />

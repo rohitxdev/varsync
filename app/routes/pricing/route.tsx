@@ -1,55 +1,43 @@
 import { type Paddle, initializePaddle } from "@paddle/paddle-js";
 import { useLoaderData, useNavigate } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { type ComponentProps, useEffect, useState } from "react";
+import { Tab as AriaTab, TabList, TabPanel, Tabs } from "react-aria-components";
 import { LuCheckCircle } from "react-icons/lu";
 import { useRootLoader } from "~/utils/hooks";
+import { decrypt, encrypt } from "~/utils/misc";
 import { paddle } from "~/utils/payments.server";
 
-interface PricingProps {
-	title: string;
-	price: number;
-	features: string[];
-}
-
-const pricing: PricingProps[] = [
-	{
-		title: "Free",
-		price: 0,
-		features: [
-			"Upto 20 variables/feature flags",
-			"Upto 2 Environments",
-			"20k reads per month",
-			"Syncs every 10 minutes",
-		],
-	},
-	{
-		title: "Pro",
-		price: 4.99,
-		features: [
-			"Upto 1000 variables/feature flags",
-			"Upto 10 environments",
-			"2 million reads per month",
-			"Syncs every 1 minute",
-			"Role based access control",
-		],
-	},
-];
-
 export const loader = async () => {
+	// Example usage
+	const plainText = "Hello, World!";
+
+	const encrypted = encrypt(plainText);
+	console.log("Encrypted:", encrypted);
+
+	const decrypted = decrypt(encrypted);
+	console.log("Decrypted:", decrypted);
 	try {
 		const getPrices = paddle.prices.list();
 		const prices = await getPrices.next();
-		return { prices };
+		const getProducts = paddle.products.list();
+		const products = await getProducts.next();
+		return { prices, products };
 	} catch (error) {
-		return { prices: [] };
+		return { prices: [], products: [] };
 	}
 };
+
+const Tab = ({ className, ...props }: ComponentProps<typeof AriaTab>) => (
+	<AriaTab
+		className={`rounded-full text-center font-semibold text-slate-400 leading-10 ${className} w-32 selected:bg-blue-500 selected:text-white`}
+		{...props}
+	/>
+);
 
 const PricingCard = ({
 	name,
 	price,
 	billingCycle,
-	description,
 	actionText,
 	onAction,
 	features,
@@ -58,7 +46,6 @@ const PricingCard = ({
 	name: string;
 	price: number;
 	billingCycle: string;
-	description: string;
 	actionText?: string;
 	onAction?: () => void;
 	features: string[];
@@ -71,16 +58,7 @@ const PricingCard = ({
 				${price}&nbsp;
 				<span className="font-medium text-slate-400 text-sm">/{billingCycle}</span>
 			</p>
-			<p className="text-slate-400 text-sm">{description}</p>
 		</div>
-		<ul className="mt-6 space-y-1.5 *:flex *:items-center *:gap-3 empty:hidden [&_svg]:text-green-500">
-			{features.map((item) => (
-				<li key={item}>
-					<LuCheckCircle />
-					{item}
-				</li>
-			))}
-		</ul>
 		{actionText && (
 			<button
 				className="mt-4 w-full rounded-lg bg-blue-500 px-6 py-2 font-semibold disabled:cursor-not-allowed disabled:brightness-75"
@@ -91,12 +69,21 @@ const PricingCard = ({
 				{actionText}
 			</button>
 		)}
+		<ul className="mt-6 h-1/2 space-y-1.5 *:flex *:items-center *:gap-3 empty:hidden [&_svg]:text-green-500">
+			{features.map((item) => (
+				<li key={item}>
+					<LuCheckCircle />
+					{item}
+				</li>
+			))}
+		</ul>
 	</div>
 );
 
 const Route = () => {
 	const { config, user } = useRootLoader();
-	const { prices } = useLoaderData<typeof loader>();
+	const { prices, products } = useLoaderData<typeof loader>();
+
 	const navigate = useNavigate();
 	const [paddleClient, setPaddleClient] = useState<Paddle | null>(null);
 
@@ -118,45 +105,51 @@ const Route = () => {
 	return (
 		<div className="h-screen p-6">
 			<h1 className="mb-4 text-center font-bold text-4xl">Pricing</h1>
-			<div
-				className="grid auto-rows-fr grid-rows-1 justify-center gap-8"
-				style={{
-					gridTemplateColumns: "repeat(auto-fit, minmax(250px, 350px))",
-				}}
-			>
-				<PricingCard
-					name="Free"
-					price={0}
-					description="Upto 20 variables/feature flags"
-					billingCycle="month"
-					actionText={user ? "Go to dashboard" : "Log In"}
-					onAction={() => navigate(user ? "/projects" : "/auth/log-in")}
-					features={["20 variables/feature flags", "2 Environments", "2 Projects"]}
-				/>
-				{prices.map((item) => (
+			<Tabs className="flex flex-col gap-8">
+				<TabList className="mx-auto flex w-fit items-center justify-center rounded-full border border-white/10 bg-white/10">
+					<Tab id="Monthly">Monthly</Tab>
+					<Tab id="Annually">Annually</Tab>
+				</TabList>
+				<div
+					className="grid auto-rows-fr grid-rows-1 justify-center gap-8"
+					style={{
+						gridTemplateColumns: "repeat(auto-fit, minmax(250px, 350px))",
+					}}
+				>
 					<PricingCard
-						name={item.name!}
-						price={Number.parseInt(item.unitPrice.amount, 10) / 100}
-						description={item.description}
-						billingCycle={item.billingCycle?.interval!}
-						actionText={item.trialPeriod ? "Start Free Trial" : "Subscribe"}
-						onAction={() => {
-							if (!user) return navigate("/auth/log-in");
-							paddleClient?.Checkout.open({
-								items: [{ priceId: item.id, quantity: 1 }],
-							});
-						}}
-						features={[
-							"1000 variables/feature flags",
-							"10 Environments",
-							"20 Projects",
-							"Webhooks",
-						]}
-						isDisabled={!config.IS_PAYMENT_ENABLED}
-						key={item.id}
+						name="Free"
+						price={0}
+						billingCycle="month"
+						actionText={user ? "Go to dashboard" : "Log In"}
+						onAction={() => navigate(user ? "/projects" : "/auth/log-in")}
+						features={["20 variables/feature flags", "2 Environments", "2 Projects"]}
 					/>
-				))}
-			</div>
+					{prices.map((item) => (
+						<TabPanel id={item.name!} key={item.id}>
+							<PricingCard
+								name={products.find((p) => p.id === item.productId)?.name!}
+								price={Number.parseInt(item.unitPrice.amount, 10) / 100}
+								billingCycle={item.billingCycle?.interval!}
+								actionText={item.trialPeriod ? "Start Free Trial" : "Subscribe"}
+								onAction={() => {
+									if (!user) return navigate("/auth/log-in");
+									paddleClient?.Checkout.open({
+										items: [{ priceId: item.id, quantity: 1 }],
+									});
+								}}
+								features={[
+									"1000 variables/feature flags",
+									"10 Environments",
+									"20 Projects",
+									"Webhooks",
+								]}
+								isDisabled={!config.IS_PAYMENT_ENABLED}
+								key={item.id}
+							/>
+						</TabPanel>
+					))}
+				</div>
+			</Tabs>
 		</div>
 	);
 };
