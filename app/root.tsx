@@ -8,6 +8,7 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	isRouteErrorResponse,
 	useLoaderData,
 	useLocation,
 	useRevalidator,
@@ -32,7 +33,19 @@ export const ErrorBoundary = () => {
 				fontFamily: "sans-serif",
 			}}
 		>
-			{error instanceof Error ? (
+			{isRouteErrorResponse(error) ? (
+				<>
+					<h1
+						style={{
+							fontSize: "1.75rem",
+							marginTop: 0,
+						}}
+					>
+						{error.status} - {error.statusText}
+					</h1>
+					<p>{error.data}</p>
+				</>
+			) : error instanceof Error ? (
 				<>
 					<h1
 						style={{
