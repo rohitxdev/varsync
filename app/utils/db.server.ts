@@ -112,7 +112,7 @@ const apiKeySchema = z.object({
 });
 
 const apiKeys = db.collection<z.infer<typeof apiKeySchema>>("api_keys");
-await apiKeys.createIndex({ label: 1 }, { unique: true });
+await apiKeys.createIndex({ label: 1, project_id: 1 }, { unique: true });
 
 export const createApiKey = async ({
 	label,
