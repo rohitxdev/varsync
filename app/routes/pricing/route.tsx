@@ -4,18 +4,9 @@ import { type ComponentProps, useEffect, useState } from "react";
 import { Tab as AriaTab, TabList, TabPanel, Tabs } from "react-aria-components";
 import { LuCheckCircle } from "react-icons/lu";
 import { useRootLoader } from "~/utils/hooks";
-import { decrypt, encrypt } from "~/utils/misc";
 import { paddle } from "~/utils/payments.server";
 
 export const loader = async () => {
-	// Example usage
-	const plainText = "Hello, World!";
-
-	const encrypted = encrypt(plainText);
-	console.log("Encrypted:", encrypted);
-
-	const decrypted = decrypt(encrypted);
-	console.log("Decrypted:", decrypted);
 	try {
 		const getPrices = paddle.prices.list();
 		const prices = await getPrices.next();
