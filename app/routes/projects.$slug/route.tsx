@@ -66,13 +66,15 @@ const Route = () => {
 			>
 				<div className="flex items-center justify-between p-3">
 					{showNav && (
-						<Link className="flex items-center justify-center gap-3" to="/">
-							<img src="/logo.png" alt="Logo" height={24} width={24} />
+						<Link className="flex items-center justify-center gap-1.5" to="/">
+							<img src="/logo.png" alt="Logo" height={36} width={36} />
 							<span className="font-semibold text-2xl">Varsync</span>
 						</Link>
 					)}
 					<Button className="p-1" onPress={() => setShowNav((val) => !val)}>
-						<LuPanelRightClose className={`size-5 ${showNav && "rotate-180"}`} />
+						<LuPanelRightClose
+							className={`size-5 text-slate-400 ${showNav && "rotate-180"}`}
+						/>
 					</Button>
 				</div>
 				{/* <ComboBox

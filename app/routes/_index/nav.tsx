@@ -17,8 +17,8 @@ export const NavBar = () => {
 					className="object-contain max-md:size-6"
 					src="/logo.png"
 					alt="VarSync"
-					height={32}
-					width={32}
+					height={36}
+					width={36}
 				/>
 				<span className="font-bold text-2xl max-md:text-lg">Varsync</span>
 			</div>
