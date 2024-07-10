@@ -1,12 +1,11 @@
-import { Button, Tab, TabList, TabPanel, Tabs } from "react-aria-components";
-import { LuCopy } from "react-icons/lu";
-import toast from "react-hot-toast";
 import { useSearchParams } from "@remix-run/react";
 import hljs from "highlight.js/lib/core";
-import js from "highlight.js/lib/languages/javascript";
 import go from "highlight.js/lib/languages/go";
+import js from "highlight.js/lib/languages/javascript";
 import python from "highlight.js/lib/languages/python";
+import { Tab, TabList, TabPanel, Tabs } from "react-aria-components";
 import "highlight.js/styles/tokyo-night-dark.css";
+import { CopyButton } from "~/components/buttons";
 
 hljs.registerLanguage("javascript", js);
 hljs.registerLanguage("go", go);
@@ -133,7 +132,7 @@ export const CodeBlock = () => {
 			<TabList className="flex divide-x-[1px] divide-neutral-600 overflow-hidden">
 				{data.map((item) => (
 					<Tab
-						className="flex w-full items-center justify-center gap-2 overflow-hidden text-ellipsis py-2 font-medium text-sm capitalize outline-none selected:bg-neutral-800"
+						className="flex w-full items-center justify-center gap-2 overflow-hidden text-ellipsis selected:bg-neutral-800 py-2 font-medium text-sm capitalize outline-none"
 						key={item.language}
 						id={item.language}
 					>
@@ -154,18 +153,10 @@ export const CodeBlock = () => {
 					key={item.language}
 					id={item.language}
 				>
-					<Button
-						className="absolute top-0 right-0 m-2 rounded p-2 duration-100 hover:bg-white/10"
-						onPress={() =>
-							toast.promise(navigator.clipboard.writeText(item.code), {
-								success: "Copied to clipboard",
-								error: "Failed to copy",
-								loading: null,
-							})
-						}
-					>
-						<LuCopy className="size-5" />
-					</Button>
+					<CopyButton
+						className="absolute top-0 right-0 m-2 rounded border-none p-2 duration-100 hover:bg-white/10"
+						text={item.code}
+					/>
 					<div className="size-full overflow-auto p-3 pb-12">
 						<pre
 							className="text-left font-jetbrains-mono font-semibold text-sm"
