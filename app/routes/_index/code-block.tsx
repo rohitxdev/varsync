@@ -13,8 +13,8 @@ hljs.registerLanguage("python", python);
 
 const jsCode = `import { VarsyncClient } from 'varsync';
 
-const varsync = new VarsyncClient(import.meta.env.VARSYNC_ACCESS_TOKEN); 
-//const varsync = new VarsyncClient(process.env.VARSYNC_ACCESS_TOKEN); for node.js
+const varsync = new VarsyncClient(import.meta.env.VARSYNC_API_KEY); 
+//const varsync = new VarsyncClient(process.env.VARSYNC_API_KEY); for node.js
 
 await varsync.init();
 
@@ -37,10 +37,7 @@ import (
 )
 
 func main() {
-	config := varsync.New(varsync.Config{
-		Env:         os.Getenv("NODE_ENV"),
-		AccessToken: os.Getenv("VARSYNC_ACCESS_TOKEN"),
-	})
+	config := varsync.New(os.Getenv("VARSYNC_API_KEY"))
 
 	r := gin.Default()
 
@@ -82,10 +79,7 @@ import os
 
 app = Flask(__name__)
 
-config = VarsyncClient(
-    env = os.getenv("NODE_ENV"),
-    access_token = os.getenv("VARSYNC_ACCESS_TOKEN")
-)
+config = VarsyncClient(env = os.getenv("NODE_ENV"))
 
 @app.route('/api', methods = ['GET'])
 def handler():
