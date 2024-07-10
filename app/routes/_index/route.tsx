@@ -164,7 +164,6 @@ const Route = () => {
 					</div>
 				</section>
 			</div>
-
 			<Footer />
 		</div>
 	);

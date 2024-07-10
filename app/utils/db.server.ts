@@ -35,6 +35,7 @@ const projectSchema = z.object({
 	envs: z.record(z.record(z.string().or(z.boolean()))),
 	default_values: z.record(z.string().or(z.boolean())),
 	userId: z.string().min(1),
+	envThemes: z.record(z.string().min(1)).optional(),
 });
 
 const projects = db.collection<z.infer<typeof projectSchema>>("projects");
@@ -154,11 +155,23 @@ export const updateProject2 = async ({
 	userId: string;
 }) => {
 	const project = await projects.findOne({ slug, userId });
+
 	if (!project) return;
 	await projects.updateOne(
 		{ slug, userId },
 		{ $set: { name: name, slug: toSlug(name), description } },
 	);
+};
+
+export const updateProject3 = async (
+	slug: string,
+	userId: string,
+	updates: Record<string, unknown>,
+) => {
+	const project = await projects.findOne({ slug, userId: userId });
+
+	if (!project) return;
+	await projects.updateOne({ slug, userId }, { $set: updates });
 };
 
 export const deleteProject = async ({ slug, userId }: { slug: string; userId: string }) =>

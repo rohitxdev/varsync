@@ -1,6 +1,6 @@
 import { type ComponentProps, type ComponentPropsWithRef, useState } from "react";
 import { Button as AriaButton } from "react-aria-components";
-import { LuCopy, LuCheck } from "react-icons/lu";
+import { LuCheck, LuCopy } from "react-icons/lu";
 import Spinner from "~/assets/spinner.svg?react";
 
 interface ButtonProps extends ComponentPropsWithRef<typeof AriaButton> {
@@ -12,21 +12,21 @@ export const Button = ({ variant, className, ...rest }: ButtonProps) => {
 		case "primary":
 			return (
 				<AriaButton
-					className={`flex h-9 items-center justify-center gap-2 rounded bg-blue-500 px-6 font-semibold text-white disabled:cursor-not-allowed disabled:brightness-75 ${className}`}
+					className={`flex h-9 shrink-0 items-center justify-center gap-2 rounded bg-blue-500 px-6 font-semibold text-white disabled:cursor-not-allowed disabled:brightness-75 ${className}`}
 					{...rest}
 				/>
 			);
 		case "secondary":
 			return (
 				<AriaButton
-					className={`flex h-9 items-center justify-center gap-2 rounded bg-white px-6 font-semibold text-black ${className}`}
+					className={`flex h-9 shrink-0 items-center justify-center gap-2 rounded bg-white px-6 font-semibold text-black ${className}`}
 					{...rest}
 				/>
 			);
 		case "tertiary":
 			return (
 				<AriaButton
-					className={`flex h-9 items-center justify-center gap-2 rounded bg-transparent px-6 font-semibold text-black ${className}`}
+					className={`flex h-9 shrink-0 items-center justify-center gap-2 rounded bg-transparent px-6 font-semibold text-black ${className}`}
 					{...rest}
 				/>
 			);

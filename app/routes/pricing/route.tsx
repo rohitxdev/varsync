@@ -122,7 +122,11 @@ const Route = () => {
 						billingCycle="month"
 						actionText={user ? "Go to dashboard" : "Log In"}
 						onAction={() => navigate(user ? "/projects" : "/auth/log-in")}
-						features={["20 variables/feature flags", "2 Environments", "2 Projects"]}
+						features={[
+							"20 variables/feature flags per environment",
+							"2 Environments per project",
+							"2 Projects",
+						]}
 					/>
 					{prices.map((item) => (
 						<TabPanel id={item.name!} key={item.id}>
@@ -138,8 +142,8 @@ const Route = () => {
 									});
 								}}
 								features={[
-									"1000 variables/feature flags",
-									"10 Environments",
+									"1000 variables/feature flags per environment",
+									"10 Environments per project",
 									"20 Projects",
 									"Webhooks",
 								]}

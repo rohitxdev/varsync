@@ -168,7 +168,7 @@ const Variable = ({
 	}, [fetcher.state]);
 
 	return (
-		<div className="flex h-14 items-center gap-8 rounded-md bg-white/5 px-6" key={name}>
+		<div className="flex h-14 items-center gap-8 rounded-md bg-white/5 px-6">
 			<span
 				className="mr-auto font-medium text-slate-300 *:rounded-sm *:bg-blue-500/50"
 				// biome-ignore lint/security/noDangerouslySetInnerHtml: need to escape HTML
@@ -222,7 +222,7 @@ const Variable = ({
 						<Button onPress={() => setIsEdited(true)}>
 							<LuPencil />
 						</Button>
-						<p>{value}</p>
+						<p className="overflow-hidden text-ellipsis">{value}</p>
 					</div>
 				)
 			) : (
@@ -256,9 +256,7 @@ const Variable = ({
 export default function Route() {
 	const fetcher = useFetcher();
 	const navigate = useNavigate();
-	const { envs } = useProject() as {
-		envs: Record<string, Record<string, string | boolean>>;
-	};
+	const { envs, envThemes } = useProject();
 	const envNames = Object.keys(envs);
 	const { env, slug } = useParams() as { env: string; slug: string };
 
@@ -276,15 +274,13 @@ export default function Route() {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		console.log(fetcher.formData?.get("name"));
-
 		setShowInputType(null);
 	}, [fetcher.state]);
 
 	return (
-		<div className="grid size-full">
+		<div className="grid size-full" style={{ backgroundColor: `${envThemes?.[env]}20` }}>
 			<div className="flex flex-col gap-2 rounded p-6">
-				<div className="mb-4 flex gap-3">
+				<div className="mb-4 flex flex-wrap gap-3">
 					<Select
 						className="w-40"
 						placement="top"

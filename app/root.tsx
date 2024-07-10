@@ -10,7 +10,6 @@ import {
 	ScrollRestoration,
 	isRouteErrorResponse,
 	useLoaderData,
-	useLocation,
 	useRevalidator,
 	useRouteError,
 } from "@remix-run/react";
@@ -28,7 +27,7 @@ export const ErrorBoundary = () => {
 		<div
 			style={{
 				padding: "1rem",
-				fontFamily: "sans-serif",
+				fontFamily: "system-ui",
 			}}
 		>
 			{isRouteErrorResponse(error) ? (
@@ -98,7 +97,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 const App = () => {
 	const { revalidate } = useRevalidator();
-	const { pathname } = useLocation();
 	const data = useLoaderData<typeof loader>();
 
 	useEffect(() => {
@@ -120,11 +118,12 @@ const App = () => {
 					href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
 					rel="stylesheet"
 				/>
-				{data.config.APP_ENV === "production" && !pathname.includes("/projects") && (
+				{data.config.APP_ENV === "production" && (
 					<script
 						defer
 						src="https://cloud.umami.is/script.js"
 						data-website-id={data.config.UMAMI_WEBSITE_ID}
+						data-auto-track="false"
 					/>
 				)}
 				<link rel="shortcut icon" href="/logo.svg" type="image/svg+xml" />

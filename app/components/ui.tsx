@@ -135,12 +135,12 @@ export const AccordionItem = ({ title, description }: AccordionItemProps) => {
 
 	return (
 		<div
-			className="w-full max-w-[65ch] rounded border border-neutral-600 px-4 py-8 text-start"
+			className="w-full max-w-[65ch] rounded border border-neutral-600 px-4 py-8"
 			aria-expanded={isOpen}
 			aria-labelledby={`title-${id}`}
 		>
 			<button
-				className="flex w-full items-center justify-between font-semibold text-lg"
+				className="flex w-full items-center justify-between text-start font-semibold text-lg"
 				type="button"
 				onClick={() => setIsOpen((val) => !val)}
 			>
@@ -154,7 +154,7 @@ export const AccordionItem = ({ title, description }: AccordionItemProps) => {
 				/>
 			</button>
 			<div
-				className={`grid text-slate-400 ${
+				className={`grid text-start text-slate-400 ${
 					isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
 				} duration-150`}
 				aria-hidden={!isOpen}
