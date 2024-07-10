@@ -26,7 +26,6 @@ import { getAllProjects, getProject } from "~/utils/db.server";
 import { useRootLoader } from "~/utils/hooks";
 import LuVault from "../../assets/vault.svg?react";
 import { LogOutDialog } from "../../components/dialogs";
-import { ThemeToggle } from "./theme-toggle";
 
 export const loader = async (args: LoaderFunctionArgs) => {
 	const user = await getUserFromRequest(args.request);
@@ -114,7 +113,7 @@ const Route = () => {
 					</TabList>
 				</Tabs>
 				<br />
-				<ThemeToggle />
+				{/* <ThemeToggle /> */}
 				<div className="flex items-center gap-4 p-2">
 					<img
 						className="rounded-full border border-white/10"

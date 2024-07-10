@@ -24,8 +24,6 @@ export const ErrorBoundary = () => {
 	const error = useRouteError();
 	captureRemixErrorBoundaryError(error);
 
-	if (import.meta.env.PROD) return null;
-
 	return (
 		<div
 			style={{

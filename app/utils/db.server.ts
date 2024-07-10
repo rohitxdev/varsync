@@ -286,14 +286,22 @@ export const getLogs = async ({
 }: {
 	slug: string;
 	userId: string;
-	from: Date;
-	to: Date;
+	from?: string;
+	to?: string;
 }) => {
 	const project = await getProject({ slug, userId });
 	if (!project) return [];
+	if (!from || !to) {
+		return logs
+			.find({ projectId: project?._id.toString() }, { sort: { timestamp: -1 }, limit: 50 })
+			.toArray();
+	}
 	return await logs
 		.find(
-			{ projectId: project?._id.toString(), timestamp: { $gte: from, $lte: to } },
+			{
+				projectId: project?._id.toString(),
+				timestamp: { $gte: new Date(from), $lte: new Date(to) },
+			},
 			{ sort: { timestamp: -1 } },
 		)
 		.toArray();

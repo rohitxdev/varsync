@@ -32,9 +32,6 @@ export const NavBar = () => {
 				<li>
 					<Link to="/docs">Docs</Link>
 				</li>
-				<li>
-					<Link to="/support">Support</Link>
-				</li>
 			</ul>
 			<div className="md:hidden">
 				<button type="button" onClick={() => setIsOpen((val) => !val)}>
@@ -65,13 +62,15 @@ export const NavBar = () => {
 							</Button>
 						</Modal>
 						{user.pictureUrl && (
-							<img
-								className="rounded-full border border-white/10"
-								src={user.pictureUrl}
-								height={40}
-								width={40}
-								alt="User"
-							/>
+							<Link to="/account">
+								<img
+									className="rounded-full border border-white/10"
+									src={user.pictureUrl}
+									height={40}
+									width={40}
+									alt="User"
+								/>
+							</Link>
 						)}
 					</>
 				) : (
