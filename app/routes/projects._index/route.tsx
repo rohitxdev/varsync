@@ -1,19 +1,19 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { Link, redirect, useLoaderData } from "@remix-run/react";
 import { Button } from "react-aria-components";
-import { LuArrowRight, LuPlus } from "react-icons/lu";
+import { LuPlus } from "react-icons/lu";
 import { z } from "zod";
 import { ProfileMenu } from "~/components/profile-menu";
 import { Modal } from "~/components/ui";
-import { getUserFromRequest } from "~/utils/auth.server";
-import { createProject, deleteProject, getAllProjects, updateProject } from "~/utils/db.server";
+import { createProject, deleteProject, getAllProjects, updateProject } from "~/db/projects.server";
+import { getUser } from "~/utils/auth.server";
 import { NewProjectDialog } from "./dialogs";
 
 export const loader = async (args: ActionFunctionArgs) => {
-	const user = await getUserFromRequest(args.request);
+	const user = await getUser(args.request);
 	if (!user) return redirect("/auth/log-in");
 
-	return { projects: await getAllProjects(user._id.toString()) };
+	return { projects: await getAllProjects(user._id) };
 };
 
 const newProjectSchema = z.object({
@@ -25,7 +25,6 @@ const newProjectSchema = z.object({
 const editProjectSchema = z.object({
 	slug: z.string().min(1),
 	name: z.string().min(1),
-	envs: z.array(z.string().min(1)).min(1),
 });
 
 const deleteProjectSchema = z.object({
@@ -33,24 +32,24 @@ const deleteProjectSchema = z.object({
 });
 
 export const action = async (args: ActionFunctionArgs) => {
-	const user = await getUserFromRequest(args.request);
+	const user = await getUser(args.request);
 	if (!user) return null;
 
 	const body = await args.request.json();
 
 	switch (args.request.method) {
 		case "POST": {
-			await createProject({ ...newProjectSchema.parse(body), userId: user._id.toString() });
+			await createProject({ ...newProjectSchema.parse(body), userId: user._id });
 			break;
 		}
 		case "PATCH": {
-			await updateProject({ ...editProjectSchema.parse(body), userId: user._id.toString() });
+			await updateProject({ ...editProjectSchema.parse(body), userId: user._id });
 			break;
 		}
 		case "DELETE": {
 			await deleteProject({
 				...deleteProjectSchema.parse(body),
-				userId: user._id.toString(),
+				userId: user._id,
 			});
 			break;
 		}
@@ -62,6 +61,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 const Route = () => {
 	const { projects } = useLoaderData<typeof loader>();
+
 	return (
 		<div className="p-6">
 			<nav className="flex items-center justify-between">
@@ -77,18 +77,15 @@ const Route = () => {
 				{projects.map((item) => (
 					<Link
 						className="group flex h-48 w-80 grow flex-col items-start gap-4 overflow-hidden text-ellipsis rounded-md border border-white/10 bg-white/5 p-4 font-semibold text-lg leading-none duration-100 hover:bg-white/10 sm:grow-0"
-						key={item._id}
+						key={item.slug}
 						to={{ pathname: `/projects/${item.slug}`, search: `env=${item.envs[0]}` }}
 					>
-						<div className="flex w-full justify-between">
-							<span>{item.name}</span>
-							<LuArrowRight className="-translate-x-4 size-5 text-white/30 opacity-0 duration-200 group-hover:translate-x-0 group-hover:text-white group-hover:opacity-100" />
-						</div>
+						<p>{item.name}</p>
 						<p className="line-clamp-4 overflow-hidden text-ellipsis font-medium text-slate-400 text-xs">
 							{item.description}
 						</p>
 						<p className="mt-auto font-normal text-slate-400 text-sm">
-							{item.envs.length}{" "}
+							{item.envs.length}&nbsp;
 							{item.envs.length === 1 ? "environment" : "environments"}
 						</p>
 					</Link>

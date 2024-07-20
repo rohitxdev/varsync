@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useFetcher } from "@remix-run/react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, Heading, Tab, TabList, TabPanel, Tabs, TextArea } from "react-aria-components";
 import { LuAlertTriangle, LuUpload } from "react-icons/lu";
 import { z } from "zod";
+import LockIcon from "~/assets/lock.svg?react";
 import { Button } from "~/components/buttons";
+import { showToast } from "~/components/toast";
+import { InputField } from "~/components/ui";
+import { useMasterPassword } from "~/utils/contexts";
+import { pbkdf2Hash } from "~/utils/crypto.client";
+import { useProject, useRootLoader } from "~/utils/hooks";
+import { actionResponseSchema } from "~/utils/misc";
 
 interface DeleteVariableDialogProps {
 	name: string;
@@ -124,6 +132,74 @@ export const ImportVariablesDialog = ({
 						</Button>
 					</div>
 				</Tabs>
+			)}
+		</Dialog>
+	);
+};
+
+interface PromptMasterPasswordDialog {
+	onAction: () => void;
+}
+
+export const PromptMasterPasswordDialog = (props: PromptMasterPasswordDialog) => {
+	const fetcher = useFetcher();
+	const project = useProject();
+	const { user } = useRootLoader();
+	const { setMasterPassword } = useMasterPassword();
+	const [text, setText] = useState("");
+	const closeFn = useRef<(() => void) | null>(null);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (!fetcher.data) return;
+		const data = actionResponseSchema.parse(fetcher.data);
+		if (!data) return;
+		if (data.success) {
+			setMasterPassword(text);
+			props.onAction();
+			closeFn.current?.();
+		} else {
+			showToast(data.message, "error");
+		}
+	}, [fetcher.data, setMasterPassword]);
+
+	return (
+		<Dialog className="relative rounded-md p-6 text-white outline-none">
+			{({ close }) => (
+				<form
+					onSubmit={async (e) => {
+						e.preventDefault();
+						if (!user?.email) return;
+						fetcher.submit(
+							{
+								masterPasswordHash: await pbkdf2Hash(text, user.email),
+							},
+							{
+								action: `/${project.slug}/master-password?verify=true`,
+								method: "POST",
+								encType: "application/json",
+							},
+						);
+						closeFn.current = close;
+					}}
+				>
+					<LockIcon className="mx-auto size-24" />
+					<Heading className="mt-2 text-center font-semibold text-2xl">
+						Enter master password
+					</Heading>
+					<p className="mt-4 mb-2 text-slate-400 text-sm">
+						You need to enter your master password for this action.
+					</p>
+					<InputField onChange={setText} isRequired isSensitive autoFocus />
+					<div className="mt-4 flex justify-end gap-4 font-semibold text-sm">
+						<Button variant="secondary" onPress={close}>
+							Cancel
+						</Button>
+						<Button variant="primary" type="submit">
+							Submit
+						</Button>
+					</div>
+				</form>
 			)}
 		</Dialog>
 	);

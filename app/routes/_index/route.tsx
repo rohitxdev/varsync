@@ -1,4 +1,5 @@
 import { Link } from "@remix-run/react";
+import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 import { LuKeySquare, LuLock, LuRefreshCcw, LuUsers2 } from "react-icons/lu";
 import { AccordionItem } from "~/components/ui";
@@ -64,7 +65,8 @@ const Route = () => {
 				<section className="flex flex-col items-center gap-12 md:flex-row">
 					<div className="flex flex-col gap-2 text-start">
 						<h1 className="mb-2 font-bold text-5xl *:text-blue-500 max-md:text-3xl">
-							Manage <span>feature flags</span> and <span>configs</span> with ease.
+							Manage <span>feature flags</span>, <span>configs</span> and&nbsp;
+							<span>secrets</span> with ease.
 						</h1>
 						<h2 className="text-slate-400">
 							Varsync allows you to effortlessly manage and synchronize environment
@@ -95,7 +97,17 @@ const Route = () => {
 						alt=""
 					/>
 				</section>
-				<section className="flex w-full flex-wrap items-center gap-8 overflow-hidden md:flex-row-reverse md:justify-center md:gap-16">
+				<motion.section
+					className="flex w-full flex-wrap items-center gap-8 overflow-hidden md:flex-row-reverse md:justify-center md:gap-16"
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true }}
+					transition={{ duration: 0.3 }}
+					variants={{
+						visible: { opacity: 1, transform: "translateX(0)" },
+						hidden: { opacity: 0, transform: "translateX(100%)" },
+					}}
+				>
 					<div className="text-start">
 						<h2 className="mb-2 font-bold text-4xl max-md:text-3xl">
 							Integrate in minutes.
@@ -128,13 +140,23 @@ const Route = () => {
 						</ol>
 					</div>
 					<CodeBlock />
-				</section>
-				<section className="grid gap-4">
+				</motion.section>
+				<motion.section
+					className="grid gap-4"
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true }}
+					transition={{ duration: 0.3 }}
+					variants={{
+						visible: { opacity: 1, transform: "translateX(0)" },
+						hidden: { opacity: 0, transform: "translateX(-100%)" },
+					}}
+				>
 					<h2 className="my-8 font-bold text-3xl">Why Varsync?</h2>
 					<ul className="grid auto-rows-fr grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8">
 						{features.map((item) => (
 							<li
-								className="flex justify-evenly gap-2 rounded-md border border-white/10 bg-white/5 p-4 text-start"
+								className="flex justify-evenly gap-2 rounded-md border border-white/10 bg-white.3 p-4 text-start"
 								key={item.title}
 							>
 								<div className="*:size-8">{item.icon}</div>
@@ -149,8 +171,17 @@ const Route = () => {
 							</li>
 						))}
 					</ul>
-				</section>
-				<section>
+				</motion.section>
+				<motion.section
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true }}
+					transition={{ duration: 0.3 }}
+					variants={{
+						visible: { opacity: 1, transform: "translateX(0)" },
+						hidden: { opacity: 0, transform: "translateX(100%)" },
+					}}
+				>
 					<h2 className="my-8 font-bold text-3xl">FAQ</h2>
 					<div className="flex flex-col gap-4">
 						<AccordionItem
@@ -162,7 +193,7 @@ const Route = () => {
 							description={`There is no absolute limit to the number of API requests you can make in a month. However, there is a rate limit of ${config.API_RATE_LIMIT_PER_MINUTE} reqs/minute per IP address, which should be plenty.`}
 						/>
 					</div>
-				</section>
+				</motion.section>
 			</div>
 			<Footer />
 		</div>

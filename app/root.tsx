@@ -10,14 +10,23 @@ import {
 	ScrollRestoration,
 	isRouteErrorResponse,
 	useLoaderData,
+	useLocation,
 	useRevalidator,
 	useRouteError,
 } from "@remix-run/react";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import { useEffect } from "react";
-import { getUserFromRequest } from "./utils/auth.server";
+import { getUser } from "./utils/auth.server";
 import { config } from "./utils/config.server";
 import { LOCALE_UK } from "./utils/misc";
+
+declare global {
+	interface Window {
+		umami?: {
+			track: (props: Record<string, string> | CallableFunction) => void;
+		};
+	}
+}
 
 export const ErrorBoundary = () => {
 	const error = useRouteError();
@@ -28,18 +37,15 @@ export const ErrorBoundary = () => {
 			style={{
 				padding: "1rem",
 				fontFamily: "system-ui",
+				display: "flex",
+				flexDirection: "column",
+				alignItems: "center",
+				minHeight: "100vh",
 			}}
 		>
 			{isRouteErrorResponse(error) ? (
 				<>
-					<h1
-						style={{
-							fontSize: "1.75rem",
-							marginTop: 0,
-						}}
-					>
-						{error.status} - {error.statusText}
-					</h1>
+					<img src={`https://http.cat/${error.status}`} width={500} alt="" />
 					<p>{error.data}</p>
 				</>
 			) : error instanceof Error ? (
@@ -86,7 +92,7 @@ const clientConfig = {
 
 export const loader = async (args: LoaderFunctionArgs) => {
 	const locale = args.request.headers.get("Accept-Language")?.split(",")[0] ?? LOCALE_UK;
-	const user = await getUserFromRequest(args.request);
+	const user = await getUser(args.request);
 
 	return {
 		config: clientConfig,
@@ -98,6 +104,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 const App = () => {
 	const { revalidate } = useRevalidator();
 	const data = useLoaderData<typeof loader>();
+	const location = useLocation();
 
 	useEffect(() => {
 		const handleVisibilityChange = () => document.visibilityState === "visible" && revalidate();
@@ -106,6 +113,17 @@ const App = () => {
 
 		return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
 	}, [revalidate]);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		const url = window.location.href;
+		window.umami?.track((props: Record<string, string>) => ({
+			...props,
+			url: window.location.pathname.includes("/projects")
+				? `${url.split("/projects")[0]}/projects`
+				: url,
+		}));
+	}, [location]);
 
 	return (
 		<html lang="en">
@@ -126,7 +144,7 @@ const App = () => {
 						data-auto-track="false"
 					/>
 				)}
-				<link rel="shortcut icon" href="/logo.svg" type="image/svg+xml" />
+				<link rel="shortcut icon" href="/logo-bg.svg" type="image/svg+xml" />
 				<Meta />
 				<Links />
 			</head>

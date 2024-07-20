@@ -14,13 +14,13 @@ export const NavBar = () => {
 		<nav className="relative top-0 z-10 flex w-full items-center justify-between gap-6 bg-dark max-md:sticky max-md:py-6">
 			<div className="flex items-center justify-center gap-2">
 				<img
-					className="object-contain max-md:size-6"
+					className="object-contain"
 					src="/logo.png"
 					alt="VarSync"
 					height={36}
 					width={36}
 				/>
-				<span className="font-bold text-2xl max-md:text-lg">Varsync</span>
+				<span className="font-bold text-2xl max-md:text-xl">Varsync</span>
 			</div>
 			<ul className="mr-auto flex justify-end gap-8 border-white/20 border-l-2 px-6 py-2 font-medium max-md:hidden [&_a:hover]:underline">
 				<li>

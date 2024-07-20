@@ -6,18 +6,18 @@ import { LuEraser, LuSave, LuSkull } from "react-icons/lu";
 import { z } from "zod";
 import { Button } from "~/components/buttons";
 import { InputField, Modal } from "~/components/ui";
-import { getUserFromRequest } from "~/utils/auth.server";
-import { deleteProject, updateProject3 } from "~/utils/db.server";
+import { deleteProject, updateProject3 } from "~/db/projects.server";
+import { getUser } from "~/utils/auth.server";
 import { useProject } from "~/utils/hooks";
 import Spinner from "../../assets/spinner.svg?react";
-import { DeleteProjectDialog } from "./dialogs";
+import { DeleteProjectDialog, ResetMasterPasswordDialog } from "./dialogs";
 
 const deleteProjectSchema = z.object({
 	slug: z.string().min(1),
 });
 
 export const action = async (args: ActionFunctionArgs) => {
-	const user = await getUserFromRequest(args.request);
+	const user = await getUser(args.request);
 	if (!user) return null;
 
 	switch (args.request.method) {
@@ -43,7 +43,7 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 export default function Route() {
-	const { name, description, slug, envs, envThemes } = useProject();
+	const { name, description, slug, envs } = useProject();
 	const fetcher = useFetcher();
 	const [isModified, setIsModified] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -99,14 +99,14 @@ export default function Route() {
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-white/10 text-center">
-							{Object.keys(envs).map((item) => (
-								<tr className="*:p-4" key={item}>
-									<td>{item}</td>
+							{envs.map((item) => (
+								<tr className="*:p-4" key={item.name}>
+									<td>{item.name}</td>
 									<td>
 										<Input
 											type="color"
-											defaultValue={envThemes?.[item]}
-											name={`envThemes.${item}`}
+											defaultValue={item.color}
+											name={`envs.${item.name}.color`}
 										/>
 									</td>
 								</tr>
@@ -145,6 +145,20 @@ export default function Route() {
 			</fetcher.Form>
 			<div className="grid w-full max-w-[500px] gap-4">
 				<h2 className="font-semibold text-xl">Danger</h2>
+				<div className="flex items-center justify-between gap-4">
+					<div>
+						<h3 className="font-medium text-red-500">Reset Master Password</h3>
+						<p className="text-slate-400 text-sm">
+							It will reset the master password for this project and erase all
+							encrypted properties.
+						</p>
+					</div>
+					<Modal dialog={<ResetMasterPasswordDialog />}>
+						<Button className="rounded-lg border border-red-500/10 p-2 text-red-500">
+							<LuEraser />
+						</Button>
+					</Modal>
+				</div>
 				<div className="flex items-center justify-between gap-4">
 					<div>
 						<h3 className="font-medium text-red-500">Reset project</h3>

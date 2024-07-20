@@ -8,7 +8,8 @@
 		"rules": {
 			"recommended": true,
 			"correctness": {
-				"noUnusedImports": "warn"
+				"noUnusedImports": "warn",
+				"useExhaustiveDependencies": "warn"
 			},
 			"style": {
 				"noNonNullAssertion": "off",

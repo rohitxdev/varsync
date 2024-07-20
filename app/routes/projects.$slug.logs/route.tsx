@@ -1,9 +1,10 @@
 import { parseDate } from "@internationalized/date";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect, useLoaderData, useSearchParams } from "@remix-run/react";
+import { LuClock } from "react-icons/lu";
 import { z } from "zod";
-import { getUserFromRequest } from "~/utils/auth.server";
-import { getLogs } from "~/utils/db.server";
+import { getLogs } from "~/db/logs.server";
+import { getUser } from "~/utils/auth.server";
 import { DateRangePicker } from "./date-range-picker";
 
 const logSchema = z.object({
@@ -15,7 +16,7 @@ const logSchema = z.object({
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
-	const user = await getUserFromRequest(args.request);
+	const user = await getUser(args.request);
 	if (!user) return redirect("/auth/log-in");
 
 	const url = new URL(args.request.url);
@@ -63,17 +64,26 @@ const Route = () => {
 					}
 				/>
 			</div>
-			<div className="grid content-start gap-2 overflow-y-auto rounded border border-white/10 p-2">
+			<div className="grid content-start divide-y divide-white/10 overflow-y-auto rounded border border-white/10">
 				{logs.length > 0 ? (
 					logs.map((item) => (
-						<div className="rounded bg-white/5 px-3 py-2" key={item.timestamp}>
-							<span className="mb-2 text-neutral-300 text-sm">{item.message}</span>
-							<p className="text-2xs text-slate-400">
-								{new Date(item.timestamp).toLocaleString(locale, {
-									timeStyle: "short",
-									dateStyle: "medium",
-								})}
-							</p>
+						<div className="flex items-center px-4 py-3" key={item.timestamp}>
+							{/* <div className="relative top-3.5 flex flex-col items-center pr-4">
+								<div className="size-3 rounded-full bg-slate-400" />
+								<div className="-mt-1 h-12 w-0.5 bg-slate-400" />
+							</div> */}
+							<div>
+								<span className="mb-2">{item.message}</span>
+								<div className="flex items-center gap-1 text-slate-400 text-xs">
+									<LuClock className="size-3" />
+									<span>
+										{new Date(item.timestamp).toLocaleString(locale, {
+											timeStyle: "short",
+											dateStyle: "medium",
+										})}
+									</span>
+								</div>
+							</div>
 						</div>
 					))
 				) : (

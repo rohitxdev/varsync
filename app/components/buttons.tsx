@@ -43,7 +43,7 @@ export const CopyButton = ({ text, className, isDisabled, onPress, ...rest }: Co
 	const [status, setStatus] = useState<"idle" | "copying" | "copied">("idle");
 	return (
 		<Button
-			className={`ml-2 rounded border border-white/10 p-1.5 align-middle outline-none ${className}`}
+			className={`ml-2 rounded border border-white/10 p-1.5 align-middle outline-none [&_svg]:mx-auto [&_svg]:size-4 ${className}`}
 			onPress={async () => {
 				try {
 					setStatus("copying");
@@ -60,7 +60,7 @@ export const CopyButton = ({ text, className, isDisabled, onPress, ...rest }: Co
 			{...rest}
 		>
 			{status === "copying" ? (
-				<Spinner className="mx-auto size-4 fill-white" />
+				<Spinner className="fill-white" />
 			) : status === "copied" ? (
 				<LuCheck />
 			) : (

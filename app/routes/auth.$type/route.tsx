@@ -1,6 +1,5 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, Link, useLoaderData, useNavigation, useParams } from "@remix-run/react";
-import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import { useEffect, useRef } from "react";
 import { Button } from "react-aria-components";
@@ -19,10 +18,10 @@ import {
 } from "~/utils/auth.server";
 
 import { InputField } from "~/components/ui";
+import { createUser, getUserByEmail, updateUser } from "~/db/user.server";
 import { config } from "~/utils/config.server";
-import { createUser, getUserByEmail, updateUser } from "~/utils/db.server";
 import { useRootLoader } from "~/utils/hooks";
-import { getRandomNumber } from "~/utils/misc";
+import { getRandomNumber, scryptHash, verifyScryptHash } from "~/utils/misc";
 import Spinner from "../../assets/spinner.svg?react";
 
 const authTypeSchema = z.enum(["log-in", "sign-up", "forgot-password"]);
@@ -59,7 +58,7 @@ export const action = async (args: ActionFunctionArgs) => {
 			const user = await getUserByEmail(logInData.data.email);
 			if (!user) return json({ error: "user not found" }, 404);
 			if (!user.passwordHash) return json({ error: "password not set" });
-			if (!(await argon2.verify(user.passwordHash, logInData.data.password))) {
+			if (!verifyScryptHash(user.passwordHash, logInData.data.password)) {
 				return json({ error: "incorrect password" }, 400);
 			}
 
@@ -82,7 +81,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 			const userId = await createUser({
 				email: signUpData.data.email,
-				passwordHash: await argon2.hash(signUpData.data.password),
+				passwordHash: scryptHash(signUpData.data.password),
 				pictureUrl: `https://api.dicebear.com/7.x/lorelei/svg?seed=${getRandomNumber(9999, 99999)}`,
 				role: "user",
 				isBanned: false,

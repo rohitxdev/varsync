@@ -25,7 +25,7 @@ export const SearchBar = ({ onTextChange }: SearchBarProps) => {
 	}, []);
 
 	return (
-		<div className="group flex h-9 items-center gap-2 rounded border border-white/10 px-3">
+		<div className="group flex h-9 items-center gap-2 rounded border border-white/10 bg-white/5 px-3">
 			<label className="flex" htmlFor={id}>
 				<LuSearch />
 			</label>

@@ -4,18 +4,18 @@ import { useState } from "react";
 import { LuSave } from "react-icons/lu";
 import { Button } from "~/components/buttons";
 import { InputField } from "~/components/ui";
-import { getUserFromRequest } from "~/utils/auth.server";
-import { updateUserName } from "~/utils/db.server";
+import { updateUserName } from "~/db/user.server";
+import { getUser } from "~/utils/auth.server";
 import { useRootLoader } from "~/utils/hooks";
 
 export const loader = async (args: LoaderFunctionArgs) => {
-	const user = await getUserFromRequest(args.request);
+	const user = await getUser(args.request);
 	if (!user) return redirect("/");
 	return null;
 };
 
 export const action = async (args: ActionFunctionArgs) => {
-	const user = await getUserFromRequest(args.request);
+	const user = await getUser(args.request);
 	if (!user) return redirect("/");
 
 	switch (args.request.method) {
